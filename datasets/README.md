@@ -41,3 +41,22 @@ python scripts/download_datasets.py
 | stroke | `fedesoriano/stroke-prediction-dataset` | binárias, "N/A" em string, bmi numérico-em-string |
 
 Critério de escolha: além da fama, cada dataset exercita um canto diferente do fluxo de classificação — datas, ordinais disfarçadas, números-em-string, texto livre, ids, sujeira real de coleta.
+
+## Dados abertos do governo brasileiro
+
+10 fontes oficiais com download direto verificado (`python scripts/download_gov_datasets.py`). Além da fama, trazem as pegadinhas reais do dado público brasileiro: encoding latin-1, separador `;`, vírgula decimal e códigos que parecem números:
+
+| Pasta | Fonte | O que testa no maat |
+|---|---|---|
+| gov-bcb-ipca | Banco Central (SGS 433) | série temporal mensal desde 1980, vírgula decimal |
+| gov-bcb-selic | Banco Central (SGS 432) | série em degraus (meta Selic) — granularidade irregular |
+| gov-bcb-dolar | Banco Central (SGS 1) | série diária com gaps de fim de semana |
+| gov-ibge-municipios | IBGE (API localidades) | JSON aninhado, 5.570 municípios, hierarquia região/UF |
+| gov-tesouro-direto | Tesouro Transparente | preços/taxas por título e vencimento — datas múltiplas por linha |
+| gov-tse-candidatos | TSE (eleições 2024) | dezenas de categóricas em pt-BR, latin-1, separador `;` |
+| gov-camara-cota | Câmara dos Deputados | despesas: fornecedores em cauda longa, CNPJ como código |
+| gov-cvm-fundos | CVM (informes diários) | CNPJ-id, valores por cota, temporal denso |
+| gov-transparencia-viagens | Portal da Transparência | órgãos, cargos, valores e datas de viagens a serviço |
+| gov-comex-exp-mun | Comex Stat (MDIC) | exportações por município: códigos NCM/SH4, país, kg/FOB |
+
+(INMET e PRF ficaram de fora: os servidores recusaram download direto no teste de 2026-08-16.)

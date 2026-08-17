@@ -4,7 +4,16 @@ Este documento é o mapa conceitual do maat: dado um DataFrame qualquer, **como 
 
 É um documento vivo de discussão. Cada seção lista as análises candidatas; ao consolidarmos, marcamos o que entra no MVP e o que fica para depois.
 
-> 🖥️ **Versão interativa**: [`fluxo-interativo.html`](fluxo-interativo.html) — o fluxo de classificação como grafo arrastável, com exemplos e análises no hover de cada nó, na identidade visual do projeto. Abra o arquivo no navegador.
+> 🖥️ **Versão interativa**: [`fluxo-interativo.html`](fluxo-interativo.html) — o fluxo de classificação como grafo arrastável, com exemplos e análises no hover de cada nó, na identidade visual do projeto. Versão pública: https://samnkb.github.io/maat/fluxo-interativo.html
+
+---
+
+## 0. Princípios de projeto
+
+1. **A inferência propõe, o usuário dispõe** — todo tipo inferido é sobrescrevível; ambiguidades (cep, ano, rank) são marcadas e apresentadas, nunca decididas em silêncio.
+2. **O maat descreve, não julga** *(decisão de 2026-08-16)* — mostramos o que o dado revela naquele momento: contagens, proporções, distribuições, amostras. Sem quality gates, sem limiares de alerta, sem policiar a codificação que o usuário escolheu para os dados dele. O que fazer com o resultado é decisão de quem lê. (Corolário: as checagens do regime textual reportam contagens e amostras de ofensores — nunca um veredito de "aprovado/reprovado".)
+3. **Duas camadas em todo perfil** *(decisão de 2026-08-16)* — camada **essencial** (o que qualquer pessoa lê: contagens, %, moda) e camada **completa** (para quem quer profundidade: entropia, razões, forma da distribuição). Medidas que exigem contexto estatístico moram na completa.
+4. **O custo mora no backend** — agregações rodam no motor (pandas/Spark); a camada visual recebe apenas dados pré-agregados.
 
 ---
 
@@ -75,6 +84,8 @@ Como o classificador enxerga cada coluna de uma tabela de vendas típica:
 | `tempo_entrega` | 2d 4h 12min | — | Temporal duração | — | dtype timedelta (ou derivada de duas datas) |
 
 As linhas de `avaliacao` e `cep` mostram o princípio central: **a inferência propõe, o usuário dispõe** — todo tipo é sobrescrevível, e os casos ambíguos são marcados em vez de decididos em silêncio.
+
+> 📊 **Exemplos com dados reais**: o [grafo interativo](fluxo-interativo.html) referencia números verdadeiros do benchmark em cada nó (telco `Churn`: No 5.174 · Yes 1.869; titanic `SibSp`: 68,2% zeros; nyc-airbnb `name`: k/n = 0,98; wine `quality`: moda 5 com 42,6%…). Todos reproduzíveis via [`scripts/benchmark_examples.py`](../scripts/benchmark_examples.py).
 
 ### 1.2 Parâmetros do usuário
 
@@ -258,12 +269,28 @@ Cada checagem devolve contagem, % e uma **amostra dos ofensores** (a amostra é 
 
 > Nota Spark: todas as checagens são `filter`/`regexp` distribuídos + `take(N)` para amostras — baratas mesmo em bilhões de linhas. A máscara de caractere é um `regexp_replace` encadeado.
 
-### 2.5 Binária (sim/não, ativo/inativo)
+### 2.5 Binária (sim/não, ativo/inativo) — ✅ consolidada em 2026-08-16
 
-Caso degenerado, mas frequente o bastante para merecer saída própria e enxuta:
+Caso degenerado, mas frequente o bastante para merecer saída própria e enxuta.
 
-- Proporção de cada nível + intervalo de confiança da proporção.
-- Visual: um único indicador (barra de proporção ou "big number" com %). Gráfico de barras com 2 barras é desperdício de tela.
+**Camada essencial** — tabela de frequência com o nulo como cidadão de primeira classe. Números reais de `Churn` no dataset telco-churn do benchmark (n = 7.043; reproduzível via `scripts/benchmark_examples.py`):
+
+| nível | absoluto | % do total | % dos válidos |
+|---|---|---|---|
+| No | 5.174 | 73,5% | 73,5% |
+| Yes | 1.869 | 26,5% | 26,5% |
+| *(ausente)* | 0 | 0,0% | — |
+
+As duas colunas de % eliminam a ambiguidade "% de tudo ou % de quem respondeu?" quando há nulos. (Curiosidade do benchmark: os famosos 11 valores em branco do telco não estão em `Churn` — estão em `TotalCharges`, numérico-em-string; um lembrete de verificar antes de exemplificar.)
+
+**Camada completa**: nível dominante e razão de balanceamento (ex.: 2,8:1) — mora aqui porque razões exigem leitura estatística.
+
+**Fora, por decisão**:
+- *Intervalo de confiança* — inferência, não descrição; o maat não presume que o dado é amostra de algo maior.
+- *Checagem de codificação e detecção de par semântico* — o maat não julga como o usuário codifica seus dados (princípio 2). Quando as bivariadas chegarem, o nível de referência será declarado pelo usuário.
+- *Alertas por limiar* — quality gate é papel de outra ferramenta. Nota: um 3º valor distinto não é aviso — a coluna simplesmente deixa de ser binária e a classificação a leva para nominal.
+
+**Visual**: barra única de proporção ou big number. Gráfico com duas barras é desperdício de tela.
 
 ---
 
