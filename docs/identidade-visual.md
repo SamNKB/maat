@@ -38,9 +38,11 @@ Regra de ouro: cyan é identidade, magenta é movimento, âmbar/mint/red **só**
 
 Sobre void navy `#0A0E1A`: ice white (contraste ~16:1), neon cyan (~12:1), mist blue (~7:1), amber (~9:1) — todos acima de AA. Magenta sobre navy (~5:1) passa AA para texto grande/bordas; não usar magenta para texto corrido.
 
-## Fontes — sugestões em avaliação
+## Fontes
 
-Todas gratuitas no Google Fonts. Onde aplicam: relatórios HTML do maat, site e visuais — o GitHub não carrega fontes customizadas em markdown/mermaid.
+**Decisão (2026-08-16): combinação A aprovada** — **Rajdhani** (títulos e diagramas) + **Space Grotesk** (corpo) + **JetBrains Mono** (código e dados), com Share Tech Mono como acento opcional em labels. Tokens em `assets/design-tokens.css`.
+
+Todas gratuitas no Google Fonts. Onde aplicam: relatórios HTML do maat, site e visuais — o GitHub não carrega fontes customizadas em markdown/mermaid. As alternativas avaliadas ficam registradas abaixo.
 
 | Papel | Opção | Vibe | Observação |
 |---|---|---|---|
@@ -56,7 +58,7 @@ Todas gratuitas no Google Fonts. Onde aplicam: relatórios HTML do maat, site e 
 | Código/dados | Share Tech Mono | terminal da Tyrell Corp | A mais Blade Runner de todas — boa para acentos/labels |
 | Código/dados | IBM Plex Mono | técnica clássica | — |
 
-⭐ = combinação recomendada: **Rajdhani** (títulos e diagramas) + **Space Grotesk** (corpo) + **JetBrains Mono** (código), com Share Tech Mono como tempero opcional em labels. Decisão em aberto até aprovação.
+⭐ = a combinação aprovada.
 
 ## Aplicação nos fluxogramas (mermaid)
 
