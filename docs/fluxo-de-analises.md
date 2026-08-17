@@ -99,6 +99,7 @@ profile = maat.describe(df, config=maat.Config(
     textual_unique_ratio=0.5,      # fração de valores únicos acima da qual vira regime textual
     max_discrete_levels=30,        # discreta: até k distintos → regime tabela; acima → regime histograma
     discrete_extremes_levels=5,    # regime histograma: n valores mais e n menos frequentes na tabela de extremos
+    discrete_extremes_include_middle=False,  # opt-in: acrescenta os n valores do meio do ranking (o histograma já retrata o corpo)
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
