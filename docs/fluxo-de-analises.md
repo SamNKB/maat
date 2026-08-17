@@ -4,6 +4,8 @@ Este documento é o mapa conceitual do maat: dado um DataFrame qualquer, **como 
 
 É um documento vivo de discussão. Cada seção lista as análises candidatas; ao consolidarmos, marcamos o que entra no MVP e o que fica para depois.
 
+> 🖥️ **Versão interativa**: [`fluxo-interativo.html`](fluxo-interativo.html) — o fluxo de classificação como grafo arrastável, com exemplos e análises no hover de cada nó, na identidade visual do projeto. Abra o arquivo no navegador.
+
 ---
 
 ## 1. O fluxo geral

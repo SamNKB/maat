@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maat // fluxo de classificação</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --void:#05070F; --navy:#0A0E1A; --panel:#101828; --cyan:#00E5FF; --ice:#E6F7FF;
+    --magenta:#FF2E88; --violet:#9D4EDD; --steel:#3A4A63; --mist:#8FA3BF;
+    --amber:#FFB03A; --mint:#3DF5C6; --red:#FF4757;
+    --decision-fill:#1A1030; --regime-fill:#0F1D2E;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:radial-gradient(ellipse at 30% -10%, #0D1526 0%, var(--void) 60%);
+    color:var(--ice); font-family:'Space Grotesk',sans-serif; min-height:100vh; padding:28px 32px;
+  }
+  header h1{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:30px; letter-spacing:1px;
+    color:var(--cyan); text-shadow:0 0 18px rgba(0,229,255,.45);
+  }
+  header h1 span{color:var(--magenta); text-shadow:0 0 18px rgba(255,46,136,.45)}
+  .sub{color:var(--mist); font-size:14px; margin-top:4px}
+  .bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:16px 0 12px}
+  .chip{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+    border:1px solid var(--steel); border-radius:999px; padding:3px 10px; display:inline-flex; align-items:center; gap:6px;
+  }
+  .dot{width:8px; height:8px; border-radius:50%; display:inline-block}
+  button{
+    font-family:'Rajdhani',sans-serif; font-weight:600; font-size:14px; letter-spacing:1px;
+    background:transparent; color:var(--cyan); border:1px solid var(--cyan); border-radius:8px;
+    padding:6px 16px; cursor:pointer; margin-left:auto;
+  }
+  button:hover{background:rgba(0,229,255,.12); box-shadow:0 0 14px rgba(0,229,255,.35)}
+  #viewport{
+    border:1px solid var(--steel); border-radius:14px; overflow:auto; height:74vh; min-height:520px;
+    background-image:linear-gradient(rgba(0,229,255,.045) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(0,229,255,.045) 1px, transparent 1px);
+    background-size:42px 42px; background-color:rgba(5,7,15,.6); position:relative;
+  }
+  #canvas{position:relative; width:1560px; height:1000px}
+  #edges{position:absolute; inset:0; pointer-events:none}
+  .edge{fill:none; stroke:var(--magenta); stroke-width:1.6; opacity:.85;
+    stroke-dasharray:7 7; animation:flow 1.2s linear infinite;
+    filter:drop-shadow(0 0 4px rgba(255,46,136,.55));}
+  @keyframes flow{to{stroke-dashoffset:-14}}
+  .elabel{font:11px 'JetBrains Mono',monospace; fill:var(--mist);
+    paint-order:stroke; stroke:#05070F; stroke-width:4px; stroke-linejoin:round}
+  .node{
+    position:absolute; width:196px; background:var(--panel); border:1px solid var(--cyan);
+    border-radius:10px; padding:10px 13px; cursor:grab; user-select:none; touch-action:none;
+    transition:box-shadow .15s;
+  }
+  .node:active{cursor:grabbing}
+  .node .kicker{font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:1.5px; margin-bottom:3px}
+  .node h4{font-family:'Rajdhani',sans-serif; font-weight:600; font-size:16.5px; color:var(--ice); line-height:1.15}
+  .node .s{font-size:11.5px; color:var(--mist); margin-top:4px; line-height:1.35}
+  .tipo{border-color:var(--cyan); box-shadow:0 0 14px rgba(0,229,255,.16)}
+  .tipo .kicker{color:var(--cyan)}
+  .tipo:hover{box-shadow:0 0 26px rgba(0,229,255,.5)}
+  .decisao{border-color:var(--violet); background:var(--decision-fill); box-shadow:0 0 14px rgba(157,78,221,.18)}
+  .decisao .kicker{color:var(--violet)}
+  .decisao:hover{box-shadow:0 0 26px rgba(157,78,221,.55)}
+  .regime{border-color:var(--magenta); background:var(--regime-fill); box-shadow:0 0 14px rgba(255,46,136,.16)}
+  .regime .kicker{color:var(--magenta)}
+  .regime:hover{box-shadow:0 0 26px rgba(255,46,136,.5)}
+  .aviso{border-color:var(--amber); box-shadow:0 0 14px rgba(255,176,58,.18)}
+  .aviso .kicker,.aviso h4{color:var(--amber)}
+  .aviso:hover{box-shadow:0 0 26px rgba(255,176,58,.5)}
+  .neutro{border-color:var(--steel); box-shadow:none}
+  .neutro .kicker{color:var(--mist)}
+  #tip{
+    position:fixed; z-index:99; width:320px; background:var(--navy); border:1px solid var(--cyan);
+    border-radius:10px; padding:14px 16px; pointer-events:none; display:none;
+    box-shadow:0 0 28px rgba(0,229,255,.28);
+  }
+  #tip h5{font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:600; color:var(--cyan); margin-bottom:6px}
+  #tip p{font-size:12.5px; line-height:1.5; color:var(--ice); margin-bottom:9px}
+  #tip .lbl{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1.5px; color:var(--mist); margin-bottom:5px}
+  #tip .exs{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:9px}
+  #tip .ex{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--mint);
+    border:1px solid rgba(61,245,198,.4); border-radius:5px; padding:2px 7px}
+  #tip ul{list-style:none}
+  #tip li{font-size:12px; color:var(--mist); line-height:1.5; padding-left:14px; position:relative}
+  #tip li::before{content:"▸"; color:var(--magenta); position:absolute; left:0}
+  footer{margin-top:12px; font-size:12px; color:var(--mist); font-family:'JetBrains Mono',monospace}
+  footer a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<header>
+  <h1>maat <span>//</span> fluxo de classificação</h1>
+  <div class="sub">Arraste os nós para explorar o grafo · passe o mouse sobre qualquer caixa para ver detalhes, exemplos e análises</div>
+</header>
+<div class="bar">
+  <span class="chip"><span class="dot" style="background:var(--cyan)"></span>tipo / resultado</span>
+  <span class="chip"><span class="dot" style="background:var(--violet)"></span>decisão</span>
+  <span class="chip"><span class="dot" style="background:var(--magenta)"></span>regime de cardinalidade</span>
+  <span class="chip"><span class="dot" style="background:var(--amber)"></span>aviso</span>
+  <span class="chip"><span class="dot" style="background:var(--steel)"></span>identificador</span>
+  <button id="reset">reiniciar layout</button>
+</div>
+<div id="viewport"><div id="canvas">
+  <svg id="edges" width="1560" height="1000">
+    <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#FF2E88" stroke-width="1.6" stroke-linecap="round"/>
+    </marker></defs>
+    <g id="paths"></g><g id="labels"></g>
+  </svg>
+</div></div>
+<div id="tip"></div>
+<footer>maat · análise descritiva guiada pela taxonomia de variáveis · fonte: <a href="fluxo-de-analises.md">fluxo-de-analises.md</a> · limiares configuráveis via maat.Config</footer>
+<script>
+const NODES=[
+ {id:"col",k:"tipo",kk:"ENTRADA",x:640,y:24,t:"Coluna do DataFrame",s:"pandas ou PySpark",
+  d:"Ponto de entrada do maat: qualquer coluna de um DataFrame pandas ou PySpark passa pelo mesmo fluxo, com o custo pesado sempre no motor de origem.",
+  ex:["df['renda']","spark.table('vendas')"],an:["Mesma API nos dois motores","Resultado padronizado: ColumnProfile"]},
+ {id:"amostra",k:"tipo",kk:"INFERÊNCIA",x:640,y:140,t:"Amostra de inferência",s:"inference_sample_size · default 100k",
+  d:"A decisão de rota roda sobre uma amostra parametrizável — barata mesmo em bilhões de linhas. As contagens finais da análise vêm sempre da base inteira.",
+  ex:["inference_sample_size=100_000","None = base inteira"],an:["Amostra decide a rota","Base inteira alimenta as estatísticas"]},
+ {id:"dtype",k:"decisao",kk:"DECISÃO",x:640,y:260,t:"dtype base?",s:"o tipo físico no motor",
+  d:"Primeira bifurcação: o tipo físico da coluna. bool, datetime e timedelta têm rota direta; numérico e string exigem heurísticas.",
+  ex:["bool","int64 / float64","string","datetime64","timedelta64"],an:["Rota direta: bool, datas, durações","Heurísticas: números e strings"]},
+ {id:"t2",k:"tipo",kk:"TEMPORAL",x:40,y:400,t:"Temporal duração",s:"ex.: tempo_entrega",
+  d:"Durações são genuinamente quantitativas (4h é o dobro de 2h). Herdam a análise contínua com unidade de exibição inteligente.",
+  ex:["tempo_entrega: 2d 4h","sessao: 00:12:31"],an:["Herda análise contínua","Mediana como resumo principal","Unidade inteligente (s→min→h→d)","Duração negativa = erro de dado"]},
+ {id:"t1",k:"tipo",kk:"TEMPORAL",x:250,y:400,t:"Temporal instante",s:"ex.: data_pedido",
+  d:"O tipo que não cabia em lugar nenhum: eixo contínuo + componentes cíclicos categóricos. O maat o decompõe e cada derivada herda o fluxo do seu tipo.",
+  ex:["data_pedido","created_at: 2024-05-01 14:32"],an:["Cobertura: mín, máx, amplitude","Granularidade real detectada","Gaps e buracos de coleta","Perfis cíclicos: mês, dia da semana, hora","Linha do tempo + heatmap calendário"]},
+ {id:"bin",k:"tipo",kk:"QUALITATIVA",x:455,y:400,t:"Qualitativa binária",s:"exatamente 2 níveis",
+  d:"Caso degenerado mas frequente: merece saída própria e enxuta em vez de um gráfico de duas barras.",
+  ex:["sexo: F/M","ativo: True/False","churn: Yes/No"],an:["Proporção + intervalo de confiança","Visual: indicador único (big number)"]},
+ {id:"n1",k:"decisao",kk:"DECISÃO",x:660,y:410,t:"k ≈ n e sem repetição?",s:"cara de identificador",
+  d:"Inteiros densos e únicos cobrindo quase todas as linhas: provavelmente uma chave, não uma medida. Média de id não significa nada.",
+  ex:["id_pedido: 1…100_000"],an:["Atenção: rank e id sequencial são estatisticamente idênticos — desempate semântico em estudo"]},
+ {id:"id_",k:"neutro",kk:"IDENTIFICADOR",x:450,y:520,t:"Identificador",s:"ex.: id_pedido",
+  d:"Excluído das estatísticas descritivas — mas não da qualidade: unicidade e colisões ainda interessam.",
+  ex:["id_pedido","uuid","matricula"],an:["Checagem de unicidade","Colisões e duplicatas","Fora dos resumos estatísticos"]},
+ {id:"n2",k:"decisao",kk:"DECISÃO",x:700,y:520,t:"Cara de código?",s:"CEP, ano, cód. produto",
+  d:"Números que não são quantidades: somar CEPs não faz sentido. A inferência marca em vez de decidir em silêncio.",
+  ex:["cep: 01310-100","ano: 2024","cod_produto: 4711"],an:["Ano é o caso mais ambíguo: eixo temporal ou categoria?"]},
+ {id:"warn",k:"aviso",kk:"AVISO",x:520,y:640,t:"Marcada como suspeita",s:"reclassificação sugerida",
+  d:"O princípio central do maat: a inferência propõe, o usuário dispõe. Casos ambíguos aparecem no relatório com as leituras possíveis.",
+  ex:["cep → id? região via prefixo?","avaliacao 1–5 → Likert, não contagem"],an:["Nunca decidir em silêncio","Aviso visível no relatório","Override via maat.Config"]},
+ {id:"n3",k:"decisao",kk:"DECISÃO",x:790,y:640,t:"Inteiros e k ≤ limiar?",s:"max_discrete_levels · default 30",
+  d:"Poucos valores inteiros distintos: contagem. Muitos valores ou casas decimais: medida contínua.",
+  ex:["qtd_itens: k=14 → discreta","valor_total: k=71k → contínua"],an:["Limiar configurável pelo usuário"]},
+ {id:"dis",k:"tipo",kk:"QUANTITATIVA",x:640,y:760,t:"Quantitativa discreta",s:"ex.: qtd_itens, nº de filhos",
+  d:"Contagens: 4 itens são o dobro de 2. Com poucos valores, comporta-se como ordinal e ganha frequência exata por valor.",
+  ex:["qtd_itens: 1…14","n_filhos: 0…9"],an:["Frequência por valor exato","Média, mediana, moda","% de zeros (inflação é comum)","Barras por valor / ECDF"]},
+ {id:"con",k:"tipo",kk:"QUANTITATIVA",x:900,y:760,t:"Quantitativa contínua",s:"ex.: valor_total, renda",
+  d:"O caso mais rico da estatística descritiva clássica: posição, dispersão, forma e outliers.",
+  ex:["valor_total: 129.90","renda","temperatura"],an:["Quantis p1…p99 (aprox. no Spark)","Dispersão: dp, IQR, CV","Forma: assimetria e curtose","Outliers pela regra 1.5×IQR","Histograma, boxplot, densidade, ECDF"]},
+ {id:"s1",k:"decisao",kk:"DECISÃO",x:1080,y:410,t:"Parseia como data?",s:"data disfarçada em string",
+  d:"Se uma alta taxa da amostra parseia como data, a coluna é temporal vestida de texto — rota direta para o instante.",
+  ex:["\"2024-05-01\"","\"01/05/2024 14:32\""],an:["Taxa de parse configurável","Formato dominante detectado"]},
+ {id:"s2",k:"decisao",kk:"DECISÃO",x:1120,y:520,t:"k = 2?",s:"só dois níveis",
+  d:"Dois valores distintos em texto ainda é binária — Yes/No, S/N, ativo/inativo.",
+  ex:["churn: Yes/No","status: ativo/inativo"],an:["Vai para a mesma saída binária do bool"]},
+ {id:"s3",k:"decisao",kk:"DECISÃO",x:1160,y:630,t:"Tem ordem natural?",s:"escala conhecida ou declarada",
+  d:"Dicionários de escalas conhecidas (baixo/médio/alto, P/M/G) ou ordem declarada pelo usuário em maat.Config.",
+  ex:["baixo < médio < alto","PP < P < M < G < GG"],an:["Sem ordem confiável → nominal","Ordem declarada vence a heurística"]},
+ {id:"ord",k:"tipo",kk:"QUALITATIVA",x:950,y:630,t:"Qualitativa ordinal",s:"ex.: escolaridade, Likert 1–5",
+  d:"A ordem é informação: frequências acumuladas na ordem natural e categoria mediana passam a fazer sentido.",
+  ex:["escolaridade","satisfacao: 1…5","tamanho: P/M/G"],an:["Frequência acumulada na ordem","Categoria mediana e quartis","Barras na ordem natural (nunca por freq.)","Likert: barras divergentes"]},
+ {id:"nom",k:"tipo",kk:"QUALITATIVA",x:1220,y:740,t:"Qualitativa nominal",s:"sem ordem → regime decide",
+  d:"Categorias sem ordem natural. A cardinalidade k decide a estratégia: o mesmo tipo pede análises opostas em regimes diferentes.",
+  ex:["cidade","categoria","e-mail"],an:["k pequeno → categórico","k médio → cauda longa","k ≈ n → textual"]},
+ {id:"r",k:"decisao",kk:"DECISÃO",x:1220,y:840,t:"Regime por k e k/n",s:"limiares do usuário",
+  d:"Os dois limiares são parâmetros de maat.Config: max_categorical_levels (default 30) e textual_unique_ratio (default 0.5).",
+  ex:["k=27 → categórico","k=3.200 → cauda longa","k/n=0.99 → textual"],an:["Regime é modificador, não tipo","Coluna migra de regime quando os dados crescem"]},
+ {id:"rc",k:"regime",kk:"REGIME",x:900,y:900,t:"Categórico",s:"ex.: sexo, UF",
+  d:"Poucos níveis: todos aparecem no resumo e no gráfico. O mundo clássico da tabela de frequências.",
+  ex:["uf: k=27","canal: k=4"],an:["Frequências completas (abs. e %)","Moda e força da moda","Entropia e desbalanceamento","Barras ordenadas / lollipop"]},
+ {id:"rl",k:"regime",kk:"REGIME",x:1130,y:940,t:"Cauda longa",s:"ex.: cidade, produto",
+  d:"Muitos níveis com repetição relevante: a frequência ainda importa, mas mostrar tudo afoga o leitor.",
+  ex:["cidade: k=3.200","cid: k=14k"],an:["Top-N + agregado 'Outros'","Concentração: 80% em quantos níveis?","Singletons: erros de digitação?","Duplicatas de nível (São Paulo ≠ são paulo)","Pareto / treemap"]},
+ {id:"rt",k:"regime",kk:"REGIME",x:1360,y:900,t:"Textual",s:"ex.: e-mail, nome, endereço",
+  d:"k ≈ n: frequência vira inútil e a própria string é o objeto de análise — forma, padrão e sujeira, sempre com amostras dirigidas.",
+  ex:["cliente_email: k=99.1k","endereco"],an:["Distribuição de comprimento + extremos","Máscara de caractere (Aa9)","Padrão dominante + % de violações","Regex de sujeira: invisíveis, mojibake, espaços","Amostra dos ofensores em cada checagem"]}
+];
+const EDGES=[
+ ["col","amostra",""],["amostra","dtype",""],
+ ["dtype","bin","bool"],["dtype","t1","date"],["dtype","t2","timedelta"],
+ ["dtype","n1","numérico"],["dtype","s1","string"],
+ ["n1","id_","sim"],["n1","n2","não"],
+ ["n2","warn","sim"],["n2","n3","não"],
+ ["n3","dis","sim"],["n3","con","não"],
+ ["s1","t1","sim"],["s1","s2","não"],
+ ["s2","bin","sim"],["s2","s3","não"],
+ ["s3","ord","sim"],["s3","nom","não"],
+ ["nom","r",""],
+ ["r","rc","k ≤ 30"],["r","rl","senão"],["r","rt","k/n > 0.5"]
+];
+const canvas=document.getElementById("canvas"), paths=document.getElementById("paths"),
+      labels=document.getElementById("labels"), tip=document.getElementById("tip");
+const pos={}, els={}, orig={};
+NODES.forEach(n=>{
+  orig[n.id]=[n.x,n.y]; pos[n.id]=[n.x,n.y];
+  const el=document.createElement("div");
+  el.className="node "+n.k;
+  el.innerHTML=`<div class="kicker">${n.kk}</div><h4>${n.t}</h4><div class="s">${n.s}</div>`;
+  el.style.left=n.x+"px"; el.style.top=n.y+"px";
+  canvas.appendChild(el); els[n.id]=el;
+  el.addEventListener("pointerdown",e=>startDrag(e,n.id));
+  el.addEventListener("pointerenter",()=>{if(!drag)showTip(n)});
+  el.addEventListener("pointermove",e=>{if(!drag)moveTip(e)});
+  el.addEventListener("pointerleave",hideTip);
+});
+function anchors(a,b){
+  const ra=els[a].getBoundingClientRect(), rb=els[b].getBoundingClientRect(),
+        rc_=canvas.getBoundingClientRect();
+  const A={x:ra.left-rc_.left+ra.width/2,y:ra.top-rc_.top,w:ra.width,h:ra.height},
+        B={x:rb.left-rc_.left+rb.width/2,y:rb.top-rc_.top,w:rb.width,h:rb.height};
+  if(B.y>A.y+A.h) return [[A.x,A.y+A.h],[B.x,B.y],"v"];
+  if(A.y>B.y+B.h) return [[A.x,A.y],[B.x,B.y+B.h],"v"];
+  if(B.x>A.x) return [[A.x+A.w/2,A.y+A.h/2],[B.x-B.w/2,B.y+B.h/2],"h"];
+  return [[A.x-A.w/2,A.y+A.h/2],[B.x+B.w/2,B.y+B.h/2],"h"];
+}
+function draw(){
+  paths.innerHTML=""; labels.innerHTML="";
+  EDGES.forEach(([a,b,l])=>{
+    const [[x1,y1],[x2,y2],dir]=anchors(a,b);
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    const d = dir==="v"
+      ? `M${x1},${y1} C${x1},${y1+45} ${x2},${y2-45} ${x2},${y2}`
+      : `M${x1},${y1} C${x1+(x2-x1)/2},${y1} ${x1+(x2-x1)/2},${y2} ${x2},${y2}`;
+    p.setAttribute("d",d); p.setAttribute("class","edge"); p.setAttribute("marker-end","url(#arr)");
+    paths.appendChild(p);
+    if(l){
+      const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+      t.setAttribute("x",(x1+x2)/2+6); t.setAttribute("y",(y1+y2)/2-4);
+      t.setAttribute("class","elabel"); t.textContent=l; labels.appendChild(t);
+    }
+  });
+}
+let drag=null;
+function startDrag(e,id){
+  drag={id,dx:e.clientX-pos[id][0],dy:e.clientY-pos[id][1]};
+  els[id].setPointerCapture(e.pointerId); hideTip();
+}
+document.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  const x=Math.max(0,Math.min(1364,e.clientX-drag.dx)), y=Math.max(0,Math.min(940,e.clientY-drag.dy));
+  pos[drag.id]=[x,y]; els[drag.id].style.left=x+"px"; els[drag.id].style.top=y+"px"; draw();
+});
+document.addEventListener("pointerup",()=>{drag=null});
+function showTip(n){
+  tip.innerHTML=`<h5>${n.t}</h5><p>${n.d}</p>
+    <div class="lbl">EXEMPLOS</div><div class="exs">${n.ex.map(e=>`<span class="ex">${e}</span>`).join("")}</div>
+    ${n.an.length?`<div class="lbl">ANÁLISES / NOTAS</div><ul>${n.an.map(a=>`<li>${a}</li>`).join("")}</ul>`:""}`;
+  tip.style.display="block";
+}
+function moveTip(e){
+  const w=330,h=tip.offsetHeight;
+  let x=e.clientX+18,y=e.clientY+14;
+  if(x+w>innerWidth)x=e.clientX-w-14;
+  if(y+h>innerHeight)y=Math.max(8,innerHeight-h-8);
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function hideTip(){tip.style.display="none"}
+document.getElementById("reset").onclick=()=>{
+  NODES.forEach(n=>{pos[n.id]=[...orig[n.id]];
+    els[n.id].style.left=orig[n.id][0]+"px"; els[n.id].style.top=orig[n.id][1]+"px"});
+  draw();
+};
+draw(); setTimeout(draw,300); document.fonts&&document.fonts.ready.then(draw);
+</script>
+</body>
+</html>

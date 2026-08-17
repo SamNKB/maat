@@ -24,7 +24,7 @@ Variável
     └── Duração   — intervalos (tempo de entrega, tempo de sessão)
 ```
 
-Datas não se encaixam nem em qualitativa nem em quantitativa porque são **as duas coisas ao mesmo tempo**: uma linha contínua (eixo do tempo) que carrega componentes cíclicos categóricos (mês, dia da semana, hora). Por isso o maat as trata como um **tipo de primeira classe**. A discussão completa está em [docs/fluxo-de-analises.md](docs/fluxo-de-analises.md).
+Datas não se encaixam nem em qualitativa nem em quantitativa porque são **as duas coisas ao mesmo tempo**: uma linha contínua (eixo do tempo) que carrega componentes cíclicos categóricos (mês, dia da semana, hora). Por isso o maat as trata como um **tipo de primeira classe**. A discussão completa está em [docs/fluxo-de-analises.md](docs/fluxo-de-analises.md) — e a **versão interativa** do fluxo (grafo arrastável com detalhes no hover) em [docs/fluxo-interativo.html](docs/fluxo-interativo.html).
 
 ## Estrutura do projeto
 
