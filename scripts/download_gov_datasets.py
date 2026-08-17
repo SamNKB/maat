@@ -16,11 +16,13 @@ DATASETS = [
     ("gov-bcb-ipca",
      "https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=csv",
      "ipca_mensal.csv"),
+    # séries diárias do SGS aceitam janelas de no máximo ~10 anos (406 acima disso);
+    # a 432 (meta diária) retorna erro mesmo assim — usamos a 4390 (mensal, sem limite)
     ("gov-bcb-selic",
-     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados?formato=csv",
-     "selic_meta.csv"),
+     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=csv",
+     "selic_mensal.csv"),
     ("gov-bcb-dolar",
-     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?dataInicial=01/01/2015&formato=csv",
+     "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1/dados?dataInicial=01/01/2017&dataFinal=31/12/2025&formato=csv",
      "dolar_diario.csv"),
     ("gov-ibge-municipios",
      "https://servicodados.ibge.gov.br/api/v1/localidades/municipios",

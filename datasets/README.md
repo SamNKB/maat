@@ -49,7 +49,7 @@ Critério de escolha: além da fama, cada dataset exercita um canto diferente do
 | Pasta | Fonte | O que testa no maat |
 |---|---|---|
 | gov-bcb-ipca | Banco Central (SGS 433) | série temporal mensal desde 1980, vírgula decimal |
-| gov-bcb-selic | Banco Central (SGS 432) | série em degraus (meta Selic) — granularidade irregular |
+| gov-bcb-selic | Banco Central (SGS 4390) | Selic acumulada mensal desde 1986 — série longa |
 | gov-bcb-dolar | Banco Central (SGS 1) | série diária com gaps de fim de semana |
 | gov-ibge-municipios | IBGE (API localidades) | JSON aninhado, 5.570 municípios, hierarquia região/UF |
 | gov-tesouro-direto | Tesouro Transparente | preços/taxas por título e vencimento — datas múltiplas por linha |
