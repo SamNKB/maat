@@ -1,0 +1,37 @@
+/* maat — tokens de identidade visual (inspiração: Blade Runner)
+ * Fonte da verdade das cores. Documentação: docs/identidade-visual.md */
+
+:root {
+  /* Primárias — estrutura e identidade */
+  --maat-void-navy: #0A0E1A;   /* fundo */
+  --maat-panel-blue: #101828;  /* superfícies, cards, nós */
+  --maat-neon-cyan: #00E5FF;   /* a cor do maat: destaques, bordas, links */
+  --maat-ice-white: #E6F7FF;   /* texto principal sobre escuro */
+
+  /* Secundárias — apoio e movimento */
+  --maat-neon-magenta: #FF2E88;    /* ação, arestas, ênfase */
+  --maat-hologram-violet: #9D4EDD; /* decisões, interatividade */
+  --maat-steel-blue: #3A4A63;      /* bordas neutras, divisores */
+  --maat-mist-blue: #8FA3BF;       /* texto secundário, legendas */
+
+  /* Terciárias — semântica exclusiva */
+  --maat-amber-2049: #FFB03A;  /* aviso: suspeita, baixa confiança */
+  --maat-acid-mint: #3DF5C6;   /* sucesso: checagem ok */
+  --maat-signal-red: #FF4757;  /* erro: dado quebrado */
+
+  /* Derivadas para diagramas */
+  --maat-decision-fill: #1A1030; /* losangos de decisão */
+  --maat-regime-fill: #0F1D2E;   /* nós de regime */
+
+  /* Paleta categórica para gráficos (ordem fixa) */
+  --maat-cat-1: var(--maat-neon-cyan);
+  --maat-cat-2: var(--maat-neon-magenta);
+  --maat-cat-3: var(--maat-hologram-violet);
+  --maat-cat-4: var(--maat-amber-2049);
+  --maat-cat-5: var(--maat-acid-mint);
+
+  /* Fontes (em avaliação — ver docs/identidade-visual.md) */
+  --maat-font-display: "Rajdhani", "Segoe UI", sans-serif;
+  --maat-font-body: "Space Grotesk", "Segoe UI", sans-serif;
+  --maat-font-mono: "JetBrains Mono", Consolas, monospace;
+}

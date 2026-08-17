@@ -1,0 +1,59 @@
+<svg width="880" height="480" viewBox="0 0 880 480" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Paleta visual do maat — inspiração Blade Runner</title>
+  <style>
+    text { font-family: 'Rajdhani', 'Segoe UI', sans-serif; }
+    .titulo { font-size: 26px; font-weight: 600; fill: #00E5FF; }
+    .sub { font-size: 14px; fill: #8FA3BF; }
+    .secao { font-size: 13px; fill: #8FA3BF; letter-spacing: 2px; }
+    .nome { font-size: 15px; font-weight: 600; }
+    .hex { font-size: 13px; font-family: Consolas, monospace; }
+  </style>
+  <rect width="880" height="480" rx="16" fill="#0A0E1A"/>
+  <text class="titulo" x="40" y="48">maat — paleta visual</text>
+  <text class="sub" x="40" y="70">inspiração: Blade Runner · neon sobre a noite · docs/identidade-visual.md</text>
+
+  <text class="secao" x="40" y="102">PRIMÁRIAS — ESTRUTURA E IDENTIDADE</text>
+  <g>
+    <rect x="40" y="112" width="190" height="80" rx="10" fill="#0A0E1A" stroke="#3A4A63" stroke-width="1.5"/>
+    <text class="nome" x="56" y="140" fill="#E6F7FF">Void navy</text>
+    <text class="hex" x="56" y="172" fill="#8FA3BF">#0A0E1A</text>
+    <rect x="250" y="112" width="190" height="80" rx="10" fill="#101828" stroke="#3A4A63" stroke-width="1"/>
+    <text class="nome" x="266" y="140" fill="#E6F7FF">Panel blue</text>
+    <text class="hex" x="266" y="172" fill="#8FA3BF">#101828</text>
+    <rect x="460" y="112" width="190" height="80" rx="10" fill="#00E5FF"/>
+    <text class="nome" x="476" y="140" fill="#0A0E1A">Neon cyan</text>
+    <text class="hex" x="476" y="172" fill="#0A0E1A">#00E5FF</text>
+    <rect x="670" y="112" width="190" height="80" rx="10" fill="#E6F7FF"/>
+    <text class="nome" x="686" y="140" fill="#0A0E1A">Ice white</text>
+    <text class="hex" x="686" y="172" fill="#0A0E1A">#E6F7FF</text>
+  </g>
+
+  <text class="secao" x="40" y="234">SECUNDÁRIAS — APOIO E MOVIMENTO</text>
+  <g>
+    <rect x="40" y="244" width="190" height="80" rx="10" fill="#FF2E88"/>
+    <text class="nome" x="56" y="272" fill="#0A0E1A">Neon magenta</text>
+    <text class="hex" x="56" y="304" fill="#0A0E1A">#FF2E88</text>
+    <rect x="250" y="244" width="190" height="80" rx="10" fill="#9D4EDD"/>
+    <text class="nome" x="266" y="272" fill="#0A0E1A">Hologram violet</text>
+    <text class="hex" x="266" y="304" fill="#0A0E1A">#9D4EDD</text>
+    <rect x="460" y="244" width="190" height="80" rx="10" fill="#3A4A63"/>
+    <text class="nome" x="476" y="272" fill="#E6F7FF">Steel blue</text>
+    <text class="hex" x="476" y="304" fill="#E6F7FF">#3A4A63</text>
+    <rect x="670" y="244" width="190" height="80" rx="10" fill="#8FA3BF"/>
+    <text class="nome" x="686" y="272" fill="#0A0E1A">Mist blue</text>
+    <text class="hex" x="686" y="304" fill="#0A0E1A">#8FA3BF</text>
+  </g>
+
+  <text class="secao" x="40" y="366">TERCIÁRIAS — SEMÂNTICA</text>
+  <g>
+    <rect x="40" y="376" width="190" height="80" rx="10" fill="#FFB03A"/>
+    <text class="nome" x="56" y="404" fill="#0A0E1A">Amber 2049 · aviso</text>
+    <text class="hex" x="56" y="436" fill="#0A0E1A">#FFB03A</text>
+    <rect x="250" y="376" width="190" height="80" rx="10" fill="#3DF5C6"/>
+    <text class="nome" x="266" y="404" fill="#0A0E1A">Acid mint · sucesso</text>
+    <text class="hex" x="266" y="436" fill="#0A0E1A">#3DF5C6</text>
+    <rect x="460" y="376" width="190" height="80" rx="10" fill="#FF4757"/>
+    <text class="nome" x="476" y="404" fill="#0A0E1A">Signal red · erro</text>
+    <text class="hex" x="476" y="436" fill="#0A0E1A">#FF4757</text>
+  </g>
+</svg>

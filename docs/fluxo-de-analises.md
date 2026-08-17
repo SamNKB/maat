@@ -11,6 +11,7 @@ Este documento é o mapa conceitual do maat: dado um DataFrame qualquer, **como 
 O fluxograma completo, do dado bruto até a estratégia de análise — todo losango com parâmetro entre parênteses é configurável pelo usuário (seção 1.2):
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#101828','primaryTextColor':'#E6F7FF','primaryBorderColor':'#00E5FF','lineColor':'#FF2E88','textColor':'#E6F7FF','edgeLabelBackground':'#0A0E1A','fontFamily':'Rajdhani, Segoe UI, sans-serif'}}}%%
 flowchart TD
     A[Coluna do DataFrame] --> S["Amostra de inferência<br/>(inference_sample_size)"]
     S --> B{dtype base?}
@@ -39,6 +40,17 @@ flowchart TD
     R -->|"k ≤ (max_categorical_levels)"| RC["Regime categórico<br/>ex.: sexo, UF<br/>→ frequências completas"]
     R -->|"k/n > (textual_unique_ratio)"| RT["Regime textual<br/>ex.: e-mail, nome, endereço<br/>→ perfil da string"]
     R -->|senão| RL["Regime cauda longa<br/>ex.: cidade, cat. de produto<br/>→ top-N + Pareto"]
+
+    classDef tipo fill:#101828,stroke:#00E5FF,color:#E6F7FF
+    classDef decisao fill:#1A1030,stroke:#9D4EDD,color:#E6F7FF
+    classDef aviso fill:#101828,stroke:#FFB03A,color:#FFB03A
+    classDef neutro fill:#101828,stroke:#3A4A63,color:#8FA3BF
+    classDef regime fill:#0F1D2E,stroke:#FF2E88,color:#E6F7FF
+    class A,S,BIN,T1,T2,DIS,CON,ORD,NOM tipo
+    class B,N1,N2,N3,S1,S2,S3,R decisao
+    class WARN aviso
+    class ID neutro
+    class RC,RT,RL regime
 ```
 
 ### 1.1 Exemplo guiado: `vendas.csv` (100.000 linhas)
@@ -105,11 +117,19 @@ Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuá
 Dentro de um mesmo tipo, **a quantidade de níveis muda completamente qual análise faz sentido**. "Sexo" (2–3 níveis) e "e-mail" (um nível por linha) são ambas strings nominais, mas pedem tratamentos opostos. O maat trabalha com três regimes, decididos pela cardinalidade `k` em relação ao total `n`:
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#101828','primaryTextColor':'#E6F7FF','primaryBorderColor':'#00E5FF','lineColor':'#FF2E88','textColor':'#E6F7FF','edgeLabelBackground':'#0A0E1A','fontFamily':'Rajdhani, Segoe UI, sans-serif'}}}%%
 flowchart LR
     A[Qualitativa nominal<br/>k níveis, n linhas] --> B{Regime?}
     B -->|k pequeno<br/>ex.: k ≤ 30| C[Categórico<br/>tabela de frequências completa]
     B -->|k médio, cauda longa<br/>ex.: 30 < k e k/n baixo| D[Cauda longa<br/>top-N + Outros, Pareto]
     B -->|k ≈ n<br/>quase um valor por linha| E[Textual<br/>perfil da string: amostras + regex]
+
+    classDef tipo fill:#101828,stroke:#00E5FF,color:#E6F7FF
+    classDef decisao fill:#1A1030,stroke:#9D4EDD,color:#E6F7FF
+    classDef regime fill:#0F1D2E,stroke:#FF2E88,color:#E6F7FF
+    class A tipo
+    class B decisao
+    class C,D,E regime
 ```
 
 | Regime | Exemplo | Estratégia |
