@@ -2,6 +2,10 @@
 datasets/*
 !datasets/README.md
 
+# Relatórios do baseline (ydata-profiling) ficam locais — só as análises sobem
+benchmarks/ydata/*
+!benchmarks/ydata/README.md
+
 __pycache__/
 *.py[cod]
 .venv/
