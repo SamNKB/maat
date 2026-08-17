@@ -22,5 +22,12 @@ def analyze_ordinal(backend: Backend, column: str, vtype: VariableType) -> Colum
 
 
 def analyze_binary(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
-    """Proporção de cada nível + IC da proporção. Saída enxuta."""
+    """Exatamente 2 níveis — seção 2.5 do fluxo (consolidada).
+
+    Essencial: tabela de frequência com o ausente como linha própria
+    (absoluto, % do total, % dos válidos).
+    Completa: nível dominante e razão de balanceamento.
+    Fora por decisão: intervalo de confiança (é inferência, não descrição),
+    detecção de par semântico e alertas por limiar.
+    """
     raise NotImplementedError
