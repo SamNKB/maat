@@ -12,7 +12,7 @@ python scripts/download_datasets.py
 | titanic | `yasserh/titanic-dataset` | binárias, nominais, discretas, ausentes |
 | iris | `uciml/iris` | contínuas puras, nominal de 3 níveis |
 | wine-quality | `uciml/red-wine-quality-cortez-et-al-2009` | contínuas, ordinal disfarçada de inteiro (quality) |
-| diabetes | `uciml/pima-indians-diabetes-database` | contínuas com zeros-que-são-ausentes |
+| diabetes | `kumargh/pimaindiansdiabetescsv` | contínuas com zeros-que-são-ausentes |
 | breast-cancer | `uciml/breast-cancer-wisconsin-data` | contínuas correlacionadas, coluna id |
 | adult-census | `uciml/adult-census-income` | nominais de várias cardinalidades, renda categórica |
 | mushrooms | `uciml/mushroom-classification` | só qualitativas (22 nominais) |
@@ -27,7 +27,7 @@ python scripts/download_datasets.py
 | wine-reviews | `zynicide/wine-reviews` | regime textual longo (descrições), cauda longa (vinícolas) |
 | world-happiness | `unsdsn/world-happiness` | contínuas por país, múltiplos csvs por ano |
 | videogame-sales | `gregorut/videogamesales` | cauda longa (títulos), ano como número |
-| fifa19 | `karangadiya/fifa19` | dezenas de colunas mistas, moedas em string ("€110.5M") |
+| fifa19 | `javagarm/fifa-19-complete-player-dataset` | dezenas de colunas mistas, moedas em string ("€110.5M") |
 | google-play | `lava18/google-play-store-apps` | sujeira real: "3.0M", "Varies with device", datas em texto |
 | netflix | `shivamb/netflix-shows` | **datas**, duração em texto ("90 min", "2 Seasons") |
 | movies | `rounakbanik/the-movies-dataset` | json embutido em coluna, cauda longa (grande, ~230 MB) |
