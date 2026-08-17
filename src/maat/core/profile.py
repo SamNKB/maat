@@ -31,6 +31,9 @@ class ColumnProfile:
     summary: dict[str, Any] = field(default_factory=dict)
     viz_suggestions: list[VizSuggestion] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    # Prosa gerada por template determinístico (seção 7 do fluxo de análises);
+    # reformulação via LLM local opcional nunca altera números (trava validada).
+    narrative: str | None = None
 
 
 @dataclass

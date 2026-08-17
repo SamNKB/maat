@@ -151,7 +151,7 @@ flowchart LR
 | **Cauda longa** (`k` médio, muita repetição) | cidade, categoria de produto, CID | Top-N + agregado "Outros"; análise de concentração (Pareto); categorias raras |
 | **Textual** (`k` ≈ `n`, quase sem repetição) | nome, e-mail, endereço, descrição | A frequência é inútil (tudo tem contagem ~1) — o objeto de análise passa a ser **a string em si**: comprimentos, amostras extremas, padrões e sujeira via regex (seção 2.4) |
 
-Os limiares exatos entre regimes são a questão em aberto nº 1 (seção 7). Importante: o regime **não é um tipo** — é um modificador que seleciona a estratégia dentro do tipo. Uma coluna pode migrar de regime quando os dados crescem.
+Os limiares exatos entre regimes são a questão em aberto nº 1 (seção 8). Importante: o regime **não é um tipo** — é um modificador que seleciona a estratégia dentro do tipo. Uma coluna pode migrar de regime quando os dados crescem.
 
 ### 2.1 Nominal em regime categórico (sexo, UF, canal de venda)
 
@@ -424,7 +424,27 @@ Ponto importante para o Spark: **as visualizações nunca recebem os dados bruto
 
 ---
 
-## 7. Questões em aberto (para discutirmos)
+## 7. Narrativas geradas (data-to-text) — ✅ arquitetura decidida em 2026-08-16
+
+O maat gera, junto com cada perfil, **prosa pronta para uso** — o caso motivador é quem monta trabalho de graduação e precisa escrever "o que os dados estão dizendo". Exemplo real (telco `Churn`, tom acadêmico):
+
+> A variável **Churn** é qualitativa binária, observada em 7.043 registros, sem valores ausentes. O nível predominante é **No**, presente em 5.174 registros (73,5% do total), enquanto **Yes** corresponde a 1.869 registros (26,5%).
+
+**Arquitetura (decisão)**:
+
+1. **Núcleo determinístico**: templates por tipo/regime em **pt-BR e inglês**, preenchidos com os números do `ColumnProfile`. Sem dependências, offline, números que nunca mentem. Tom do MVP: **acadêmico** (outros tons ficam para depois).
+2. **Plug opcional de LLM local e gratuito (Ollama)** — nunca APIs de nuvem por padrão: o dado do usuário não sai da máquina. O LLM **não gera análise**: só reformula/traduz o texto-template pronto para outros idiomas ou estilos. Modelos sugeridos (pequenos bastam para reformular): Llama 3.2 3B, Gemma 3 4B, Qwen 2.5 3B.
+3. **Trava de números**: após qualquer reformulação, validação determinística — todos os números do template original devem aparecer intactos no texto reformulado (comparação dos tokens numéricos dos dois lados). Se o LLM alterou um número, o texto é descartado e o usuário recebe o template original com aviso. Alucinação numérica vira erro detectado, não risco silencioso.
+
+```python
+maat.describe(df, config=maat.Config(
+    language="pt-BR",              # idioma do núcleo de templates (pt-BR | en)
+    narrative_tone="academico",    # MVP: só acadêmico
+    narrative_llm=None,            # ex.: "ollama/llama3.2:3b" — opcional, local
+))
+```
+
+## 8. Questões em aberto (para discutirmos)
 
 1. ~~Limiares entre regimes de cardinalidade: fixos ou relativos?~~ → **Direção definida**: os limiares são **parâmetros do usuário** com defaults (seção 1.2), incluindo o tamanho da amostra de inferência. Falta calibrar os defaults com uso real.
 2. **Ordem das ordinais**: inferimos por dicionários de escalas conhecidas (pt/en) ou exigimos declaração do usuário no MVP?
