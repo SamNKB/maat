@@ -119,11 +119,19 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ---
 
-## 6. Concorrência (levantada em 2026-08-16)
+## 5b. Retomada — por onde começar na próxima sessão
+
+Duas frentes possíveis; o Sam escolhe:
+
+- **(a) Decisão madura na mesa**: o subtipo `rank`. O benchmark trouxe a evidência que faltava (`videogame-sales/Rank` k=16.598 e `world-happiness/Happiness.Rank` k=155 caem em "identificador" pelas regras atuais). Discussão curta, destrava a questão nº 8.
+- **(b) Continuar o design**: regime textual (§2.4) — mas **antes**, comparar item a item com a análise Unicode do ydata (`benchmarks/ydata/*.html`) para não reinventar. Ou temporal (§4), o tipo que motivou o projeto.
+- **(c) Implementar**: `core/inference.py` + `PandasBackend`, **em incrementos, com o Sam presente** (ver §1 — nunca em lote).
+
+## 6. Concorrência (levantada em 2026-08-16, medida em 2026-08-17)
 
 O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna, ausentes, distribuições, relatório HTML, suporte parcial a Spark — cobre ~70% da ideia. Vizinhos: Sweetviz (comparação de datasets), DataPrep.EDA (velocidade), D-Tale (GUI), AutoViz/Lux. Deequ e Great Expectations são *quality gates* — exatamente o que decidimos **não** ser.
 
-**Diferenciais do maat** (os 30% que ninguém cobre): regimes de cardinalidade com **perfil textual** (máscaras, regex de sujeira, amostras de ofensores) em vez de truncar alta cardinalidade; **temporal como tipo de primeira classe** com decomposição cíclica; **camada essencial** legível por não-técnicos; **narrativas prontas** para trabalho acadêmico; filosofia descreve-não-julga.
+**Medido em 2026-08-17** (`docs/comparacao-ydata.md`): sobre 625 colunas reais, o ydata usa **6 tipos** e nossas regras produzem **9 rotas**. As 301 colunas `Numeric` dele viram 130 discretas-histograma + 126 contínuas + 24 discretas-tabela + **21 identificadores**; as 121 `Text` viram 82 cauda longa + 39 textuais. **Sem moat técnico**: ele tem análise Unicode, correlações, alertas e maturidade de casos-limite. O único ponto sem equivalente no mercado é a **narrativa acadêmica em pt-BR com trava de números**. A aposta é de posicionamento (não-estatísticos, português, texto pronto, descreve-não-julga), não de tecnologia.
 
 ---
 
@@ -178,5 +186,6 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
 13. Links de origem (Kaggle e fontes de governo) no manifesto e nas subpáginas.
 14. Ordinal consolidada — o Sam desafia "qual métrica depende de fato da ordem?" e a resposta honesta (duas medidas) define um desenho enxuto.
+15. **2026-08-17** — baseline competitivo executado: ydata-profiling sobre 39 datasets, 625 colunas comparadas (`docs/comparacao-ydata.md`). Um erro de metodologia (modo mínimo desativa inferência de datas) quase virou conclusão falsa a nosso favor e foi corrigido antes de publicar.
 
 **Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · **ordinal (§2.3)** · discreta (§3.1) · contínua (§3.2) — cada um com subpágina em `docs/tipos/`.
