@@ -113,7 +113,9 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
 - **Implementação**: `core/inference.py`, backends e análises ainda são stubs `NotImplementedError`. Plano combinado: implementar inferência + `PandasBackend`, rodar nos 40 datasets, e usar os resultados para resolver o `rank` e calibrar limiares.
-- Ideia aceita, ainda não executada: rodar **ydata-profiling** nos 40 datasets como baseline de comparação.
+- ~~Rodar ydata-profiling como baseline~~ → **feito em 2026-08-17**, ver `docs/comparacao-ydata.md`. Resultados locais em `benchmarks/ydata/` (fora do git; refazer com `scripts/run_ydata_baseline.py` + `scripts/comparar_com_ydata.py`).
+- **Decisão pendente que o benchmark levantou**: `videogame-sales/Rank` (k=16.598) e `world-happiness/Happiness.Rank` (k=155) são colocações reais classificadas como **identificador** pelas nossas regras atuais — é a evidência empírica que faltava para decidir o subtipo `rank`.
+- **Verificar antes de implementar o regime textual**: o ydata tem análise Unicode de texto (extra opcional) que pode cobrir parte do que planejamos na §2.4 — comparar item a item para não reinventar.
 
 ---
 

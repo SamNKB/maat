@@ -13,11 +13,13 @@ Saída: benchmarks/ydata/_divergencias.csv e um resumo no terminal.
 from __future__ import annotations
 
 import csv
-import json
+import warnings
 from collections import Counter
 from pathlib import Path
 
 import pandas as pd
+
+warnings.filterwarnings("ignore")
 
 RAIZ = Path(__file__).resolve().parent.parent
 OUT = RAIZ / "benchmarks" / "ydata"
@@ -54,6 +56,13 @@ def classificar_maat(serie: pd.Series, n_validos: int, k: int) -> str:
         return "continua"
 
     # string / object
+    # regra documentada (§1): string que parseia como data em alta taxa → temporal
+    amostra = serie.dropna().astype(str).head(1000)
+    if len(amostra) >= 20:
+        parseada = pd.to_datetime(amostra, errors="coerce", format="mixed")
+        if parseada.notna().mean() >= 0.9:
+            return "temporal-instante"
+
     if k == 2:
         return "binaria"
     if ratio > TEXTUAL_UNIQUE_RATIO:
@@ -74,8 +83,14 @@ def main() -> int:
         caminho = next((RAIZ / "datasets" / nome).rglob(arquivo), None)
         if caminho is None:
             continue
-        dados = json.loads((OUT / f"{nome}.json").read_text(encoding="utf-8"))
-        tipos_ydata = {c: i.get("type") for c, i in dados.get("variables", {}).items()}
+        # NÃO usar o tipo do relatório: em modo mínimo o ydata desativa a
+        # inferência de datas, e colunas ISO 8601 apareceriam como Text —
+        # comparação injusta causada pela nossa configuração, não pela
+        # ferramenta. Reinferimos com o typeset completo para todos.
+        from ydata_profiling.config import Settings
+        from ydata_profiling.model.typeset import ProfilingTypeSet
+
+        typeset = ProfilingTypeSet(Settings())
 
         df = None
         for encoding in ("utf-8", "latin-1"):
@@ -97,10 +112,14 @@ def main() -> int:
             serie = df[coluna]
             n_validos = int(serie.notna().sum())
             k = int(serie.nunique(dropna=True))
+            try:
+                tipo_ydata = str(typeset.infer_type(serie))
+            except Exception:  # noqa: BLE001 — coluna exótica não invalida a linha
+                tipo_ydata = "erro"
             linhas.append({
                 "dataset": nome,
                 "coluna": str(coluna),
-                "tipo_ydata": tipos_ydata.get(str(coluna), "?"),
+                "tipo_ydata": tipo_ydata,
                 "tipo_maat": classificar_maat(serie, n_validos, k),
                 "k": k,
                 "n_validos": n_validos,
