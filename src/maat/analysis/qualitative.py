@@ -12,7 +12,30 @@ from maat.core.taxonomy import VariableType
 
 
 def analyze_nominal(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
-    """Frequências, moda, cardinalidade, desbalanceamento, entropia, raras."""
+    """Nominal — despacha pelo regime de cardinalidade (seção 2 do fluxo).
+
+    CATEGORICAL: frequências completas, moda, força da moda.
+    LONG_TAIL (§2.2, consolidada): essencial = top-N (`long_tail_top_n`,
+    default 10) + linha "Outros" declarando quantos níveis agrega;
+    concentração (níveis para 50%/80%/95%); k, singletons e número de
+    grupos de variantes de grafia. Completa = Herfindahl, entropia
+    normalizada e a lista dos grupos de variantes.
+    TEXTUAL: perfil da string (forma, padrão, sujeira) — ver §2.4.
+    """
+    raise NotImplementedError
+
+
+def find_spelling_variant_groups(backend: Backend, column: str) -> dict:
+    """Grupos de níveis idênticos sob normalização determinística.
+
+    Critério declarado (§0.2, corolário "mostrar é obrigação, agir é do
+    usuário"): minúsculas + remoção de acentos + espaços internos
+    colapsados + bordas aparadas. Sem semelhança aproximada nem distância
+    de edição — o critério é reproduzível e acompanha o resultado.
+
+    O maat reporta os grupos e suas frequências; nunca une, corrige ou
+    sugere correção.
+    """
     raise NotImplementedError
 
 

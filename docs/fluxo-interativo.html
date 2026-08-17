@@ -179,7 +179,8 @@ const NODES=[
   ex:["adult education: k=16 · top HS-grad 32%","uf: k=27"],an:["Frequências completas (abs. e %)","Moda e força da moda","Completa: entropia e desbalanceamento","Barras ordenadas / lollipop"]},
  {id:"rl",k:"regime",kk:"REGIME",x:1130,y:940,t:"Cauda longa",s:"ex.: cidade, produto",
   d:"Muitos níveis com repetição relevante: a frequência ainda importa, mas mostrar tudo afoga o leitor.",
-  ex:["nyc neighbourhood: k=221","36 bairros somam 80% dos anúncios"],an:["Top-N + agregado 'Outros'","Concentração: 80% em quantos níveis?","Singletons: erros de digitação?","Duplicatas de nível (São Paulo ≠ são paulo)","Pareto / treemap"]},
+  h:"tipos/cauda-longa.html",
+  ex:["nyc neighbourhood: k=221 · 36 para 80%","câmara fornecedor: k=22.024 · 43,1% singletons"],an:["Essencial: top-10 + linha 'Outros' (declara quantos níveis agrega)","Essencial: concentração — níveis para 50% / 80% / 95%","Essencial: k, singletons e nº de grupos de variantes de grafia","Variantes: critério determinístico (minúsculas, sem acento, espaços) — mostra, nunca corrige","Completa: Herfindahl, entropia, lista de variantes","Visual: Pareto"]},
  {id:"rt",k:"regime",kk:"REGIME",x:1360,y:900,t:"Textual",s:"ex.: e-mail, nome, endereço",
   d:"k ≈ n: frequência vira inútil e a própria string é o objeto de análise — forma, padrão e sujeira, sempre com amostras dirigidas.",
   ex:["nyc name: k/n = 0,98 (47.905 de 48.895)","comprimento: mediana 37 · máx 179"],an:["Distribuição de comprimento + extremos","Máscara de caractere (Aa9)","Padrão dominante + % de violações","Regex de sujeira: invisíveis, mojibake, espaços","Amostra dos ofensores em cada checagem"]}

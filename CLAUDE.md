@@ -47,6 +47,7 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 1. **A inferência propõe, o usuário dispõe** — todo tipo é sobrescrevível; ambiguidades são marcadas, nunca decididas em silêncio.
 2. **O maat descreve, não julga** — mostra o que o dado revela agora: contagens, proporções, amostras. Sem quality gates, sem limiares de alerta, sem policiar a codificação do usuário. *(Decisão do Sam: "não somos responsáveis por como o usuário define os dados dele"; "o que fazer com esse resultado é a cargo do usuário".)*
+   - **Corolário — mostrar é obrigação, agir é do usuário**: "não julgar" ≠ "esconder". Se o dado tem problema visível, o maat mostra o **fato** e o usuário decide se corrige; omitir deixaria um dataset ruim passar. Condição: toda detecção usa **critério determinístico e explícito, declarado junto do resultado** — nunca inferência difusa ou semelhança aproximada.
 3. **Duas camadas em todo perfil** — **essencial** (qualquer pessoa lê) e **completa** (profundidade estatística). Medidas que exigem contexto estatístico (razões, entropia, curtose) moram na completa. *(Motivo dado pelo Sam: "pessoal de produtos tem dificuldade de fazer uma divisão".)*
 4. **O custo mora no backend** — agregações no motor (pandas/Spark); a camada visual recebe só dados pré-agregados. No Spark: `approxQuantile` com erro reportado; amostragem para visuais de dispersão.
 5. **Narrativas com números garantidos** — templates determinísticos; LLM só reformula, sob trava de validação.
@@ -65,6 +66,11 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - **Completa**: nível dominante + razão de balanceamento.
 - **Fora**: intervalo de confiança (é inferência, não descrição); detecção de par semântico e checagem de codificação (o maat não julga codificação); alertas por limiar (quality gate é outra ferramenta).
 - Um 3º valor distinto não gera aviso — a coluna deixa de ser binária e vira nominal. É rota, não alerta.
+
+### Nominal em regime cauda longa — consolidada 2026-08-16 (§2.2)
+- **Essencial**: **top-10 + linha "Outros"** (`long_tail_top_n`, e a linha declara quantos níveis agrega); **concentração** (níveis para 50%/80%/95% — "36 de 221 bairros concentram 80%"); k, singletons e **contagem de grupos de variantes de grafia**.
+- **Completa**: Herfindahl, entropia normalizada, lista dos grupos de variantes, cauda completa sob demanda.
+- **Variantes de grafia: o maat MOSTRA** (Câmara: `UBER…LTDA.` 10.267 + `Uber…Ltda.` 8). *(Princípio dado pelo Sam: "se o dataframe está ruim, você mostra e o usuário toma uma ação em cima de corrigir ou não" — com a condição de **critérios claros**.)* Critério determinístico e declarado: minúsculas + sem acentos + espaços colapsados + bordas aparadas. **Sem semelhança aproximada.** O maat nunca une, corrige nem sugere correção.
 
 ### Quantitativa discreta — consolidada 2026-08-16 (§3.1)
 - **Inteiros são sempre discreta**, independente da cardinalidade; o `k` escolhe o **regime**: `tabela` (k ≤ `max_discrete_levels`, frequência por valor exato) ou `histograma` (bins inteiros).
@@ -94,8 +100,8 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ## 5. Pendências e questões em aberto
 
-- **Próxima na fila de discussão: nominal em regime cauda longa** (`neighbourhood` do nyc: k=221, 36 bairros somam 80%; fornecedores da cota parlamentar). Decisões previstas: tamanho do top-N, onde fica a análise de concentração, e o que fazer com candidatos a duplicata de nível ("São Paulo" vs "são paulo") — que testa de novo o "descreve, não julga".
-- Depois: **ordinal → textual → temporal**; então bivariadas.
+- **Próxima na fila de discussão: ordinal** (§2.3) — `quality` do wine (3…8, moda 5), escolaridade do adult (k=16), faixas etárias do suicide-rates. Decisões previstas: como declarar/ inferir a ordem, quais medidas a ordem habilita (acumulada, categoria mediana) e se ordinal aceita regime cauda longa (questão adiada nº 7).
+- Depois: **textual → temporal**; então bivariadas.
 - **Subtipo `rank`** (ordinal com k ≈ n, ex.: colocação de maratona): decidido criar, mas **aguarda datasets reais**. Desafio central: rank e id sequencial são estatisticamente idênticos — o desempate teria de vir do nome da coluna, e na dúvida marcar como suspeita.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
@@ -159,3 +165,7 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 8. Subpáginas por tipo (modelo aprovado com a binária).
 9. Arquitetura de narrativas (templates + Ollama local + trava de números).
 10. Discreta e contínua consolidadas; auditoria que corrigiu README, enums e docstrings defasados.
+11. `CLAUDE.md` vira registro completo (decisões, porquês, ambiente, histórico).
+12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
+
+**Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · discreta (§3.1) · contínua (§3.2) — cada um com subpágina em `docs/tipos/`.

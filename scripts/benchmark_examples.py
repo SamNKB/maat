@@ -6,6 +6,8 @@ Uso: ``python scripts/benchmark_examples.py``
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from pathlib import Path
 
 import pandas as pd
@@ -74,6 +76,26 @@ def main() -> None:
     print("\n== ecommerce / InvoiceDate (timestamps) e Quantity")
     print("cobertura: {} a {} | negativos em Quantity (devoluções): {:.1%}".format(
         idt.min().date(), idt.max().date(), (eco["Quantity"] < 0).mean()))
+
+    # Cauda longa suja — fornecedores da cota parlamentar (§2.2)
+    cam = pd.read_csv(DS / "gov-camara-cota" / "Ano-2025.csv", sep=";", low_memory=False)
+    forn = cam["txtFornecedor"].dropna()
+    vc = forn.value_counts()
+    cum = (vc / len(forn)).cumsum()
+    print("\n== gov-camara-cota / txtFornecedor (cauda longa)")
+    print("k = {:,} | n = {:,} | singletons: {:,} ({:.1%} dos níveis)".format(
+        len(vc), len(forn), (vc == 1).sum(), (vc == 1).sum() / len(vc)))
+    for alvo in (0.5, 0.8, 0.95):
+        print("  níveis para {:.0%}: {:,}".format(alvo, int((cum <= alvo).sum()) + 1))
+    grupos: dict[str, list] = {}
+    for val, c in vc.items():
+        chave = unicodedata.normalize("NFKD", str(val).strip().lower())
+        chave = "".join(ch for ch in chave if not unicodedata.combining(ch))
+        grupos.setdefault(re.sub(r"\s+", " ", chave), []).append((val, int(c)))
+    variantes = {k: v for k, v in grupos.items() if len(v) > 1}
+    print("  grupos de variantes de grafia:", len(variantes))
+    for v in list(variantes.values())[:2]:
+        print("   ex:", v)
 
     # Suspeita — king county zipcode
     kc = pd.read_csv(DS / "house-sales-kc" / "kc_house_data.csv")

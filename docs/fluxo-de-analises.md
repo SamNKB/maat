@@ -12,6 +12,8 @@ Este documento é o mapa conceitual do maat: dado um DataFrame qualquer, **como 
 
 1. **A inferência propõe, o usuário dispõe** — todo tipo inferido é sobrescrevível; ambiguidades (cep, ano, rank) são marcadas e apresentadas, nunca decididas em silêncio.
 2. **O maat descreve, não julga** *(decisão de 2026-08-16)* — mostramos o que o dado revela naquele momento: contagens, proporções, distribuições, amostras. Sem quality gates, sem limiares de alerta, sem policiar a codificação que o usuário escolheu para os dados dele. O que fazer com o resultado é decisão de quem lê. (Corolário: as checagens do regime textual reportam contagens e amostras de ofensores — nunca um veredito de "aprovado/reprovado".)
+
+   **Corolário — mostrar é obrigação, agir é do usuário** *(2026-08-16)*: "não julgar" nunca significa "esconder". Se o dado tem um problema visível, o maat **mostra o fato** e o usuário decide se corrige — omitir deixaria um dataset ruim passar despercebido. A condição: toda detecção usa **critério determinístico e explícito**, declarado junto do resultado (ex.: "níveis idênticos ao normalizar para minúsculas, sem acentos e com espaços colapsados"), nunca inferência difusa ou semelhança aproximada. O maat nunca une, corrige ou sugere correção — só relata o que a regra encontrou.
 3. **Duas camadas em todo perfil** *(decisão de 2026-08-16)* — camada **essencial** (o que qualquer pessoa lê: contagens, %, moda) e camada **completa** (para quem quer profundidade: entropia, razões, forma da distribuição). Medidas que exigem contexto estatístico moram na completa.
 4. **O custo mora no backend** — agregações rodam no motor (pandas/Spark); a camada visual recebe apenas dados pré-agregados.
 
@@ -101,6 +103,7 @@ profile = maat.describe(df, config=maat.Config(
     discrete_extremes_levels=5,    # regime histograma: n valores mais e n menos frequentes na tabela de extremos
     discrete_extremes_include_middle=False,  # opt-in: acrescenta os n valores do meio do ranking (o histograma já retrata o corpo)
     continuous_extremes_levels=5,  # contínua: n maiores e n menores valores observados na tabela de extremos
+    long_tail_top_n=10,            # cauda longa: n níveis na tabela, mais a linha "Outros"
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -178,27 +181,39 @@ Os limiares exatos entre regimes são **parâmetros do usuário** (seção 1.2) 
 | Lollipop | Alternativa limpa às barras quando há mais categorias |
 | ⚠️ Pizza/donut | Só com ≤ 4 categorias — em geral, evitar |
 
-### 2.2 Nominal em regime cauda longa (cidade, categoria de produto)
+### 2.2 Nominal em regime cauda longa (cidade, fornecedor) — ✅ consolidada em 2026-08-16
 
-Muitos níveis, mas com repetição relevante — a frequência ainda é o objeto de análise, mas mostrar todos os níveis deixa de ser viável.
+> 🔍 **Página detalhada**: [tipos/cauda-longa.html](tipos/cauda-longa.html) ([versão pública](https://samnkb.github.io/maat/tipos/cauda-longa.html)).
 
-**Resumos numéricos**
+Muitos níveis com repetição relevante: a frequência ainda é o objeto de análise, mas mostrar todos os níveis deixa de ser viável. Protagonistas do benchmark: `neighbourhood` do nyc-airbnb (mansa: k=221, sem variantes) e `txtFornecedor` da cota parlamentar da Câmara (selvagem: k=22.024, 43,1% singletons, 279 grupos de variantes de grafia).
 
-| Análise | O que responde |
+**Camada essencial** *(decisões de 2026-08-16)*:
+
+| Saída | Detalhe |
 |---|---|
-| Top-N por frequência + agregado "Outros" (com contagem de níveis agregados) | Quem domina, sem afogar o leitor em níveis |
-| Concentração: quantos níveis acumulam 50% / 80% / 95% dos registros | A cauda importa ou é ruído? |
-| Índice de concentração (Herfindahl ou entropia normalizada) | Um número para comparar colunas entre si |
-| Contagem de níveis-singleton (frequência 1) | Possíveis erros de digitação/variantes da mesma categoria |
-| Candidatos a duplicata de nível (mesma string após lower/trim/sem acento) | "São Paulo" vs "são paulo" vs "SAO PAULO" |
+| **Top-10 + linha "Outros"** | `long_tail_top_n` (default 10). A linha "Outros" informa quantos níveis agrega e sua participação — nunca esconde o tamanho da cauda |
+| **Concentração** | Quantos níveis acumulam **50% / 80% / 95%** dos registros. É a leitura que define o regime, em frase pronta: *"36 de 221 bairros concentram 80% dos anúncios"* |
+| **Cardinalidade e singletons** | `k` e quantos níveis aparecem uma única vez (Câmara: 9.496 · 43,1% dos níveis) |
+| **Contagem de grupos de variantes** | *"279 grupos de níveis tornam-se idênticos ao normalizar"* — o número no essencial; a lista, na completa |
+
+**Camada completa**: índice de concentração (Herfindahl e entropia normalizada, para comparar colunas entre si), lista dos grupos de variantes com suas frequências, e a cauda completa disponível sob demanda.
+
+**Variantes de grafia — o fato que o top-N esconde** *(decisão de 2026-08-16)*: o maat relata grupos de níveis que se tornam **idênticos sob normalização determinística** — minúsculas + remoção de acentos + espaços colapsados + bordas aparadas. Esse critério é **declarado junto do resultado**, é reproduzível e não envolve semelhança aproximada. Caso real da Câmara:
+
+| Nível como está na base | Frequência |
+|---|---|
+| `UBER DO BRASIL TECNOLOGIA LTDA.` | 10.267 |
+| `Uber Do Brasil Tecnologia Ltda.` | 8 |
+
+A mesma empresa dividida em dois níveis pela caixa — sem essa saída, a concentração real fica subestimada e o dataset ruim passa despercebido. **O maat nunca une, corrige nem sugere correção**: mostra o fato e o usuário decide (princípio §0.2, corolário "mostrar é obrigação, agir é do usuário").
 
 **Visualizações**
 
-| Visual | Quando usar |
-|---|---|
-| Pareto (barras top-N + linha acumulada) | Padrão do regime — "quantas categorias explicam 80%?" |
-| Barras top-N + barra "Outros" destacada | Versão simples do Pareto |
-| Treemap | Quando há hierarquia ou muitos níveis médios |
+| Visual | Camada | Quando usar |
+|---|---|---|
+| Pareto (barras top-10 + linha acumulada) | Essencial | Padrão do regime — mostra concentração e cauda juntas |
+| Barras top-10 + "Outros" destacada | Essencial | Versão simples, sem eixo duplo |
+| Treemap | Completa | Quando há hierarquia ou muitos níveis médios |
 
 ### 2.3 Ordinal (com ordem: escolaridade, faixa de renda, satisfação 1–5)
 
