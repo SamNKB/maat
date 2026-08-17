@@ -35,8 +35,8 @@ flowchart TD
     N1 -->|sim| ID["Identificador<br/>ex.: id_pedido<br/>só unicidade e qualidade"]
     N1 -->|não| N2{"cara de código?<br/>ex.: CEP, ano, cód. produto"}
     N2 -->|sim| WARN["⚠️ marcada como suspeita<br/>sugere reclassificação"]
-    N2 -->|não| N3{"inteiros e<br/>k ≤ (max_discrete_levels)?"}
-    N3 -->|sim| DIS["Quantitativa discreta<br/>ex.: qtd_itens, nº de filhos"]
+    N2 -->|não| N3{"todos inteiros?"}
+    N3 -->|sim| DIS["Quantitativa discreta<br/>regime tabela ou histograma por k<br/>ex.: SibSp, Quantity"]
     N3 -->|não| CON["Quantitativa contínua<br/>ex.: valor_total, renda"]
 
     B -->|string| S1{"parseia como data<br/>em alta taxa?"}
@@ -97,7 +97,7 @@ import maat
 profile = maat.describe(df, config=maat.Config(
     max_categorical_levels=30,     # até aqui, regime categórico (frequências completas)
     textual_unique_ratio=0.5,      # fração de valores únicos acima da qual vira regime textual
-    max_discrete_levels=30,        # inteiros com até k distintos → quantitativa discreta
+    max_discrete_levels=30,        # discreta: até k distintos → regime tabela; acima → regime histograma
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -112,8 +112,8 @@ Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuá
 | dtype categórico/string, cardinalidade baixa em relação a `n` | Qualitativa nominal |
 | string com padrão de escala conhecida ("baixo/médio/alto", "P/M/G") ou ordem declarada | Qualitativa ordinal |
 | exatamente 2 valores distintos (qualquer dtype) | Qualitativa binária |
-| dtype numérico, todos inteiros, cardinalidade baixa | Quantitativa discreta |
-| dtype numérico em geral | Quantitativa contínua |
+| dtype numérico, todos inteiros | Quantitativa discreta — o `k` decide o **regime**: tabela (k baixo) ou histograma (k alto) |
+| dtype numérico com casas decimais | Quantitativa contínua |
 | dtype date/datetime, ou string que parseia como data em alta taxa | Temporal (instante) |
 | dtype timedelta, ou diferença entre colunas de data | Temporal (duração) |
 | numérico com cardinalidade ≈ `n` e sem repetição (id) | Identificador — análise reduzida a unicidade e qualidade |
@@ -298,26 +298,32 @@ As duas colunas de % eliminam a ambiguidade "% de tudo ou % de quem respondeu?" 
 
 ## 3. Quantitativas
 
-### 3.1 Discreta (contagens: nº de filhos, nº de itens no pedido)
+### 3.1 Discreta (contagens: nº de filhos, nº de itens no pedido) — ✅ consolidada em 2026-08-16
 
-**Resumos numéricos**
+> 🔍 **Página detalhada**: [tipos/discreta.html](tipos/discreta.html) ([versão pública](https://samnkb.github.io/maat/tipos/discreta.html)), também via clique no nó do grafo interativo.
 
-| Análise | O que responde |
-|---|---|
-| Tabela de frequências por valor (se cardinalidade baixa) | Distribuição exata — discreta com poucos valores se comporta como ordinal (mesma lógica de regimes da seção 2.0: `k` baixo → frequências; `k` alto → histograma) |
-| Mínimo, máximo, amplitude | Faixa de valores |
-| Média, mediana, moda | Tendência central (a moda volta a ser útil aqui) |
-| Variância, desvio padrão | Dispersão |
-| % de zeros | Inflação de zeros é comum em contagens (nº de compras, nº de sinistros) |
-| Contagem/% de ausentes | Qualidade do dado |
+**Decisão estrutural**: contagem é contagem — **inteiros são sempre discreta**, independente da cardinalidade. O `k` escolhe o **regime de apresentação** (mesma filosofia dos regimes da nominal, seção 2.0):
+
+| Regime | Quando | Exemplo real | Apresentação |
+|---|---|---|---|
+| **Tabela** | `k ≤ max_discrete_levels` | titanic `SibSp` (k=7) | frequência por valor exato — mostra tudo, inclusive buracos (não existe SibSp=6) |
+| **Histograma** | `k` acima do limiar | ecommerce `Quantity` (k=722) | histograma de bins inteiros + resumo numérico |
+
+**Camada essencial**: tabela por valor (regime tabela) com ausentes como linha, mínimo, máximo, moda, **média e mediana** — o par média × mediana já conta a história da assimetria sem jargão (`SibSp`: média 0,52 vs mediana 0).
+
+**Camada completa**: desvio padrão, quartis, % de zeros (no regime tabela o zero já aparece na tabela; no histograma o % de zeros vira estatística própria — `Parch`: 76,1% zeros).
+
+**Fora, por decisão** (2026-08-16): **soma total** — mesmo sendo significativa em contagens (`SibSp` soma 466; `Quantity` soma 5.176.450), é leitura de negócio, não descrição de distribuição; o usuário soma por conta própria se quiser.
+
+Nota do regime histograma: valores negativos aparecem como fato no mín/máx e na cauda do histograma (`Quantity`: mín -80.995, 1,96% negativos — devoluções), sem juízo de "erro".
 
 **Visualizações**
 
 | Visual | Quando usar |
 |---|---|
-| Barras por valor exato | Cardinalidade baixa (cada valor inteiro é uma barra) |
-| Histograma com bins inteiros | Cardinalidade média/alta |
-| ECDF | Comparar "% de casos até k" |
+| Barras por valor exato | Regime tabela — cada valor inteiro é uma barra |
+| Histograma com bins inteiros | Regime histograma |
+| ECDF | Completa — "% de casos até k" |
 
 ### 3.2 Contínua (renda, altura, temperatura)
 
