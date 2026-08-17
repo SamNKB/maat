@@ -130,7 +130,7 @@ const NODES=[
  {id:"t1",k:"tipo",kk:"TEMPORAL",x:250,y:400,t:"Temporal instante",s:"ex.: data_pedido",
   d:"O tipo que não cabia em lugar nenhum: eixo contínuo + componentes cíclicos categóricos. O maat o decompõe e cada derivada herda o fluxo do seu tipo.",
   ex:["netflix date_added: 2008 → 2021","ecommerce InvoiceDate: dez/2010 → dez/2011"],an:["Cobertura: mín, máx, amplitude","Granularidade real detectada","Gaps e buracos de coleta","Perfis cíclicos: mês, dia da semana, hora","Linha do tempo + heatmap calendário"]},
- {id:"bin",k:"tipo",kk:"QUALITATIVA",x:455,y:400,t:"Qualitativa binária",s:"exatamente 2 níveis",
+ {id:"bin",k:"tipo",kk:"QUALITATIVA",x:455,y:400,t:"Qualitativa binária",s:"exatamente 2 níveis",h:"tipos/binaria.html",
   d:"Caso degenerado mas frequente: merece saída própria e enxuta em vez de um gráfico de duas barras.",
   ex:["telco Churn: No 5.174 · Yes 1.869 (n 7.043)","sexo: F/M","ativo: True/False"],an:["Tabela de frequência com ausentes (abs, % total, % válidos)","Completa: nível dominante + razão de balanceamento (2,8:1)","Visual: indicador único (big number)"]},
  {id:"n1",k:"decisao",kk:"DECISÃO",x:660,y:410,t:"k ≈ n e sem repetição?",s:"cara de identificador",
@@ -239,19 +239,28 @@ function draw(){
 }
 let drag=null;
 function startDrag(e,id){
-  drag={id,dx:e.clientX-pos[id][0],dy:e.clientY-pos[id][1]};
+  drag={id,dx:e.clientX-pos[id][0],dy:e.clientY-pos[id][1],sx:e.clientX,sy:e.clientY,moved:false};
   els[id].setPointerCapture(e.pointerId); hideTip();
 }
 document.addEventListener("pointermove",e=>{
   if(!drag)return;
+  if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>5)drag.moved=true;
+  if(!drag.moved)return;
   const x=Math.max(0,Math.min(1364,e.clientX-drag.dx)), y=Math.max(0,Math.min(940,e.clientY-drag.dy));
   pos[drag.id]=[x,y]; els[drag.id].style.left=x+"px"; els[drag.id].style.top=y+"px"; draw();
 });
-document.addEventListener("pointerup",()=>{drag=null});
+document.addEventListener("pointerup",()=>{
+  if(drag&&!drag.moved){
+    const n=NODES.find(x=>x.id===drag.id);
+    if(n&&n.h)location.href=n.h;
+  }
+  drag=null;
+});
 function showTip(n){
   tip.innerHTML=`<h5>${n.t}</h5><p>${n.d}</p>
     <div class="lbl">EXEMPLOS</div><div class="exs">${n.ex.map(e=>`<span class="ex">${e}</span>`).join("")}</div>
-    ${n.an.length?`<div class="lbl">ANÁLISES / NOTAS</div><ul>${n.an.map(a=>`<li>${a}</li>`).join("")}</ul>`:""}`;
+    ${n.an.length?`<div class="lbl">ANÁLISES / NOTAS</div><ul>${n.an.map(a=>`<li>${a}</li>`).join("")}</ul>`:""}
+    ${n.h?`<div class="lbl" style="margin-top:10px;color:var(--cyan)">CLIQUE PARA ABRIR A PÁGINA DETALHADA →</div>`:""}`;
   tip.style.display="block";
 }
 function moveTip(e){

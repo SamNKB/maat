@@ -13,6 +13,7 @@ Biblioteca de análise descritiva de dados sobre **pandas e PySpark** com a mesm
 
 - `docs/fluxo-de-analises.md` — o mapa conceitual (tipos, regimes, análises por cenário, questões em aberto na seção 7). **Ler antes de qualquer trabalho de design.**
 - `docs/identidade-visual.md` — paleta Blade Runner + fontes aprovadas (Rajdhani / Space Grotesk / JetBrains Mono). Tokens em `assets/design-tokens.css`.
+- `docs/tipos/*.html` — subpáginas detalhadas por tipo (servidas no GitHub Pages), abertas ao clicar no nó correspondente do grafo interativo. Modelo: `binaria.html`. Criar a subpágina de cada tipo **quando ele for consolidado**, com números reais do benchmark.
 - `datasets/README.md` — manifesto dos 40 datasets de benchmark: 30 do Kaggle + 10 de dados abertos do governo brasileiro (dados só locais, fora do git; re-download via `python scripts/download_datasets.py` e `python scripts/download_gov_datasets.py`). Números reais para exemplos: `python scripts/benchmark_examples.py`.
 
 ## Decisões já tomadas (não rediscutir sem o Sam pedir)

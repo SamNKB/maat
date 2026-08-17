@@ -271,6 +271,8 @@ Cada checagem devolve contagem, % e uma **amostra dos ofensores** (a amostra é 
 
 ### 2.5 Binária (sim/não, ativo/inativo) — ✅ consolidada em 2026-08-16
 
+> 🔍 **Página detalhada**: [tipos/binaria.html](tipos/binaria.html) — decisões, exemplos reais do benchmark e visuais ([versão pública](https://samnkb.github.io/maat/tipos/binaria.html)). Também acessível clicando no nó "Qualitativa binária" do grafo interativo.
+
 Caso degenerado, mas frequente o bastante para merecer saída própria e enxuta.
 
 **Camada essencial** — tabela de frequência com o nulo como cidadão de primeira classe. Números reais de `Churn` no dataset telco-churn do benchmark (n = 7.043; reproduzível via `scripts/benchmark_examples.py`):
