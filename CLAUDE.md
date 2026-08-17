@@ -13,7 +13,7 @@ Biblioteca de análise descritiva de dados sobre **pandas e PySpark** com a mesm
 
 - `docs/fluxo-de-analises.md` — o mapa conceitual (tipos, regimes, análises por cenário, questões em aberto na seção 7). **Ler antes de qualquer trabalho de design.**
 - `docs/identidade-visual.md` — paleta Blade Runner + fontes aprovadas (Rajdhani / Space Grotesk / JetBrains Mono). Tokens em `assets/design-tokens.css`.
-- `datasets/README.md` — manifesto dos 30 datasets de benchmark do Kaggle (dados só locais, fora do git; re-download via `python scripts/download_datasets.py`).
+- `datasets/README.md` — manifesto dos 40 datasets de benchmark: 30 do Kaggle + 10 de dados abertos do governo brasileiro (dados só locais, fora do git; re-download via `python scripts/download_datasets.py` e `python scripts/download_gov_datasets.py`). Números reais para exemplos: `python scripts/benchmark_examples.py`.
 
 ## Decisões já tomadas (não rediscutir sem o Sam pedir)
 
@@ -23,6 +23,6 @@ Biblioteca de análise descritiva de dados sobre **pandas e PySpark** com a mesm
 - Subtipo `rank`: será criado, mas **aguarda validação em datasets reais** (rank vs id sequencial são estatisticamente idênticos).
 - Regimes na ordinal: **adiado** até casos reais.
 
-## Estado (2026-08-16)
+## Estado (2026-08-16, fim do dia)
 
-Estrutura e taxonomia implementadas; inferência, backends e análises ainda são stubs (`NotImplementedError`). Próximo passo combinado: discutir as análises por tipo (mais simples primeiro: binária → nominal categórica), depois implementar `core/inference.py` + `PandasBackend` e rodar o benchmark nos 30 datasets.
+Estrutura e taxonomia implementadas; inferência, backends e análises ainda são stubs (`NotImplementedError`). **Binária consolidada** (seção 2.5 do fluxo: tabela de frequência com ausentes na essencial; dominante + razão na completa; sem IC, sem par semântico, sem alertas por limiar). Fila de discussão escolhida pelo Sam: **quantitativas primeiro** (discreta → contínua), depois cauda longa, ordinal, textual, temporal. Depois: implementar `core/inference.py` + `PandasBackend` e rodar o benchmark nos 40 datasets. Ideia aceita em avaliação: rodar ydata-profiling (concorrente mais próximo) nos 40 como baseline de comparação.
