@@ -20,6 +20,20 @@ class VariableClass(str, Enum):
     UNSUPPORTED = "unsupported"  # texto livre, structs etc. (fora do MVP)
 
 
+class CardinalityRegime(str, Enum):
+    """Regime de cardinalidade — modificador que seleciona a estratégia de
+    análise dentro de um tipo (seção 2.0 do fluxo de análises).
+
+    Não é um tipo: uma nominal em regime CATEGORICAL ganha tabela de
+    frequências completa; em LONG_TAIL, top-N + Pareto; em TEXTUAL, perfil
+    da string (forma, padrão e sujeira via regex) com amostras dirigidas.
+    """
+
+    CATEGORICAL = "categorical"  # k pequeno — todos os níveis no resumo
+    LONG_TAIL = "long_tail"  # k médio com repetição — top-N + "Outros"
+    TEXTUAL = "textual"  # k ≈ n — a string em si vira o objeto de análise
+
+
 class VariableSubtype(str, Enum):
     """Subtipo dentro de cada classe."""
 
@@ -57,6 +71,9 @@ class VariableType:
 
     var_class: VariableClass
     subtype: VariableSubtype | None = None
+    # Regime de cardinalidade — relevante para qualitativas e quantitativas
+    # discretas; inferido a partir de k (n_distinct) e n, sobrescrevível.
+    regime: CardinalityRegime | None = None
     # Confiança da inferência em [0, 1]; 1.0 quando declarado pelo usuário.
     confidence: float = 1.0
     # Ordem dos níveis, obrigatória para ordinais (ex.: ["baixo", "médio", "alto"]).

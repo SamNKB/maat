@@ -38,8 +38,8 @@ Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuá
 | dtype numérico em geral | Quantitativa contínua |
 | dtype date/datetime, ou string que parseia como data em alta taxa | Temporal (instante) |
 | dtype timedelta, ou diferença entre colunas de data | Temporal (duração) |
-| numérico com cardinalidade ≈ `n` e sem repetição (id) | Identificador — **excluída da análise** |
-| string com cardinalidade ≈ `n` (texto livre, id) | Identificador / texto livre — **excluída do MVP** |
+| numérico com cardinalidade ≈ `n` e sem repetição (id) | Identificador — análise reduzida a unicidade e qualidade |
+| string com cardinalidade alta (nome, e-mail, endereço) | Qualitativa nominal em **regime textual** (seção 2.4) |
 
 > **Armadilhas conhecidas**: CEP, código de produto e ano são números que *não* são quantitativos (não faz sentido somar CEPs). A inferência deve marcar esses casos como "suspeitos" e sugerir reclassificação. Ano é o caso mais ambíguo: pode ser temporal (eixo) ou ordinal (categoria de agrupamento) dependendo da pergunta.
 
@@ -47,7 +47,27 @@ Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuá
 
 ## 2. Qualitativas
 
-### 2.1 Nominal (sem ordem: cidade, categoria de produto, cor)
+### 2.0 Regimes de cardinalidade
+
+Dentro de um mesmo tipo, **a quantidade de níveis muda completamente qual análise faz sentido**. "Sexo" (2–3 níveis) e "e-mail" (um nível por linha) são ambas strings nominais, mas pedem tratamentos opostos. O maat trabalha com três regimes, decididos pela cardinalidade `k` em relação ao total `n`:
+
+```mermaid
+flowchart LR
+    A[Qualitativa nominal<br/>k níveis, n linhas] --> B{Regime?}
+    B -->|k pequeno<br/>ex.: k ≤ 30| C[Categórico<br/>tabela de frequências completa]
+    B -->|k médio, cauda longa<br/>ex.: 30 < k e k/n baixo| D[Cauda longa<br/>top-N + Outros, Pareto]
+    B -->|k ≈ n<br/>quase um valor por linha| E[Textual<br/>perfil da string: amostras + regex]
+```
+
+| Regime | Exemplo | Estratégia |
+|---|---|---|
+| **Categórico** (`k` pequeno) | sexo, UF, canal de venda | Tabela de frequências completa — todo nível aparece no resumo e no gráfico |
+| **Cauda longa** (`k` médio, muita repetição) | cidade, categoria de produto, CID | Top-N + agregado "Outros"; análise de concentração (Pareto); categorias raras |
+| **Textual** (`k` ≈ `n`, quase sem repetição) | nome, e-mail, endereço, descrição | A frequência é inútil (tudo tem contagem ~1) — o objeto de análise passa a ser **a string em si**: comprimentos, amostras extremas, padrões e sujeira via regex (seção 2.4) |
+
+Os limiares exatos entre regimes são a questão em aberto nº 1 (seção 7). Importante: o regime **não é um tipo** — é um modificador que seleciona a estratégia dentro do tipo. Uma coluna pode migrar de regime quando os dados crescem.
+
+### 2.1 Nominal em regime categórico (sexo, UF, canal de venda)
 
 **Resumos numéricos**
 
@@ -66,12 +86,32 @@ Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuá
 | Visual | Quando usar |
 |---|---|
 | Barras ordenadas por frequência | Padrão para até ~15 categorias |
-| Pareto (barras + linha acumulada) | Quando importa saber "quantas categorias explicam 80%?" |
-| Lollipop | Alternativa limpa às barras com muitas categorias |
-| Treemap | Alta cardinalidade com hierarquia ou muitos níveis pequenos |
+| Lollipop | Alternativa limpa às barras quando há mais categorias |
 | ⚠️ Pizza/donut | Só com ≤ 4 categorias — em geral, evitar |
 
-### 2.2 Ordinal (com ordem: escolaridade, faixa de renda, satisfação 1–5)
+### 2.2 Nominal em regime cauda longa (cidade, categoria de produto)
+
+Muitos níveis, mas com repetição relevante — a frequência ainda é o objeto de análise, mas mostrar todos os níveis deixa de ser viável.
+
+**Resumos numéricos**
+
+| Análise | O que responde |
+|---|---|
+| Top-N por frequência + agregado "Outros" (com contagem de níveis agregados) | Quem domina, sem afogar o leitor em níveis |
+| Concentração: quantos níveis acumulam 50% / 80% / 95% dos registros | A cauda importa ou é ruído? |
+| Índice de concentração (Herfindahl ou entropia normalizada) | Um número para comparar colunas entre si |
+| Contagem de níveis-singleton (frequência 1) | Possíveis erros de digitação/variantes da mesma categoria |
+| Candidatos a duplicata de nível (mesma string após lower/trim/sem acento) | "São Paulo" vs "são paulo" vs "SAO PAULO" |
+
+**Visualizações**
+
+| Visual | Quando usar |
+|---|---|
+| Pareto (barras top-N + linha acumulada) | Padrão do regime — "quantas categorias explicam 80%?" |
+| Barras top-N + barra "Outros" destacada | Versão simples do Pareto |
+| Treemap | Quando há hierarquia ou muitos níveis médios |
+
+### 2.3 Ordinal (com ordem: escolaridade, faixa de renda, satisfação 1–5)
 
 Herda tudo da nominal, e a ordem habilita mais:
 
@@ -91,7 +131,59 @@ Herda tudo da nominal, e a ordem habilita mais:
 | Barras divergentes (escala Likert) | Escalas de concordância/satisfação centradas no neutro |
 | Barra 100% empilhada única | Ver a composição inteira numa linha só |
 
-### 2.3 Binária (sim/não, ativo/inativo)
+### 2.4 Nominal em regime textual (nome, e-mail, endereço)
+
+Quando `k ≈ n`, contar frequências não diz nada — cada valor aparece uma vez. O objeto de análise vira **a própria string**, em três frentes: forma, padrão e sujeira. Como inspecionar milhões de strings é inviável, o método é **estatísticas globais + amostras dirigidas** (não aleatórias: amostras dos casos extremos e dos casos suspeitos).
+
+**Frente 1 — Forma (estatísticas de comprimento e estrutura)**
+
+O comprimento da string é uma variável quantitativa derivada — herda a análise da seção 3:
+
+| Análise | O que responde |
+|---|---|
+| Distribuição de comprimento (mín, mediana, máx, histograma) | Existe um comprimento "normal"? Bimodalidade sugere dois tipos de dado misturados |
+| Amostra das N strings mais curtas | Curtas demais = truncamento, "a", "-", "." usados como preenchimento |
+| Amostra das N strings mais longas | Longas demais = campo usado para outra coisa (observações coladas no nome) |
+| Nº de tokens/palavras (distribuição) | Nome com 1 token ou 12 tokens é suspeito |
+| % de valores vazios-disfarçados ("", " ", "N/A", "null", "-", "sem informação") | Ausência que não aparece como ausência |
+
+**Frente 2 — Padrão (o campo tem um formato esperado?)**
+
+| Análise | O que responde |
+|---|---|
+| Detecção de padrão dominante via regex (e-mail, URL, telefone, CPF/CNPJ, CEP, UUID) | Que tipo de dado este campo realmente contém? |
+| % de aderência ao padrão dominante + amostra das violações | Quanto do campo está "quebrado" e como |
+| Máscara de caractere (abstrair `Aa9` : "Rua X, 123" → "Aaa A, 999") e top máscaras | Enxergar os formatos coexistentes sem ler as strings |
+| Consistência de caixa (% minúscula, MAIÚSCULA, Título, MiStA) | Padronização de entrada |
+
+**Frente 3 — Sujeira (a bateria de regex de qualidade)**
+
+Cada checagem devolve contagem, % e uma **amostra dos ofensores** (a amostra é o que torna o achado acionável):
+
+| Checagem (regex/verificação) | Sujeira detectada |
+|---|---|
+| Espaços à esquerda/direita (`^\s|\s$`) | Falha de trim na origem |
+| Espaços consecutivos (`\s{2,}`) | Digitação/concatenação malfeita |
+| Caracteres invisíveis (zero-width `​-‍`, NBSP ` `, BOM `﻿`) | Copy-paste de web/Excel — invisível ao olho, quebra joins |
+| Caracteres de controle/não-imprimíveis (`[\x00-\x1f\x7f]`) | Encoding quebrado, lixo binário |
+| Caracteres repetidos em sequência (`(.)\1{3,}`) | "aaaa", "1111" — preenchimento de teclado |
+| Mojibake ("Ã©", "Ã£", "â€™") | Dupla codificação UTF-8/Latin-1 |
+| Mistura de alfabetos (latino + cirílico/grego no mesmo valor) | Homóglifos — erro ou fraude |
+| Dígitos em campo nominal / letras em campo numérico | Conteúdo fora do domínio esperado |
+| HTML/escape residual (`&amp;`, `<br>`, `\n` literal) | Dado raspado sem limpeza |
+
+**Visualizações**
+
+| Visual | Quando usar |
+|---|---|
+| Histograma de comprimento | Padrão do regime — a forma da coluna |
+| Barras das top máscaras de caractere | Formatos coexistentes no campo |
+| Painel de qualidade (barras: % de cada checagem que disparou) | Resumo executivo da sujeira |
+| Tabela de amostras dirigidas (curtas, longas, violações) | Não é gráfico, mas é a saída mais acionável do regime |
+
+> Nota Spark: todas as checagens são `filter`/`regexp` distribuídos + `take(N)` para amostras — baratas mesmo em bilhões de linhas. A máscara de caractere é um `regexp_replace` encadeado.
+
+### 2.5 Binária (sim/não, ativo/inativo)
 
 Caso degenerado, mas frequente o bastante para merecer saída própria e enxuta:
 
@@ -108,7 +200,7 @@ Caso degenerado, mas frequente o bastante para merecer saída própria e enxuta:
 
 | Análise | O que responde |
 |---|---|
-| Tabela de frequências por valor (se cardinalidade baixa) | Distribuição exata — discreta com poucos valores se comporta como ordinal |
+| Tabela de frequências por valor (se cardinalidade baixa) | Distribuição exata — discreta com poucos valores se comporta como ordinal (mesma lógica de regimes da seção 2.0: `k` baixo → frequências; `k` alto → histograma) |
 | Mínimo, máximo, amplitude | Faixa de valores |
 | Média, mediana, moda | Tendência central (a moda volta a ser útil aqui) |
 | Variância, desvio padrão | Dispersão |
@@ -230,8 +322,9 @@ Ponto importante para o Spark: **as visualizações nunca recebem os dados bruto
 
 ## 7. Questões em aberto (para discutirmos)
 
-1. **Limiar de cardinalidade**: com quantos níveis uma string deixa de ser categórica e vira "texto livre/id"? Fixo (ex.: 50) ou relativo (ex.: > 20% de `n`)?
+1. **Limiares entre regimes de cardinalidade** (seção 2.0): onde termina o categórico e começa a cauda longa? Onde a cauda longa vira textual? Proposta inicial: categórico `k ≤ 30`; textual quando `k/n_válidos > 0.5` (mais da metade dos valores é única); cauda longa no meio. Fixos, relativos ou combinados?
 2. **Ordem das ordinais**: inferimos por dicionários de escalas conhecidas (pt/en) ou exigimos declaração do usuário no MVP?
-3. **Amostragem no Spark**: qual o padrão de erro aceitável para `approxQuantile` e qual o tamanho de amostra para visuais?
+3. **Amostragem no Spark**: qual o padrão de erro aceitável para `approxQuantile` e qual o tamanho de amostra para visuais? E o `N` das amostras dirigidas do regime textual (seção 2.4)?
 4. **Saída do relatório**: HTML estático primeiro? Ou dict/JSON estruturado primeiro e o HTML como renderização por cima (recomendado)?
-5. **Texto livre**: fora do MVP, mas vale reservar o tipo na taxonomia desde já (contagem de tokens, comprimento médio)?
+5. ~~Texto livre: fora do MVP?~~ → **Resolvido**: alta cardinalidade textual entrou no MVP como regime da nominal (seção 2.4), com perfil de forma/padrão/sujeira em vez de análise de frequência.
+6. **Bateria de regex do regime textual**: a lista da seção 2.4 (frente 3) é a inicial — quais checagens entram no MVP e quais ficam configuráveis/extensíveis pelo usuário?
