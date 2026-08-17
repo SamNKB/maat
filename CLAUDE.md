@@ -120,7 +120,7 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 
 ## 7. Ambiente e armadilhas operacionais (Windows)
 
-- **Shell**: PowerShell. `&&` não funciona; usar `;` ou `if ($?)`. Mensagens de commit multilinha via here-string `@'...'@` com `'@` na coluna 0.
+- **Shell**: PowerShell. `&&` não funciona; usar `;` ou `if ($?)`. Mensagens de commit multilinha via here-string `@'...'@` com `'@` na coluna 0. **Nunca usar aspas duplas dentro da mensagem de commit** — o PowerShell 5.1 re-quebra o argumento ao passar para o git e o commit falha com `pathspec ... did not match`.
 - **`gh` não está no PATH** desta sessão: chamar `& "C:\Program Files\GitHub CLI\gh.exe"`. Autenticado como `SamNKB`.
 - **Python 3.12** com **pandas 3.0.5** instalado. **pytest NÃO está instalado** (`pip install -e ".[pandas,dev]"` para testar).
 - **Kaggle**: cliente via `python -m kaggle`; autenticação OAuth já feita (`kaggle auth login`). Alguns datasets retornam 403 na API e exigem espelho alternativo (aconteceu com Pima Diabetes e FIFA 19).
