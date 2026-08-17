@@ -54,6 +54,8 @@
   .out{border-color:rgba(255,176,58,.5)}
   .out h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:16.5px; margin-bottom:4px}
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src a{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(0,229,255,.5)}
+  .g .src a:hover{text-shadow:0 0 8px rgba(0,229,255,.6)}
   .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
   .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
   code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
@@ -152,10 +154,10 @@
 
 <h2>Discretas reais do benchmark</h2>
 <div class="grid">
-  <div class="card g"><span class="src">titanic · k=7 · regime tabela</span><h3>SibSp: 0…8</h3><p class="muted">68,2% zeros · média 0,52 · mediana 0</p></div>
-  <div class="card g"><span class="src">titanic · k=7 · regime tabela</span><h3>Parch: 0…6</h3><p class="muted">76,1% zeros — pais/filhos a bordo</p></div>
-  <div class="card g"><span class="src">ecommerce · k=722 · regime histograma</span><h3>Quantity</h3><p class="muted">mediana 3 · média 9,6 · 1,96% negativos</p></div>
-  <div class="card g"><span class="src">wine-quality · ⚠️ pegadinha</span><h3>quality: 3…8</h3><p class="muted">inteiro de k=6 que <strong>não</strong> é contagem — é escala Likert: reclassificação para ordinal (a inferência propõe, o usuário dispõe)</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/yasserh/titanic-dataset?select=Titanic-Dataset.csv" target="_blank" rel="noopener">titanic</a> · k=7 · regime tabela</span><h3>SibSp: 0…8</h3><p class="muted">68,2% zeros · média 0,52 · mediana 0</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/yasserh/titanic-dataset?select=Titanic-Dataset.csv" target="_blank" rel="noopener">titanic</a> · k=7 · regime tabela</span><h3>Parch: 0…6</h3><p class="muted">76,1% zeros — pais/filhos a bordo</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/carrie1/ecommerce-data?select=data.csv" target="_blank" rel="noopener">ecommerce</a> · k=722 · regime histograma</span><h3>Quantity</h3><p class="muted">mediana 3 · média 9,6 · 1,96% negativos</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009?select=winequality-red.csv" target="_blank" rel="noopener">wine-quality</a> · ⚠️ pegadinha</span><h3>quality: 3…8</h3><p class="muted">inteiro de k=6 que <strong>não</strong> é contagem — é escala Likert: reclassificação para ordinal (a inferência propõe, o usuário dispõe)</p></div>
 </div>
 
 <footer>maat · reproduza os números: <code>python scripts/benchmark_examples.py</code> · decisões em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (§0 princípios, §3.1 discreta) · <a href="binaria.html">← binária</a> · <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>

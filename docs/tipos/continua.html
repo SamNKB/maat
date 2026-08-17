@@ -49,6 +49,8 @@
   .out{border-color:rgba(255,176,58,.5)}
   .out h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:16.5px; margin-bottom:4px}
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src a{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(0,229,255,.5)}
+  .g .src a:hover{text-shadow:0 0 8px rgba(0,229,255,.6)}
   .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
   .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
   code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
@@ -136,10 +138,10 @@
 
 <h2>Contínuas reais do benchmark</h2>
 <div class="grid">
-  <div class="card g"><span class="src">telco-churn · decimais</span><h3>MonthlyCharges</h3><p class="muted">mediana 70,35 · assimetria -0,22 · zero atípicos</p></div>
-  <div class="card g"><span class="src">nyc-airbnb · ⚠️ reclassificada</span><h3>price</h3><p class="muted">assimetria 19,1 · 6,08% atípicos · 11 valores zero</p></div>
-  <div class="card g"><span class="src">gov-bcb-dolar · série 2017–2025</span><h3>dólar (venda)</h3><p class="muted">n 2.259 · mín 3,05 · máx 6,21 · mediana 5,06 — vírgula decimal brasileira</p></div>
-  <div class="card g"><span class="src">telco-churn · ⚠️ pegadinha</span><h3>TotalCharges</h3><p class="muted">contínua presa num dtype string — 11 valores em branco impedem o parse; numérico-em-string clássico</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn?select=WA_Fn-UseC_-Telco-Customer-Churn.csv" target="_blank" rel="noopener">telco-churn</a> · decimais</span><h3>MonthlyCharges</h3><p class="muted">mediana 70,35 · assimetria -0,22 · zero atípicos</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/dgomonov/new-york-city-airbnb-open-data?select=AB_NYC_2019.csv" target="_blank" rel="noopener">nyc-airbnb</a> · ⚠️ reclassificada</span><h3>price</h3><p class="muted">assimetria 19,1 · 6,08% atípicos · 11 valores zero</p></div>
+  <div class="card g"><span class="src"><a href="https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint" target="_blank" rel="noopener">gov-bcb-dolar</a> · série 2017–2025</span><h3>dólar (venda)</h3><p class="muted">n 2.259 · mín 3,05 · máx 6,21 · mediana 5,06 — vírgula decimal brasileira</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn?select=WA_Fn-UseC_-Telco-Customer-Churn.csv" target="_blank" rel="noopener">telco-churn</a> · ⚠️ pegadinha</span><h3>TotalCharges</h3><p class="muted">contínua presa num dtype string — 11 valores em branco impedem o parse; numérico-em-string clássico</p></div>
 </div>
 
 <footer>maat · reproduza os números: <code>python scripts/benchmark_examples.py</code> · decisões em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (§0 princípios, §3.2 contínua) · <a href="binaria.html">binária</a> · <a href="discreta.html">discreta</a> · <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>

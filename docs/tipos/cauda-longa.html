@@ -56,6 +56,8 @@
   .warn{border-color:rgba(255,176,58,.5)}
   .warn h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:17px; margin-bottom:6px}
   .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src a{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(0,229,255,.5)}
+  .g .src a:hover{text-shadow:0 0 8px rgba(0,229,255,.6)}
   .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
   .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
   code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
@@ -143,10 +145,10 @@
 
 <h2>Cauda longa no benchmark</h2>
 <div class="grid">
-  <div class="card g"><span class="src">nyc-airbnb · limpa</span><h3>neighbourhood</h3><p class="muted">k=221 · 36 para 80% · 6 singletons · 0 variantes</p></div>
-  <div class="card g"><span class="src">gov-camara-cota · suja</span><h3>txtFornecedor</h3><p class="muted">k=22.024 · 3.787 para 80% · 43,1% singletons · 279 grupos de variantes</p></div>
-  <div class="card g"><span class="src">gov-camara-cota · contraste</span><h3>txtDescricao</h3><p class="muted">k=19 → <strong>regime categórico</strong>: 2 níveis somam 50%, 5 somam 80%. Mesma tabela, outro regime</p></div>
-  <div class="card g"><span class="src">adult-census · fronteira</span><h3>native.country</h3><p class="muted">k=42 com dominante de 89,6% — cardinalidade média com concentração extrema</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/dgomonov/new-york-city-airbnb-open-data?select=AB_NYC_2019.csv" target="_blank" rel="noopener">nyc-airbnb</a> · limpa</span><h3>neighbourhood</h3><p class="muted">k=221 · 36 para 80% · 6 singletons · 0 variantes</p></div>
+  <div class="card g"><span class="src"><a href="https://www.camara.leg.br/transparencia/gastos-parlamentares" target="_blank" rel="noopener">gov-camara-cota</a> · suja</span><h3>txtFornecedor</h3><p class="muted">k=22.024 · 3.787 para 80% · 43,1% singletons · 279 grupos de variantes</p></div>
+  <div class="card g"><span class="src"><a href="https://www.camara.leg.br/transparencia/gastos-parlamentares" target="_blank" rel="noopener">gov-camara-cota</a> · contraste</span><h3>txtDescricao</h3><p class="muted">k=19 → <strong>regime categórico</strong>: 2 níveis somam 50%, 5 somam 80%. Mesma tabela, outro regime</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/uciml/adult-census-income?select=adult.csv" target="_blank" rel="noopener">adult-census</a> · fronteira</span><h3>native.country</h3><p class="muted">k=42 com dominante de 89,6% — cardinalidade média com concentração extrema</p></div>
 </div>
 
 <footer>maat · reproduza os números: <code>python scripts/benchmark_examples.py</code> · decisões em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (§0 princípios, §2.2 cauda longa) · <a href="binaria.html">binária</a> · <a href="discreta.html">discreta</a> · <a href="continua.html">contínua</a> · <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>
