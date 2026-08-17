@@ -150,7 +150,7 @@ const NODES=[
   ex:["SibSp: inteiros → discreta","MonthlyCharges 64,76 → contínua"],an:["k ≤ max_discrete_levels → regime tabela","k acima → regime histograma"]},
  {id:"dis",k:"tipo",kk:"QUANTITATIVA",x:640,y:760,t:"Quantitativa discreta",s:"contagens · regime por k",h:"tipos/discreta.html",
   d:"Contagens: 4 itens são o dobro de 2. Consolidada: regime tabela (k baixo, frequência por valor exato) ou regime histograma (k alto, bins inteiros).",
-  ex:["titanic SibSp: k=7 → tabela · 68,2% zeros","ecommerce Quantity: k=722 → histograma"],an:["Essencial: tabela por valor, mín/máx, moda, média, mediana","Completa: dp, quartis, % de zeros, ECDF","Fora por decisão: soma total","Média 0,52 × mediana 0 (SibSp): assimetria sem jargão"]},
+  ex:["titanic SibSp: k=7 → tabela · 68,2% zeros","ecommerce Quantity: k=722 → histograma"],an:["Essencial: tabela por valor, mín/máx, moda, média, mediana","Histograma: + tabela de extremos (5 mais/5 menos frequentes)","Completa: dp, quartis, % de zeros, ECDF","Fora por decisão: soma total","Média 0,52 × mediana 0 (SibSp): assimetria sem jargão"]},
  {id:"con",k:"tipo",kk:"QUANTITATIVA",x:900,y:760,t:"Quantitativa contínua",s:"ex.: valor_total, renda",
   d:"O caso mais rico da estatística descritiva clássica: posição, dispersão, forma e outliers.",
   ex:["telco MonthlyCharges: mediana 70,35 · k=1.585","renda","temperatura"],an:["Quantis p1…p99 (aprox. no Spark) — MonthlyCharges: p5=19,65 · p95=107,40","Dispersão: dp, IQR, CV","Forma: assimetria e curtose","Outliers pela regra 1.5×IQR","Histograma, boxplot, densidade, ECDF"]},

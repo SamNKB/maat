@@ -105,6 +105,33 @@
     <div class="stat"><b>1,96%</b><span>NEGATIVOS</span></div>
   </div>
   <p class="muted" style="margin-top:10px">O par mín/máx espelhado é um pedido de 80.995 unidades e seu cancelamento. Os negativos (devoluções) aparecem <strong>como fato</strong> — o maat descreve, não julga. Média 9,6 × mediana 3: a cauda longa das compras grandes, de novo sem jargão.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:14px">
+    <div>
+      <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px">5 MAIS FREQUENTES</p>
+      <table>
+        <tr><th>VALOR</th><th>FREQ</th><th>%</th></tr>
+        <tr><td class="num">1</td><td class="num">148.227</td><td class="num">27,4%</td></tr>
+        <tr><td class="num">2</td><td class="num">81.829</td><td class="num">15,1%</td></tr>
+        <tr><td class="num">12</td><td class="num">61.063</td><td class="num">11,3%</td></tr>
+        <tr><td class="num">6</td><td class="num">40.868</td><td class="num">7,5%</td></tr>
+        <tr><td class="num">4</td><td class="num">38.484</td><td class="num">7,1%</td></tr>
+      </table>
+      <p class="muted">A dúzia em 3º lugar: varejo puro, visível só na tabela.</p>
+    </div>
+    <div>
+      <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px">5 MENOS FREQUENTES</p>
+      <table>
+        <tr><th>VALOR</th><th>FREQ</th><th>%</th></tr>
+        <tr><td class="num">80.995</td><td class="num">1</td><td class="num">&lt;0,1%</td></tr>
+        <tr><td class="num">-80.995</td><td class="num">1</td><td class="num">&lt;0,1%</td></tr>
+        <tr><td class="num">74.215</td><td class="num">1</td><td class="num">&lt;0,1%</td></tr>
+        <tr><td class="num">-74.215</td><td class="num">1</td><td class="num">&lt;0,1%</td></tr>
+        <tr><td class="num">12.540</td><td class="num">1</td><td class="num">&lt;0,1%</td></tr>
+      </table>
+      <p class="muted">308 valores empatados em freq 1 — o desempate escolhe os mais extremos, que são os que contam história.</p>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:10px">Tabela de extremos de frequência: default 5 + 5, parametrizável via <code>discrete_extremes_levels</code>. Decisão de 2026-08-16.</p>
 </div>
 
 <h2>Camada completa <span class="tag">PARA QUEM QUER PROFUNDIDADE</span></h2>

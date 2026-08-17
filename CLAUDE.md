@@ -23,7 +23,7 @@ Biblioteca de análise descritiva de dados sobre **pandas e PySpark** com a mesm
 - Princípios: "a inferência propõe, o usuário dispõe" · "o maat descreve, não julga" · duas camadas de perfil (essencial + completa) · custo no backend, visual só recebe agregados.
 - Subtipo `rank`: será criado, mas **aguarda validação em datasets reais** (rank vs id sequencial são estatisticamente idênticos).
 - Regimes na ordinal: **adiado** até casos reais.
-- **Quantitativa discreta consolidada** (2026-08-16): inteiros são sempre discreta — o k escolhe o regime (**tabela**: frequência por valor; **histograma**: bins inteiros). Essencial: tabela + mín/máx + moda + **média e mediana**; completa: dp, quartis, % de zeros, ECDF. **Soma total: fora** (leitura de negócio, não de distribuição). Contínua = numérico com casas decimais.
+- **Quantitativa discreta consolidada** (2026-08-16): inteiros são sempre discreta — o k escolhe o regime (**tabela**: frequência por valor; **histograma**: bins inteiros). Essencial: tabela + mín/máx + moda + **média e mediana**; completa: dp, quartis, % de zeros, ECDF. **Soma total: fora** (leitura de negócio, não de distribuição). Contínua = numérico com casas decimais. Regime histograma inclui **tabela de extremos de frequência** (5 mais + 5 menos frequentes; `discrete_extremes_levels`; empates na menor freq → valores mais extremos primeiro).
 - **Narrativas (data-to-text)**: núcleo de templates determinísticos pt-BR/en (tom acadêmico no MVP) + plug opcional de LLM **local e gratuito** (Ollama; nunca API de nuvem por padrão) que só reformula/traduz texto pronto, com **trava de números** (validação determinística pós-geração). Subpáginas aprovadas para tipos **e regimes**.
 
 ## Estado (2026-08-16, fim do dia)

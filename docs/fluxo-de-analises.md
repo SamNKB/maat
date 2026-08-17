@@ -98,6 +98,7 @@ profile = maat.describe(df, config=maat.Config(
     max_categorical_levels=30,     # até aqui, regime categórico (frequências completas)
     textual_unique_ratio=0.5,      # fração de valores únicos acima da qual vira regime textual
     max_discrete_levels=30,        # discreta: até k distintos → regime tabela; acima → regime histograma
+    discrete_extremes_levels=5,    # regime histograma: n valores mais e n menos frequentes na tabela de extremos
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -307,13 +308,15 @@ As duas colunas de % eliminam a ambiguidade "% de tudo ou % de quem respondeu?" 
 | Regime | Quando | Exemplo real | Apresentação |
 |---|---|---|---|
 | **Tabela** | `k ≤ max_discrete_levels` | titanic `SibSp` (k=7) | frequência por valor exato — mostra tudo, inclusive buracos (não existe SibSp=6) |
-| **Histograma** | `k` acima do limiar | ecommerce `Quantity` (k=722) | histograma de bins inteiros + resumo numérico |
+| **Histograma** | `k` acima do limiar | ecommerce `Quantity` (k=722) | histograma de bins inteiros + resumo + **tabela de extremos de frequência** |
 
 **Camada essencial**: tabela por valor (regime tabela) com ausentes como linha, mínimo, máximo, moda, **média e mediana** — o par média × mediana já conta a história da assimetria sem jargão (`SibSp`: média 0,52 vs mediana 0).
 
 **Camada completa**: desvio padrão, quartis, % de zeros (no regime tabela o zero já aparece na tabela; no histograma o % de zeros vira estatística própria — `Parch`: 76,1% zeros).
 
 **Fora, por decisão** (2026-08-16): **soma total** — mesmo sendo significativa em contagens (`SibSp` soma 466; `Quantity` soma 5.176.450), é leitura de negócio, não descrição de distribuição; o usuário soma por conta própria se quiser.
+
+**Tabela de extremos de frequência** *(decisão de 2026-08-16)*: no regime histograma a tabela de frequência não morre — encolhe. Entram os `discrete_extremes_levels` valores **mais frequentes** e os mesmos **menos frequentes** (default 5 + 5, parametrizável). No `Quantity` real: os mais frequentes revelam o varejo — 1 (27,4%), 2 (15,1%), **12 (11,3% — a dúzia)**, 6, 4; nos menos frequentes, os 308 valores empatados em frequência 1 são desempatados pelos **mais extremos primeiro**, entregando exatamente os outliers que contam história: ±80.995 e ±74.215 (pedidos gigantes e seus cancelamentos).
 
 Nota do regime histograma: valores negativos aparecem como fato no mín/máx e na cauda do histograma (`Quantity`: mín -80.995, 1,96% negativos — devoluções), sem juízo de "erro".
 
