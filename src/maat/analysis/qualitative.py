@@ -40,7 +40,21 @@ def find_spelling_variant_groups(backend: Backend, column: str) -> dict:
 
 
 def analyze_ordinal(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
-    """Tudo da nominal + acumuladas na ordem natural, categoria mediana."""
+    """Ordinal — seção 2.3 do fluxo (consolidada).
+
+    Tipo próprio que **herda toda a análise da nominal** (inclusive os
+    regimes de cardinalidade) e acrescenta o que só a ordem permite:
+    frequência acumulada na ordem natural e categoria mediana/quartis.
+    Sem ordem disponível, degrada para nominal e registra a observação.
+
+    A ordem só vem de caminhos determinísticos: declarada pelo usuário em
+    `ordinal_levels`, ou extraída do número inicial do rótulo ("5-14 years").
+    Dicionário de escalas e coluna irmã numérica ficaram de fora por risco
+    de erro silencioso.
+
+    Nota: média é inválida aqui mesmo quando os níveis são números — a
+    distância entre níveis não é comparável.
+    """
     raise NotImplementedError
 
 

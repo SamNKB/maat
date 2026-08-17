@@ -104,6 +104,7 @@ profile = maat.describe(df, config=maat.Config(
     discrete_extremes_include_middle=False,  # opt-in: acrescenta os n valores do meio do ranking (o histograma já retrata o corpo)
     continuous_extremes_levels=5,  # contínua: n maiores e n menores valores observados na tabela de extremos
     long_tail_top_n=10,            # cauda longa: n níveis na tabela, mais a linha "Outros"
+    ordinal_levels={},             # ordem declarada por coluna, ex.: {"tamanho": ["P", "M", "G"]}
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -215,25 +216,39 @@ A mesma empresa dividida em dois níveis pela caixa — sem essa saída, a conce
 | Barras top-10 + "Outros" destacada | Essencial | Versão simples, sem eixo duplo |
 | Treemap | Completa | Quando há hierarquia ou muitos níveis médios |
 
-### 2.3 Ordinal (com ordem: escolaridade, faixa de renda, satisfação 1–5)
+### 2.3 Ordinal (escolaridade, satisfação 1–5, faixa etária) — ✅ consolidada em 2026-08-16
 
-Herda tudo da nominal, e a ordem habilita mais:
+> 🔍 **Página detalhada**: [tipos/ordinal.html](tipos/ordinal.html) ([versão pública](https://samnkb.github.io/maat/tipos/ordinal.html)).
 
-**Resumos numéricos adicionais**
+**Modelagem**: a ordinal é **tipo próprio que herda toda a análise da nominal** (incluindo os regimes de cardinalidade) e acrescenta o que só a ordem permite. Sem ordem disponível, degrada sozinha para nominal e informa o usuário.
 
-| Análise | O que responde |
+**O que a ordem realmente habilita** *(pergunta levantada pelo Sam em 2026-08-16: "qual métrica dependeria de fato da ordenação?")* — a resposta honesta é curta, e a distinção importa:
+
+| Saída | Depende da ordem? |
 |---|---|
-| Frequência acumulada **na ordem natural** | "Quantos % estão até o nível X?" |
-| Categoria mediana e quartis categóricos | Onde está o centro da distribuição ordenada? |
-| Assimetria da distribuição na escala ordinal | A massa está concentrada no topo ou na base da escala? |
+| Tabela na ordem natural da escala | ❌ **Cosmético** — os números são idênticos, muda a ordem das linhas |
+| **Frequência acumulada na ordem natural** | ✅ Responde *"quanto da massa está até este nível?"* (wine: 46,5% até nota 5; 86,4% até 6). **Não confundir com o acumulado do Pareto** (§2.2), que ordena por frequência e responde "quantos níveis dominam?" — perguntas diferentes |
+| **Categoria mediana e quartis categóricos** | ✅ A mais relevante: para nominal, a única medida de tendência central válida é a moda; com ordem, a mediana passa a existir. No wine, moda = 5 mas **mediana = 6** — e a mediana é a leitura correta para escala ordinal |
+| Média | ❌ **Inválida mesmo quando os níveis são números**: a distância entre 5 e 6 não é comparável à de 7 para 8 |
+| Correlação ordinal (Spearman/Kendall), comparação de grupos | ✅ Fase bivariada (§5) — impossíveis sem ordem |
+
+**Como a ordem chega** *(decisão de 2026-08-16 — só caminhos determinísticos)*:
+
+1. **Declarada pelo usuário** — `maat.Config(ordinal_levels={"tamanho": ["P", "M", "G"]})`. Risco zero, sempre disponível.
+2. **Número inicial no próprio rótulo** — única inferência automática aceita, por ser regra determinística e sem ambiguidade: `5-14 years` < `15-24 years` < `25-34 years` (suicide-rates), `0-10` < `11-20`.
+
+**Fora, por decisão**: dicionário de escalas conhecidas (baixo/médio/alto) e leitura de coluna irmã numérica (adult: `education` + `education.num`). Ambos cobririam mais casos, mas ao custo de erro silencioso dependente de idioma e cultura — desproporcional para um ganho de duas medidas. *(Coerente com §0.2: critérios determinísticos e explícitos, nunca inferência difusa.)*
+
+**Sem ordem**: roda como nominal e registra a observação — *"possível ordinal: declare a ordem dos níveis para habilitar acumulada e categoria mediana"*. Mostra o fato, o usuário decide (§0.2).
 
 **Visualizações**
 
-| Visual | Quando usar |
-|---|---|
-| Barras **na ordem natural da escala** (nunca por frequência) | Padrão — a ordem é informação |
-| Barras divergentes (escala Likert) | Escalas de concordância/satisfação centradas no neutro |
-| Barra 100% empilhada única | Ver a composição inteira numa linha só |
+| Visual | Camada | Quando usar |
+|---|---|---|
+| Barras **na ordem natural** (nunca por frequência) | Essencial | Padrão — a ordem é informação |
+| Curva de acumulada sobre as barras | Essencial | Mostra a leitura "até o nível X" |
+| Barras divergentes (Likert) | Completa | Escalas de concordância centradas no neutro |
+| Barra 100% empilhada única | Completa | Composição inteira em uma linha |
 
 ### 2.4 Nominal em regime textual (nome, e-mail, endereço)
 

@@ -14,7 +14,7 @@ Toda análise no maat parte de uma pergunta: **que tipo de variável é essa?**
 Variável
 ├── Qualitativa (categórica)
 │   ├── Nominal   — sem ordem; regimes: categórico / cauda longa ✅ / textual
-│   ├── Ordinal   — com ordem natural (escolaridade, faixa etária)
+│   ├── Ordinal   — com ordem natural (escolaridade, faixa etária)     ✅ consolidada
 │   └── Binária   — exatamente 2 níveis (sim/não, 0/1)          ✅ consolidada
 ├── Quantitativa (numérica)
 │   ├── Discreta  — contagens (inteiros); regimes: tabela / histograma  ✅ consolidada
@@ -73,4 +73,4 @@ Limiares e comportamentos são parametrizáveis via `maat.Config` (níveis de re
 
 ## Status
 
-🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **quantitativa discreta** e **quantitativa contínua** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. Próximo: ordinal → textual → temporal; depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.
+🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta** e **quantitativa contínua** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. Próximo: regime textual → temporal; depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.
