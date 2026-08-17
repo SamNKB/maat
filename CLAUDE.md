@@ -10,6 +10,7 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ## 1. Como trabalhar neste projeto
 
+- **Implementar junto, nunca em lote assíncrono** *(decisão de 2026-08-16)*. O Sam prefere estar presente em cada obstáculo, um de cada vez, a revisar uma fila de decisões acumuladas: *"eu dedicado e analisando cada um dos obstáculos que vão surgindo, individualmente, acredito ser mais eficiente do que tomar amanhã 50 decisões sem poder me aprofundar em cada uma"*. Vale também para a implementação — ela gera dezenas de micro-decisões (binning do histograma, coluna toda nula, erro de parse) que moldam o produto tanto quanto as grandes. **Não implementar módulos inteiros autonomamente**; avançar em incrementos pequenos durante a sessão, parando no obstáculo para discutir.
 - **Construção conjunta, não entrega pronta.** O Sam (dono) decide o design. Consultar **a cada decisão de design**: apresentar opções com exemplos concretos e aguardar a escolha antes de consolidar em código ou documentação. Ele já pediu isso explicitamente ("ainda não saia fazendo nenhuma definição, estamos construindo juntos"). Usar `AskUserQuestion` para as escolhas.
 - **Ele pergunta quando não entende um termo** ("o que você entende por soma total?", "de qual variável você está falando?") — antecipar explicando o conceito com número real antes de perguntar.
 - **Exemplos concretos sempre.** Nada de "uma variável categórica": usar `Churn` do telco, `SibSp` do titanic, `price` do nyc. Ele reclamou explicitamente da falta de exemplos.
