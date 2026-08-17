@@ -8,24 +8,77 @@ Este documento é o mapa conceitual do maat: dado um DataFrame qualquer, **como 
 
 ## 1. O fluxo geral
 
+O fluxograma completo, do dado bruto até a estratégia de análise — todo losango com parâmetro entre parênteses é configurável pelo usuário (seção 1.2):
+
 ```mermaid
 flowchart TD
-    A[Coluna do DataFrame] --> B{Inferência de tipo}
-    B -->|texto / categoria| C[Qualitativa]
-    B -->|número| D[Quantitativa]
-    B -->|data / timestamp / duração| E[Temporal]
-    C --> C1{Tem ordem natural?}
-    C1 -->|não| C2[Nominal]
-    C1 -->|sim| C3[Ordinal]
-    C2 --> C4{Só 2 níveis?}
-    C4 -->|sim| C5[Binária]
-    D --> D1{Valores inteiros e<br/>baixa cardinalidade?}
-    D1 -->|sim| D2[Discreta]
-    D1 -->|não| D3[Contínua]
-    E --> E1{Ponto no tempo<br/>ou intervalo?}
-    E1 -->|ponto| E2[Instante]
-    E1 -->|intervalo| E3[Duração]
+    A[Coluna do DataFrame] --> S["Amostra de inferência<br/>(inference_sample_size)"]
+    S --> B{dtype base?}
+
+    B -->|bool| BIN["Qualitativa binária<br/>ex.: ativo True/False"]
+    B -->|date / datetime| T1["Temporal instante<br/>ex.: data_pedido"]
+    B -->|timedelta| T2["Temporal duração<br/>ex.: tempo_entrega"]
+
+    B -->|numérico| N1{"k ≈ n e sem repetição?"}
+    N1 -->|sim| ID["Identificador<br/>ex.: id_pedido<br/>só unicidade e qualidade"]
+    N1 -->|não| N2{"cara de código?<br/>ex.: CEP, ano, cód. produto"}
+    N2 -->|sim| WARN["⚠️ marcada como suspeita<br/>sugere reclassificação"]
+    N2 -->|não| N3{"inteiros e<br/>k ≤ (max_discrete_levels)?"}
+    N3 -->|sim| DIS["Quantitativa discreta<br/>ex.: qtd_itens, nº de filhos"]
+    N3 -->|não| CON["Quantitativa contínua<br/>ex.: valor_total, renda"]
+
+    B -->|string| S1{"parseia como data<br/>em alta taxa?"}
+    S1 -->|sim| T1
+    S1 -->|não| S2{"k = 2?"}
+    S2 -->|sim| BIN
+    S2 -->|não| S3{"escala conhecida ou<br/>ordem declarada?"}
+    S3 -->|sim| ORD["Qualitativa ordinal<br/>ex.: baixo / médio / alto"]
+    S3 -->|não| NOM[Qualitativa nominal]
+
+    NOM --> R{"regime por k e k/n"}
+    R -->|"k ≤ (max_categorical_levels)"| RC["Regime categórico<br/>ex.: sexo, UF<br/>→ frequências completas"]
+    R -->|"k/n > (textual_unique_ratio)"| RT["Regime textual<br/>ex.: e-mail, nome, endereço<br/>→ perfil da string"]
+    R -->|senão| RL["Regime cauda longa<br/>ex.: cidade, cat. de produto<br/>→ top-N + Pareto"]
 ```
+
+### 1.1 Exemplo guiado: `vendas.csv` (100.000 linhas)
+
+Como o classificador enxerga cada coluna de uma tabela de vendas típica:
+
+| Coluna | Amostra de valores | k (distintos) | Classificação | Regime | Por quê |
+|---|---|---|---|---|---|
+| `id_pedido` | 10001, 10002, … | 100.000 | Identificador | — | inteiro com um valor único por linha; média de id não significa nada |
+| `cliente_nome` | "Ana Souza", "J. Pereira" | 98.400 | Nominal | Textual | k ≈ n → frequência é inútil; analisa-se a string (seção 2.4) |
+| `cliente_email` | "ana@gmail.com", … | 99.100 | Nominal | Textual | idem; padrão dominante detectado: e-mail |
+| `cidade` | "São Paulo", "Recife", … | 3.200 | Nominal | Cauda longa | muita repetição, mas níveis demais para tabela completa |
+| `uf` | "SP", "PE", … | 27 | Nominal | Categórico | k pequeno → todos os níveis no resumo |
+| `sexo` | "F", "M" | 2 | Binária | — | exatamente 2 níveis |
+| `avaliacao` | 1, 2, 3, 4, 5 | 5 | **⚠️ Ordinal (reclassificada)** | Categórico | a heurística diria "discreta" (inteiros, k baixo) — mas é escala Likert: 5 não é "5 unidades", é "melhor que 4". Caso clássico de reclassificação pelo usuário |
+| `qtd_itens` | 1, 2, 3, … 14 | 14 | Quantitativa discreta | — | inteiros de contagem: 4 itens **são** o dobro de 2 |
+| `valor_total` | 129.90, 45.00, … | 71.000 | Quantitativa contínua | — | numérico com muitos valores distintos |
+| `cep` | "01310-100", … | 45.000 | **⚠️ Suspeita** | — | máscara de código: somar/mediar CEP não faz sentido; usuário decide (id? região via prefixo?) |
+| `data_pedido` | 2024-05-01 14:32 | — | Temporal instante | — | dtype datetime |
+| `tempo_entrega` | 2d 4h 12min | — | Temporal duração | — | dtype timedelta (ou derivada de duas datas) |
+
+As linhas de `avaliacao` e `cep` mostram o princípio central: **a inferência propõe, o usuário dispõe** — todo tipo é sobrescrevível, e os casos ambíguos são marcados em vez de decididos em silêncio.
+
+### 1.2 Parâmetros do usuário
+
+Os limiares de classificação não são constantes do maat — são parâmetros com defaults, expostos numa configuração única:
+
+```python
+import maat
+
+profile = maat.describe(df, config=maat.Config(
+    max_categorical_levels=30,     # até aqui, regime categórico (frequências completas)
+    textual_unique_ratio=0.5,      # fração de valores únicos acima da qual vira regime textual
+    max_discrete_levels=30,        # inteiros com até k distintos → quantitativa discreta
+    inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
+    sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
+))
+```
+
+`inference_sample_size` existe por dois motivos: custo (no Spark, inferir tipos na base inteira é um job pesado) e suficiência (100 mil linhas bastam para decidir se uma coluna é nominal ou textual). A contagem exata de `k` da análise final continua vindo da base inteira — a amostra é só para a **decisão de rota**. Os defaults acima são propostas iniciais a calibrar com uso real.
 
 Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuário):
 
@@ -322,9 +375,13 @@ Ponto importante para o Spark: **as visualizações nunca recebem os dados bruto
 
 ## 7. Questões em aberto (para discutirmos)
 
-1. **Limiares entre regimes de cardinalidade** (seção 2.0): onde termina o categórico e começa a cauda longa? Onde a cauda longa vira textual? Proposta inicial: categórico `k ≤ 30`; textual quando `k/n_válidos > 0.5` (mais da metade dos valores é única); cauda longa no meio. Fixos, relativos ou combinados?
+1. ~~Limiares entre regimes de cardinalidade: fixos ou relativos?~~ → **Direção definida**: os limiares são **parâmetros do usuário** com defaults (seção 1.2), incluindo o tamanho da amostra de inferência. Falta calibrar os defaults com uso real.
 2. **Ordem das ordinais**: inferimos por dicionários de escalas conhecidas (pt/en) ou exigimos declaração do usuário no MVP?
 3. **Amostragem no Spark**: qual o padrão de erro aceitável para `approxQuantile` e qual o tamanho de amostra para visuais? E o `N` das amostras dirigidas do regime textual (seção 2.4)?
 4. **Saída do relatório**: HTML estático primeiro? Ou dict/JSON estruturado primeiro e o HTML como renderização por cima (recomendado)?
 5. ~~Texto livre: fora do MVP?~~ → **Resolvido**: alta cardinalidade textual entrou no MVP como regime da nominal (seção 2.4), com perfil de forma/padrão/sujeira em vez de análise de frequência.
 6. **Bateria de regex do regime textual**: a lista da seção 2.4 (frente 3) é a inicial — quais checagens entram no MVP e quais ficam configuráveis/extensíveis pelo usuário?
+7. **Regimes de cardinalidade valem para a ordinal?** (em discussão — sem definição ainda). Exemplos sobre a mesa:
+   - *Ordinal categórica* (caso comum): escolaridade (8 níveis), satisfação 1–5, tamanho PP < P < M < G < GG.
+   - *Ordinal cauda longa* (existe?): rating de crédito (AAA, AA+, … D — ~22 níveis ordenados, uso concentrado em poucos); patente militar (~25 níveis hierárquicos); nível de cargo em empresa grande (Júnior I … Principal X).
+   - *Ordinal "textual"* (k ≈ n): colocação numa maratona (1º, 2º, … 40.000º — cada valor aparece uma vez). Aqui a análise ordinal clássica colapsa: frequência por nível é inútil. É erro de classificação? Ou é um dado de *rank* que se analisa como quantitativa discreta?
