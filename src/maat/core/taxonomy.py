@@ -29,9 +29,13 @@ class CardinalityRegime(str, Enum):
     da string (forma, padrão e sujeira via regex) com amostras dirigidas.
     """
 
+    # Regimes da qualitativa nominal
     CATEGORICAL = "categorical"  # k pequeno — todos os níveis no resumo
     LONG_TAIL = "long_tail"  # k médio com repetição — top-N + "Outros"
     TEXTUAL = "textual"  # k ≈ n — a string em si vira o objeto de análise
+    # Regimes da quantitativa discreta (seção 3.1 do fluxo de análises)
+    TABLE = "table"  # k ≤ limiar — frequência por valor exato
+    HISTOGRAM = "histogram"  # k alto — bins inteiros + tabela de extremos de frequência
 
 
 class VariableSubtype(str, Enum):

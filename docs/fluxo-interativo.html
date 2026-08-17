@@ -101,6 +101,8 @@
   <span class="chip"><span class="dot" style="background:var(--magenta)"></span>regime de cardinalidade</span>
   <span class="chip"><span class="dot" style="background:var(--amber)"></span>aviso</span>
   <span class="chip"><span class="dot" style="background:var(--steel)"></span>identificador</span>
+  <span class="chip" title="cardinalidade"><b style="color:var(--mint)">k</b>&nbsp;= nº de valores distintos da coluna</span>
+  <span class="chip"><b style="color:var(--mint)">n</b>&nbsp;= nº de linhas da base</span>
   <button id="reset">reiniciar layout</button>
 </div>
 <div id="viewport"><div id="canvas">
@@ -151,9 +153,9 @@ const NODES=[
  {id:"dis",k:"tipo",kk:"QUANTITATIVA",x:640,y:760,t:"Quantitativa discreta",s:"contagens · regime por k",h:"tipos/discreta.html",
   d:"Contagens: 4 itens são o dobro de 2. Consolidada: regime tabela (k baixo, frequência por valor exato) ou regime histograma (k alto, bins inteiros).",
   ex:["titanic SibSp: k=7 → tabela · 68,2% zeros","ecommerce Quantity: k=722 → histograma"],an:["Essencial: tabela por valor, mín/máx, moda, média, mediana","Histograma: + tabela de extremos (5 mais/5 menos frequentes)","Completa: dp, quartis, % de zeros, ECDF","Fora por decisão: soma total","Média 0,52 × mediana 0 (SibSp): assimetria sem jargão"]},
- {id:"con",k:"tipo",kk:"QUANTITATIVA",x:900,y:760,t:"Quantitativa contínua",s:"ex.: valor_total, renda",
-  d:"O caso mais rico da estatística descritiva clássica: posição, dispersão, forma e outliers.",
-  ex:["telco MonthlyCharges: mediana 70,35 · k=1.585","renda","temperatura"],an:["Quantis p1…p99 (aprox. no Spark) — MonthlyCharges: p5=19,65 · p95=107,40","Dispersão: dp, IQR, CV","Forma: assimetria e curtose","Outliers pela regra 1.5×IQR","Histograma, boxplot, densidade, ECDF"]},
+ {id:"con",k:"tipo",kk:"QUANTITATIVA",x:900,y:760,t:"Quantitativa contínua",s:"medições com casas decimais",h:"tipos/continua.html",
+  d:"Medições em escala real: preço, renda, temperatura. Consolidada: a camada essencial traz o resumo de cinco números + média e a tabela de extremos de valor.",
+  ex:["telco MonthlyCharges: mediana 70,35","nyc price: máx 10.000 · 11 valores zero"],an:["Essencial: mín, q1, mediana, média, q3, máx + histograma","Essencial: extremos de valor (5 maiores / 5 menores)","Completa: dp, IQR, CV, assimetria, curtose, ECDF, boxplot","Completa: atípicos pela regra 1,5×IQR (price: 6,08%)","Narrativa traduz a forma em palavras"]},
  {id:"s1",k:"decisao",kk:"DECISÃO",x:1000,y:410,t:"Parseia como data?",s:"data disfarçada em string",
   d:"Se uma alta taxa da amostra parseia como data, a coluna é temporal vestida de texto — rota direta para o instante.",
   ex:["netflix date_added em string: 99,9% parseia","\"01/05/2024 14:32\""],an:["Taxa de parse configurável","Formato dominante detectado"]},

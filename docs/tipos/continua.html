@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maat // tipos // quantitativa contínua</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --void:#05070F; --navy:#0A0E1A; --panel:#101828; --cyan:#00E5FF; --ice:#E6F7FF;
+    --magenta:#FF2E88; --violet:#9D4EDD; --steel:#3A4A63; --mist:#8FA3BF;
+    --amber:#FFB03A; --mint:#3DF5C6;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:radial-gradient(ellipse at 30% -10%, #0D1526 0%, var(--void) 60%);
+    color:var(--ice); font-family:'Space Grotesk',sans-serif; min-height:100vh;
+    padding:28px 24px 48px; line-height:1.65;
+  }
+  main{max-width:860px; margin:0 auto}
+  nav{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mist); margin-bottom:26px}
+  nav a{color:var(--cyan); text-decoration:none}
+  nav a:hover{text-shadow:0 0 10px rgba(0,229,255,.6)}
+  .status{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px;
+    color:var(--mint); border:1px solid rgba(61,245,198,.45); border-radius:999px; padding:3px 12px; margin-bottom:14px;
+  }
+  h1{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:34px; letter-spacing:1px;
+     color:var(--cyan); text-shadow:0 0 18px rgba(0,229,255,.4); margin-bottom:6px}
+  h1 small{color:var(--mist); font-size:16px; font-weight:500; display:block; letter-spacing:0}
+  h2{font-family:'Rajdhani',sans-serif; font-weight:600; font-size:21px; color:var(--cyan);
+     margin:38px 0 12px; letter-spacing:.5px}
+  h2 .tag{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.5px;
+     color:var(--violet); border:1px solid var(--violet); border-radius:5px; padding:2px 8px;
+     vertical-align:middle; margin-left:10px}
+  p{color:var(--ice); font-size:15px; margin-bottom:10px}
+  .muted{color:var(--mist); font-size:13.5px}
+  .card{background:var(--panel); border:1px solid var(--steel); border-radius:12px; padding:18px 20px; margin:14px 0}
+  table{width:100%; border-collapse:collapse; font-size:14px; margin:8px 0}
+  th{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--mist);
+     text-align:left; padding:8px 10px; border-bottom:1px solid var(--steel)}
+  td{padding:7px 10px; border-bottom:1px solid rgba(58,74,99,.35)}
+  td.num{font-family:'JetBrains Mono',monospace; color:var(--ice)}
+  .stats{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+  .stat{border:1px solid var(--steel); border-radius:8px; padding:8px 14px; text-align:center; flex:1; min-width:86px}
+  .stat b{display:block; font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:var(--cyan)}
+  .stat span{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--mist)}
+  .stat.hot b{color:var(--magenta); text-shadow:0 0 14px rgba(255,46,136,.4)}
+  .out{border-color:rgba(255,176,58,.5)}
+  .out h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:16.5px; margin-bottom:4px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
+  .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
+  code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
+       background:rgba(61,245,198,.08); border-radius:4px; padding:1px 5px}
+  blockquote{border-left:2px solid var(--violet); padding:10px 16px; margin:10px 0;
+     background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
+  footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
+  footer a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="../fluxo-interativo.html">← grafo interativo</a> &nbsp;·&nbsp; maat // tipos // <span style="color:var(--ice)">quantitativa contínua</span> &nbsp;·&nbsp; <a href="../fluxo-de-analises.md">fluxo-de-analises.md §3.2</a></nav>
+
+<span class="status">CONSOLIDADA · 2026-08-16</span>
+<h1>Quantitativa contínua<small>medições em escala real — o caso mais rico da estatística descritiva clássica</small></h1>
+
+<p>Uma variável é contínua quando <strong>mede</strong> em vez de contar: preço, renda, temperatura, taxa de câmbio. Quase nenhum valor se repete (<code>MonthlyCharges</code>: 1.585 valores distintos em 7.043 clientes), então a análise vira resumo de <strong>posição</strong>, <strong>dispersão</strong> e <strong>forma</strong>. Na inferência: numérico com casas decimais → contínua.</p>
+
+<h2>Camada essencial <span class="tag">CINCO NÚMEROS + MÉDIA</span></h2>
+<div class="card">
+  <p class="muted">A bem-comportada: <code>MonthlyCharges</code> do telco (mensalidade, n = 7.043):</p>
+  <div class="stats">
+    <div class="stat"><b>18,25</b><span>MÍNIMO</span></div>
+    <div class="stat"><b>35,50</b><span>Q1</span></div>
+    <div class="stat"><b>70,35</b><span>MEDIANA</span></div>
+    <div class="stat"><b>64,76</b><span>MÉDIA</span></div>
+    <div class="stat"><b>89,85</b><span>Q3</span></div>
+    <div class="stat"><b>118,75</b><span>MÁXIMO</span></div>
+  </div>
+  <p class="muted" style="margin-top:10px">Média ≈ mediana, zero atípicos pela regra 1,5×IQR — distribuição equilibrada. A curtose -1,26 (na completa) revela o formato achatado: dois grupos de clientes, plano básico e completo.</p>
+</div>
+<div class="card">
+  <p class="muted">A selvagem: <code>price</code> do nyc-airbnb (diária, n = 48.895):</p>
+  <div class="stats">
+    <div class="stat"><b>0</b><span>MÍNIMO</span></div>
+    <div class="stat"><b>69</b><span>Q1</span></div>
+    <div class="stat"><b>106</b><span>MEDIANA</span></div>
+    <div class="stat hot"><b>152,72</b><span>MÉDIA</span></div>
+    <div class="stat"><b>175</b><span>Q3</span></div>
+    <div class="stat hot"><b>10.000</b><span>MÁXIMO</span></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:14px">
+    <div>
+      <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px">5 MAIORES VALORES</p>
+      <table>
+        <tr><th>VALOR</th><th>OCORRÊNCIAS</th></tr>
+        <tr><td class="num">10.000</td><td class="num">×3</td></tr>
+        <tr><td class="num">9.999</td><td class="num">×3</td></tr>
+        <tr><td class="num">8.500</td><td class="num">×1</td></tr>
+        <tr><td class="num">8.000</td><td class="num">×1</td></tr>
+        <tr><td class="num">7.703</td><td class="num">×1</td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="muted" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px">5 MENORES VALORES</p>
+      <table>
+        <tr><th>VALOR</th><th>OCORRÊNCIAS</th></tr>
+        <tr><td class="num">0</td><td class="num">×11</td></tr>
+        <tr><td class="num">10</td><td class="num">×17</td></tr>
+        <tr><td class="num">11</td><td class="num">×1</td></tr>
+        <tr><td class="num">12</td><td class="num">×1</td></tr>
+        <tr><td class="num">13</td><td class="num">×1</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:8px">A tabela de extremos de valor (<code>continuous_extremes_levels</code>, default 5 + 5) revela sem jargão o que nenhum resumo mostra: <strong>11 anúncios grátis</strong> e três diárias de 10.000 — descritos, não julgados.</p>
+</div>
+
+<h2>Camada completa <span class="tag">PARA QUEM QUER PROFUNDIDADE</span></h2>
+<div class="card">
+  <p><strong style="color:var(--cyan)">Quantis de cauda</strong> (p1, p5, p95, p99) · <strong style="color:var(--cyan)">Desvio padrão</strong> (price: 240,15) · <strong style="color:var(--cyan)">IQR</strong> · <strong style="color:var(--cyan)">CV</strong> · <strong style="color:var(--cyan)">Assimetria</strong> (price: 19,1) · <strong style="color:var(--cyan)">Curtose</strong> (price: 585,7) · <strong style="color:var(--cyan)">Atípicos 1,5×IQR</strong> (price: 2.972 · 6,08%) · <strong style="color:var(--cyan)">ECDF</strong> · <strong style="color:var(--cyan)">Boxplot</strong></p>
+  <p class="muted">No Spark, quantis via <code>approxQuantile</code> — aproximados, com o erro reportado no resultado. "Atípico pela regra 1,5×IQR" é definição técnica descritiva, nunca veredito de erro.</p>
+</div>
+
+<h2>Narrativa gerada <span class="tag">TOM ACADÊMICO</span></h2>
+<blockquote>A variável <strong>price</strong> é quantitativa contínua, observada em 48.895 registros, variando de 0 a 10.000. A média (152,72) supera a mediana (106,00), indicando distribuição assimétrica à direita — valores extremos elevam a média, e a mediana representa melhor o caso típico. Pela regra de 1,5×IQR, 2.972 observações (6,1%) são atípicas.</blockquote>
+<p class="muted">Quando média ≫ mediana, a narrativa sugere leitura em escala logarítmica. Template determinístico — ver seção 7 do <a href="../fluxo-de-analises.md" style="color:var(--cyan)">fluxo de análises</a>.</p>
+
+<h2>Pegadinha registrada <span class="tag">A INFERÊNCIA PROPÕE, O USUÁRIO DISPÕE</span></h2>
+<div class="card out">
+  <h3>price é inteiro — e não é contagem</h3>
+  <p class="muted">O nyc armazena a diária em dólares cheios (dtype inteiro), e a heurística mandaria a coluna para discreta em regime histograma. É o caso-exemplo de <strong>reclassificação para contínua</strong>: medição arredondada não é contagem. Simétrico ao <code>quality</code> do wine (inteiro que é escala Likert → ordinal).</p>
+</div>
+
+<h2>Contínuas reais do benchmark</h2>
+<div class="grid">
+  <div class="card g"><span class="src">telco-churn · decimais</span><h3>MonthlyCharges</h3><p class="muted">mediana 70,35 · assimetria -0,22 · zero atípicos</p></div>
+  <div class="card g"><span class="src">nyc-airbnb · ⚠️ reclassificada</span><h3>price</h3><p class="muted">assimetria 19,1 · 6,08% atípicos · 11 valores zero</p></div>
+  <div class="card g"><span class="src">gov-bcb-dolar · série 2017–2025</span><h3>dólar (venda)</h3><p class="muted">n 2.259 · mín 3,05 · máx 6,21 · mediana 5,06 — vírgula decimal brasileira</p></div>
+  <div class="card g"><span class="src">telco-churn · ⚠️ pegadinha</span><h3>TotalCharges</h3><p class="muted">contínua presa num dtype string — 11 valores em branco impedem o parse; numérico-em-string clássico</p></div>
+</div>
+
+<footer>maat · reproduza os números: <code>python scripts/benchmark_examples.py</code> · decisões em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (§0 princípios, §3.2 contínua) · <a href="binaria.html">binária</a> · <a href="discreta.html">discreta</a> · <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>
+</main>
+</body>
+</html>

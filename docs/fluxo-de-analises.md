@@ -78,7 +78,7 @@ Como o classificador enxerga cada coluna de uma tabela de vendas típica:
 | `sexo` | "F", "M" | 2 | Binária | — | exatamente 2 níveis |
 | `avaliacao` | 1, 2, 3, 4, 5 | 5 | **⚠️ Ordinal (reclassificada)** | Categórico | a heurística diria "discreta" (inteiros, k baixo) — mas é escala Likert: 5 não é "5 unidades", é "melhor que 4". Caso clássico de reclassificação pelo usuário |
 | `qtd_itens` | 1, 2, 3, … 14 | 14 | Quantitativa discreta | — | inteiros de contagem: 4 itens **são** o dobro de 2 |
-| `valor_total` | 129.90, 45.00, … | 71.000 | Quantitativa contínua | — | numérico com muitos valores distintos |
+| `valor_total` | 129.90, 45.00, … | 71.000 | Quantitativa contínua | — | casas decimais: mede, não conta |
 | `cep` | "01310-100", … | 45.000 | **⚠️ Suspeita** | — | máscara de código: somar/mediar CEP não faz sentido; usuário decide (id? região via prefixo?) |
 | `data_pedido` | 2024-05-01 14:32 | — | Temporal instante | — | dtype datetime |
 | `tempo_entrega` | 2d 4h 12min | — | Temporal duração | — | dtype timedelta (ou derivada de duas datas) |
@@ -100,6 +100,7 @@ profile = maat.describe(df, config=maat.Config(
     max_discrete_levels=30,        # discreta: até k distintos → regime tabela; acima → regime histograma
     discrete_extremes_levels=5,    # regime histograma: n valores mais e n menos frequentes na tabela de extremos
     discrete_extremes_include_middle=False,  # opt-in: acrescenta os n valores do meio do ranking (o histograma já retrata o corpo)
+    continuous_extremes_levels=5,  # contínua: n maiores e n menores valores observados na tabela de extremos
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -329,33 +330,31 @@ Nota do regime histograma: valores negativos aparecem como fato no mín/máx e n
 | Histograma com bins inteiros | Regime histograma |
 | ECDF | Completa — "% de casos até k" |
 
-### 3.2 Contínua (renda, altura, temperatura)
+### 3.2 Contínua (renda, preço, temperatura) — ✅ consolidada em 2026-08-16
 
-O caso mais rico da estatística descritiva clássica.
+> 🔍 **Página detalhada**: [tipos/continua.html](tipos/continua.html) ([versão pública](https://samnkb.github.io/maat/tipos/continua.html)), também via clique no nó do grafo interativo.
 
-**Resumos numéricos**
+Medições em escala real — o caso mais rico da estatística descritiva clássica. Protagonistas do benchmark: `MonthlyCharges` do telco (bem-comportada: assimetria -0,22, zero atípicos) e `price` do nyc-airbnb (selvagem: assimetria 19,1, máx 10.000, 11 anúncios a preço 0).
 
-| Grupo | Análises |
-|---|---|
-| Posição | média, mediana, quantis (p1, p5, p25, p75, p95, p99), mínimo, máximo |
-| Dispersão | desvio padrão, variância, IQR, amplitude, coeficiente de variação (CV) |
-| Forma | assimetria (skewness), curtose |
-| Outliers | contagem pela regra 1.5×IQR; opcionalmente z-score robusto (MAD) |
-| Qualidade | % ausentes, % de valores idênticos (constância), precisão decimal detectada |
-| Diagnósticos | média ≫ mediana → sugerir escala log; concentração em valores redondos → possível arredondamento na coleta |
+**Camada essencial** *(decisão de 2026-08-16)*: o **resumo de cinco números + média** — mínimo, q1, mediana, média, q3, máximo — mais o histograma e a **tabela de extremos de valor** (os 5 maiores e 5 menores valores observados, com contagem quando o valor se repete — no `price`: "0 (×11)" e "10.000 (×3)" aparecem sem nenhum jargão). Parâmetro: `continuous_extremes_levels` (default 5).
 
-> Nota Spark: quantis exatos são caros em dados distribuídos — usar `approxQuantile` com erro configurável. O contrato do backend deve expor isso (exato no pandas, aproximado no Spark, com o erro reportado no resultado).
+**Camada completa**: quantis de cauda (p1, p5, p95, p99), desvio padrão, IQR, coeficiente de variação, assimetria, curtose, **contagem de valores atípicos pela regra 1,5×IQR** (`price`: 2.972 · 6,08% — descritos, nunca julgados como erro), ECDF e boxplot.
+
+**Narrativa** traduz forma e atípicos em palavras: *"a média (152,72) supera a mediana (106,00), indicando distribuição assimétrica à direita — valores extremos elevam a média, e a mediana representa melhor o caso típico"*. Quando média ≫ mediana, a narrativa sugere leitura em escala logarítmica.
+
+> Pegadinha registrada: `price` do nyc é armazenado como **inteiro** (dólares cheios) — a heurística o classificaria como discreta em regime histograma. É o caso-exemplo de **reclassificação para contínua** (medição arredondada não é contagem), simétrico ao `quality` do wine (inteiro que é escala Likert → ordinal). A inferência propõe, o usuário dispõe.
+
+> Nota Spark: quantis exatos são caros em dados distribuídos — usar `approxQuantile` com erro configurável. O contrato do backend expõe isso (exato no pandas, aproximado no Spark, com o erro reportado no resultado).
 
 **Visualizações**
 
-| Visual | Quando usar |
-|---|---|
-| Histograma | Padrão — forma geral da distribuição |
-| Boxplot | Resumo compacto + outliers evidentes |
-| Densidade (KDE) | Forma suavizada; sobreposição de grupos |
-| Violino | Boxplot + densidade em um só |
-| ECDF | Leitura direta de percentis, sem escolha de bins |
-| QQ-plot (vs. normal) | Diagnóstico de normalidade — fase 2 |
+| Visual | Camada | Quando usar |
+|---|---|---|
+| Histograma | Essencial | Padrão — forma geral da distribuição |
+| Boxplot | Completa | Resumo compacto + atípicos evidentes |
+| ECDF | Completa | Leitura direta de percentis, sem escolha de bins |
+| Densidade (KDE) | Completa | Forma suavizada; sobreposição de grupos |
+| QQ-plot (vs. normal) | Fase 2 | Diagnóstico de normalidade |
 
 ---
 
