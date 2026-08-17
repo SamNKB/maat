@@ -1,3 +1,7 @@
+# Datasets de benchmark ficam locais — só o manifesto vai para o repositório
+datasets/*
+!datasets/README.md
+
 __pycache__/
 *.py[cod]
 .venv/
