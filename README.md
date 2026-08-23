@@ -70,12 +70,17 @@ import maat
 
 profile = maat.describe(df)      # pandas.DataFrame ou pyspark.sql.DataFrame
 profile.schema                   # tipo inferido de cada coluna
-profile["renda"]                 # perfil completo: camadas, viz e narrativa
-profile.report("html")           # relatório navegável
+profile["renda"]                 # perfil da coluna: camadas, checagens, viz e narrativa
+
+# a estrutura em memória é o contrato; os formatos são renderizadores
+profile.to_markdown(camada="essencial")   # para um agente de IA ou para o TCC
+profile.to_json(compact=True)             # para máquina
+profile.to_yaml()                         # para editar à mão
+profile.to_html("relatorio.html")         # para ler
 ```
 
-Limiares e comportamentos são parametrizáveis via `maat.Config` (níveis de regime, amostra de inferência, tamanho das tabelas de extremos, idioma e tom da narrativa).
+Saída em quatro formatos, todos sobre a mesma estrutura em memória. Limiares e comportamentos são parametrizáveis via `maat.Config` (níveis de regime, amostra de inferência, tamanho das tabelas de extremos, idioma e tom da narrativa).
 
 ## Status
 
-🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta**, **quantitativa contínua** **identificador/código/rank** e **temporal** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. **O design dos tipos está fechado.** Bivariadas ficaram para o beta (explosão combinatória: 9.412 pares no benchmark). Próximo: contrato de saída (§6); depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.
+🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta**, **quantitativa contínua** **identificador/código/rank** e **temporal** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. **O design dos tipos está fechado.** Bivariadas ficaram para o beta (explosão combinatória: 9.412 pares no benchmark). **Todo o design está fechado.** Próximo: implementação da inferência + backend pandas, e benchmark nos 40 datasets.

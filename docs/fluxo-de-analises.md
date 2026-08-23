@@ -111,6 +111,7 @@ profile = maat.describe(df, config=maat.Config(
     date_format={},                # formato declarado por coluna quando indecidível, ex.: {"data": "dd/mm"}
     date_horizons=[10, 20, 30, 40, 50, 100],  # faixas (anos) do perfil de horizonte temporal
     temporal_extremes_levels=5,    # n datas mais antigas e mais futuras na amostra de extremos
+    # saída (§6): formato é escolhido no método — profile.to_markdown(camada="essencial")
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -569,22 +570,55 @@ Fica coerente com §0: a IA propõe o recorte, o usuário dispõe, e o cálculo 
 
 ---
 
-## 6. O que uma análise devolve (contrato de saída)
+## 6. O que uma análise devolve (contrato de saída) — ✅ consolidada em 2026-08-17
 
-Para manter pandas e Spark equivalentes, toda análise devolve uma estrutura padronizada, independente do backend:
+**O princípio**: o contrato é a **estrutura em memória**; todo formato é um **renderizador** sobre ela. Isso encerra a questão nº 4 (aberta desde o primeiro dia — "HTML primeiro ou JSON primeiro?"): nenhum dos dois. Acrescentar um formato depois vira um método, não uma refatoração, e nenhum renderizador recalcula nada.
 
 ```
-ColumnProfile
-├── name, inferred_type, confiança da inferência
-├── quality: {n, n_missing, pct_missing, alertas de qualidade}
-├── summary: dict de estatísticas (as tabelas das seções 2–4)
-├── viz_suggestions: lista ordenada de {tipo_de_gráfico, dados_pré-agregados, motivo}
-└── notes: observações geradas ("distribuição assimétrica — considere escala log")
+DatasetProfile
+├── n_rows, source
+└── columns: {nome → ColumnProfile}
+              ├── name
+              ├── inferred_type   → VariableType (classe, subtipo, regime, confiança,
+              │                     ordered_levels, rank_reference, rank_spearman, warnings)
+              ├── quality         → n, n_válidos, n_ausentes, pct_ausentes
+              ├── essencial       → o que qualquer pessoa lê (varia por tipo/regime)
+              ├── completa        → profundidade estatística
+              ├── checks          → [Check] determinísticos que dispararam
+              ├── viz_suggestions → [VizSuggestion] com dados já pré-agregados
+              ├── notes           → observações da inferência
+              └── narrative       → prosa por template (§7)
 ```
 
-Ponto importante para o Spark: **as visualizações nunca recebem os dados brutos** — recebem os dados já agregados/amostrados pelo backend (contagens por bin, frequências por categoria). Assim o custo distribuído fica no backend e a camada visual é sempre local e leve.
+**As duas camadas são estruturais, não uma opção de exibição** — `essencial` e `completa` são campos distintos, e os renderizadores filtram por camada.
 
----
+**`Check`** carrega `nome`, **`descricao` (o critério em palavras)**, `n`, `pct` e `amostra` dos ofensores. O critério viajar junto do resultado é exigência do §0.2: quem lê precisa saber exatamente qual regra encontrou aquilo.
+
+**`VizSuggestion`** nunca carrega dados brutos — só o agregado pronto para plotar (§0.4).
+
+### 6.1 Formatos do MVP
+
+Decisão de 2026-08-17: quatro renderizadores, expostos como **métodos dedicados** (mais descobríveis no autocomplete), todos aceitando `camada`.
+
+| Método | Público | Tokens (medido) | Nota |
+|---|---|---|---|
+| `to_json(compact=True)` | máquina | **0,63×** | mais barato que YAML, ao contrário do que supúnhamos |
+| `to_yaml()` | edição à mão | 0,73× | mais legível, um pouco mais caro |
+| `to_markdown(camada="essencial")` | **agente de IA e trabalho acadêmico** | **0,30×** | nativo para humano e LLM ao mesmo tempo |
+| `to_html()` | leitura humana | — | identidade visual, camadas na interface |
+
+Medido com tokenizador real (tiktoken `cl100k`) sobre um perfil de coluna em regime textual, o mais denso. Base = JSON indentado. Ressalva: o Markdown é naturalmente seletivo — parte da economia vem de ser mais enxuto, não só mais eficiente; para round-trip fiel, use JSON ou YAML.
+
+O `camada="essencial"` como default do Markdown existe pelo caso de uso que motivou a discussão: **mandar o perfil para um agente de IA** sem pagar por profundidade estatística que ele não vai usar.
+
+### 6.2 Adiados, com a porta aberta
+
+Avaliados e fora do MVP, registrados para não se perderem:
+
+- **Perfil como tabela (Parquet/Arrow)** — uma linha por coluna, uma coluna por métrica. Transforma o perfil de *documento* em *dado* e destrava comparar perfis ao longo do tempo (detecção de drift: "esta coluna ganhou 12% de nulos desde o mês passado"). É a extensão mais promissora.
+- **Esquema interoperável** (Frictionless Table Schema, `schema.yml` do dbt, JSON Schema) — o maat emitindo contrato que outras ferramentas consomem, virando insumo de pipeline em vez de só relatório. Diferencia de todos os concorrentes examinados.
+- **SQLite** — arquivo único consultável com SQL, útil em bases com centenas de colunas onde rolar um HTML é pior que consultar.
+- **CSV longo** (`caminho, valor`) — universal e trivialmente diffável, mas medido em 1,00× o JSON indentado: não economiza nada.
 
 ## 7. Narrativas geradas (data-to-text) — ✅ arquitetura decidida em 2026-08-16
 
@@ -611,7 +645,7 @@ maat.describe(df, config=maat.Config(
 1. ~~Limiares entre regimes de cardinalidade: fixos ou relativos?~~ → **Direção definida**: os limiares são **parâmetros do usuário** com defaults (seção 1.2), incluindo o tamanho da amostra de inferência. Falta calibrar os defaults com uso real.
 2. ~~Ordem das ordinais: dicionários ou declaração?~~ → **Resolvido em 2026-08-16** (§2.3): só caminhos determinísticos — ordem declarada pelo usuário ou número inicial no rótulo. Dicionário de escalas ficou de fora.
 3. **Amostragem no Spark**: qual o padrão de erro aceitável para `approxQuantile` e qual o tamanho de amostra para visuais? E o `N` das amostras dirigidas do regime textual (seção 2.4)?
-4. **Saída do relatório**: HTML estático primeiro? Ou dict/JSON estruturado primeiro e o HTML como renderização por cima (recomendado)?
+4. ~~Saída do relatório: HTML primeiro ou JSON primeiro?~~ → **Resolvido em 2026-08-17** (§6): nenhum dos dois — a **estrutura em memória** é o contrato, e JSON, YAML, Markdown e HTML são renderizadores sobre ela.
 5. ~~Texto livre: fora do MVP?~~ → **Resolvido**: alta cardinalidade textual entrou no MVP como regime da nominal (seção 2.4), com perfil de forma/padrão/sujeira em vez de análise de frequência.
 6. **Bateria de regex do regime textual**: a lista da seção 2.4 (frente 3) é a inicial — quais checagens entram no MVP e quais ficam configuráveis/extensíveis pelo usuário?
 7. **Regimes de cardinalidade valem para a ordinal?** → **Adiado até casos reais** (decisão de 2026-08-16): escolaridade e Likert cabem no categórico; rating de crédito (AAA…D) e patentes militares seriam candidatos a cauda longa, mas sem dataset real na mão não definimos. Fica registrado para retomar.

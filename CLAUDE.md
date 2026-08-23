@@ -73,6 +73,13 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - **Completa**: Herfindahl, entropia normalizada, lista dos grupos de variantes, cauda completa sob demanda.
 - **Variantes de grafia: o maat MOSTRA** (Câmara: `UBER…LTDA.` 10.267 + `Uber…Ltda.` 8). *(Princípio dado pelo Sam: "se o dataframe está ruim, você mostra e o usuário toma uma ação em cima de corrigir ou não" — com a condição de **critérios claros**.)* Critério determinístico e declarado: minúsculas + sem acentos + espaços colapsados + bordas aparadas. **Sem semelhança aproximada.** O maat nunca une, corrige nem sugere correção.
 
+### Contrato de saída — consolidada 2026-08-17 (§6)
+- **O contrato é a estrutura em memória; formatos são renderizadores.** Encerra a questão nº 4 (aberta desde o dia 1): nem HTML nem JSON primeiro — `DatasetProfile`/`ColumnProfile` primeiro.
+- `ColumnProfile`: name · inferred_type · quality · **essencial** · **completa** (camadas são campos, não opção de exibição) · checks · viz_suggestions · notes · narrative. `Check` carrega o **critério em palavras** junto do resultado (exigência do §0.2).
+- **4 formatos no MVP como métodos dedicados** (escolha do Sam, pelo autocomplete), todos com parâmetro `camada`: `to_json` (0,63× tokens, compacto por padrão), `to_yaml` (0,73×), `to_markdown` (**0,30×**, default `camada="essencial"` — caso de uso: mandar para agente de IA), `to_html`.
+- **Medição que corrigiu a hipótese**: o Sam supôs YAML mais barato que JSON; com tiktoken real, **JSON compacto (0,63×) ganha do YAML (0,73×)**; Markdown esmaga ambos. Ressalva registrada: o Markdown é seletivo, parte da economia é por ser mais enxuto.
+- **Adiados com a porta aberta**: perfil como tabela Parquet (destrava comparar perfis no tempo → drift), esquema interoperável (Frictionless/dbt — viraria insumo de pipeline), SQLite, CSV longo (medido: não economiza nada).
+
 ### Temporal — consolidada 2026-08-17 (§4)
 - **Ambiguidade dd/mm × mm/dd é o problema central**, descoberto medindo: 39% a 50% dos valores de uma coluna `A/B/AAAA` são individualmente ambíguos. A prova vem da minoria com campo > 12 (`ecommerce`: mm/dd provado por 308.950 valores; `bcb/dolar` e `tesouro`: dd/mm provado). Quatro estados: provado dd/mm, provado mm/dd, **misturados** (provas dos dois lados = corrompido) e **indecidível**.
 - **Indecidível → reporta e não escolhe**: declara o impasse e **suspende as análises que dependem do dia** até `date_format`. O pandas escolhe em silêncio; nós dizemos que não dá para saber.
@@ -131,7 +138,7 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ## 5. Pendências e questões em aberto
 
-- **O design de TODOS os tipos está fechado** (2026-08-17). Resta uma peça: o **contrato de saída** (§6) — precisa refletir camadas, narrativa e os campos novos (rank_reference etc.).
+- ✅ **TODO o design está fechado** (2026-08-17): tipos, princípios, narrativas e contrato de saída. O que resta é **implementação**.
 - **Bivariadas e multivariadas: ADIADAS para o beta** (decisão de 2026-08-17). Motivo medido: explosão combinatória — fifa19 tem 3.916 pares sozinho, os 39 datasets somam 9.412; um relatório assim é ilegível por construção e contradiz a camada essencial. Direção registrada para o beta: **modelo híbrido com IA selecionando os pares pertinentes** (ranqueamento a partir de nomes e perfis univariados) e o **maat calculando deterministicamente** os escolhidos — mesma divisão das narrativas, que mantém os números fora do alcance do modelo. A matriz tipo × tipo da §5 já está desenhada; falta decidir o critério de seleção.
 - Depois: implementação (`core/inference.py` + `PandasBackend`), **em incrementos com o Sam presente**.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
@@ -209,6 +216,7 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
 13. Links de origem (Kaggle e fontes de governo) no manifesto e nas subpáginas.
 14. Ordinal consolidada — o Sam desafia "qual métrica depende de fato da ordem?" e a resposta honesta (duas medidas) define um desenho enxuto.
+20. **2026-08-17** — §6 (contrato de saída) consolidada. **Design completo; começa a implementação.**
 19. **2026-08-17** — bivariadas adiadas para o beta com a explosão combinatória medida; direção do modelo híbrido com IA registrada.
 18. **2026-08-17** — §4 (temporal) consolidada: a ambiguidade dd/mm é medida e o indecidível passa a ser declarado; entram as quebras de calendário do Spark. **Design de todos os tipos fechado.**
 17. **2026-08-17** — §2.4 (textual) consolidada: 15 checagens medidas em dados reais, palavrões recusados, execução sempre na base inteira.
