@@ -56,8 +56,13 @@ def describe(
     schema = infer_schema(backend.columns_meta(), config)
     perfil = DatasetProfile(n_rows=backend.n_rows(), source=getattr(df, "name", None))
 
-    for coluna, vtype in schema.items():
-        perfil.columns[coluna] = despachar(backend, coluna, vtype)
+    try:
+        for coluna, vtype in schema.items():
+            perfil.columns[coluna] = despachar(backend, coluna, vtype)
+    finally:
+        liberar = getattr(backend, "liberar_cache", None)
+        if liberar:
+            liberar()
     return perfil
 
 

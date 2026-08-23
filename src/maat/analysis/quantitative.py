@@ -9,7 +9,7 @@ from maat.core.taxonomy import CardinalityRegime, VariableType
 
 def _base(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
     n_total = backend.n_rows()
-    resumo = backend.numeric_summary(column)
+    resumo = backend.resumo_numerico(column)
     n_validos = int(resumo.get("n", 0))
     return ColumnProfile(
         name=column,
@@ -48,7 +48,7 @@ def analyze_discrete(backend: Backend, column: str, vtype: VariableType) -> Colu
     }
 
     if vtype.regime is CardinalityRegime.TABLE:
-        contagens = backend.value_counts(column)
+        contagens = backend.contagens(column)
         ordenados = sorted(contagens.items(), key=lambda x: x[0])
         perfil.essencial["tabela"] = [
             {"valor": v, "absoluto": q, "pct_validos": q / n_validos if n_validos else 0}

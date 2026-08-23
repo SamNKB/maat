@@ -121,7 +121,7 @@ def analyze_duration(backend: Backend, column: str, vtype: VariableType) -> Colu
     from maat.analysis.quantitative import analyze_continuous
 
     perfil = analyze_continuous(backend, column, vtype)
-    resumo = backend.numeric_summary(column)
+    resumo = backend.resumo_numerico(column)
 
     mediana = resumo.get("mediana")
     perfil.essencial["unidade_sugerida"] = _unidade(mediana)

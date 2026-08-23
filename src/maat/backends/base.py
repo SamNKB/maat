@@ -25,6 +25,27 @@ class Backend(ABC):
     def __init__(self, df: Any, config: Config | None = None) -> None:
         self.df = df
         self.config = config or Config()
+        self._memo: dict[tuple, Any] = {}
+
+    def contagens(self, column: str, top_n: int | None = None) -> dict[Any, int]:
+        """`value_counts` memoizado.
+
+        Uma análise qualitativa consulta as contagens várias vezes (qualidade,
+        tabela, concentração, singletons). Sem memoização, cada consulta é
+        uma agregação distribuída completa — no Spark isso é uma releitura da
+        base inteira por chamada.
+        """
+        chave = ("vc", column, top_n)
+        if chave not in self._memo:
+            self._memo[chave] = self.value_counts(column, top_n)
+        return self._memo[chave]
+
+    def resumo_numerico(self, column: str) -> dict[str, float]:
+        """`numeric_summary` memoizado — idem."""
+        chave = ("ns", column)
+        if chave not in self._memo:
+            self._memo[chave] = self.numeric_summary(column)
+        return self._memo[chave]
 
     # --- inferência -------------------------------------------------------
 

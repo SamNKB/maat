@@ -55,6 +55,10 @@ class SparkBackend(Backend):
         super().__init__(df, config)
         self._n_rows: int | None = None
         self._amostra_pd = None
+        # Projeções por coluna, materializadas em memória. Sem isto, cada
+        # checagem de texto relê a base inteira — num perfil textual são
+        # ~20 varreduras da mesma coluna.
+        self._cache: dict[str, DataFrame] = {}
 
     # --- infraestrutura ---------------------------------------------------
 
@@ -112,6 +116,25 @@ class SparkBackend(Backend):
 
     def _validos(self, column: str) -> DataFrame:
         return self.df.filter(self._col(column).isNotNull())
+
+    def _texto_cache(self, column: str) -> DataFrame:
+        """Projeção `v` (texto não nulo) da coluna, materializada.
+
+        Reutilizada por `text_profile` e `text_checks`, que juntas fazem
+        dezenas de passadas sobre a mesma coluna.
+        """
+        chave = f"txt::{column}"
+        if chave not in self._cache:
+            alvo = self._validos(column).select(self._texto(column).alias("v"))
+            self._cache[chave] = alvo.cache()
+            self._cache[chave].count()  # materializa
+        return self._cache[chave]
+
+    def liberar_cache(self) -> None:
+        """Solta as projeções materializadas."""
+        for df in self._cache.values():
+            df.unpersist()
+        self._cache.clear()
 
     def _texto(self, column: str):
         from pyspark.sql import functions as F
@@ -511,7 +534,7 @@ class SparkBackend(Backend):
     def text_profile(self, column: str) -> dict[str, Any]:
         from pyspark.sql import functions as F
 
-        alvo = self._validos(column).select(self._texto(column).alias("v"))
+        alvo = self._texto_cache(column)
         comprimento = F.length("v")
         erro = self.config.quantile_error
         quantis = alvo.select(comprimento.alias("L")).approxQuantile(
@@ -594,7 +617,7 @@ class SparkBackend(Backend):
         """
         from pyspark.sql import functions as F
 
-        alvo = self._validos(column).select(self._texto(column).alias("v"))
+        alvo = self._texto_cache(column)
         total = int(alvo.count())
         if not total:
             return []

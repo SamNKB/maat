@@ -17,7 +17,7 @@ from maat.core.taxonomy import CardinalityRegime, VariableSubtype, VariableType
 
 def _base(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
     n_total = backend.n_rows()
-    contagens = backend.value_counts(column)
+    contagens = backend.contagens(column)
     n_validos = sum(contagens.values())
     return ColumnProfile(
         name=column,
@@ -42,7 +42,7 @@ def analyze_binary(backend: Backend, column: str, vtype: VariableType) -> Column
     par semântico e alertas por limiar.
     """
     perfil = _base(backend, column, vtype)
-    contagens = backend.value_counts(column)
+    contagens = backend.contagens(column)
     n, n_validos = perfil.quality["n"], perfil.quality["n_validos"]
     ausentes = perfil.quality["n_ausentes"]
 
@@ -96,7 +96,7 @@ def analyze_categorical(
 ) -> ColumnProfile:
     """Regime categórico (§2.1): poucos níveis, todos no resumo."""
     perfil = _base(backend, column, vtype)
-    contagens = backend.value_counts(column)
+    contagens = backend.contagens(column)
     n_validos = perfil.quality["n_validos"]
 
     tabela = [
@@ -138,7 +138,7 @@ def analyze_long_tail(
     grupos de variantes de grafia.
     """
     perfil = _base(backend, column, vtype)
-    contagens = backend.value_counts(column)
+    contagens = backend.contagens(column)
     n_validos = perfil.quality["n_validos"]
     top_n = backend.config.long_tail_top_n
 
@@ -214,7 +214,7 @@ def analyze_textual(
     n_validos = perfil.quality["n_validos"]
 
     perfil.essencial = {
-        "k": len(backend.value_counts(column, top_n=None)) if n_validos < 1 else None,
+        "k": len(backend.contagens(column)) if n_validos < 1 else None,
         "comprimento": texto.get("comprimento", {}),
         "amostras": texto.get("amostras", {}),
         "padrao_dominante": texto.get("padrao_dominante", {}),
@@ -247,7 +247,7 @@ def analyze_textual(
 
 
 def vtype_k(backend: Backend, column: str) -> int:
-    return len(backend.value_counts(column))
+    return len(backend.contagens(column))
 
 
 def analyze_ordinal(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
@@ -261,7 +261,7 @@ def analyze_ordinal(backend: Backend, column: str, vtype: VariableType) -> Colum
     if not vtype.ordered_levels:
         return perfil
 
-    contagens = backend.value_counts(column)
+    contagens = backend.contagens(column)
     n_validos = perfil.quality["n_validos"]
     ordenados = [n for n in vtype.ordered_levels if str(n) in map(str, contagens)]
     mapa = {str(k): v for k, v in contagens.items()}
@@ -311,7 +311,7 @@ def analyze_rank(backend: Backend, column: str, vtype: VariableType) -> ColumnPr
     falso positivo, para que um engano fique visível na primeira leitura.
     """
     perfil = _base(backend, column, vtype)
-    resumo = backend.numeric_summary(column)
+    resumo = backend.resumo_numerico(column)
     perfil.essencial = {
         "referencia": vtype.rank_reference,
         "spearman": vtype.rank_spearman,
@@ -347,7 +347,7 @@ def analyze_identifier(
         "linhas_por_valor": resumo["linhas_por_valor"],
     }
     if vtype.subtype is VariableSubtype.CODE:
-        contagens = backend.value_counts(column, top_n=backend.config.long_tail_top_n)
+        contagens = backend.contagens(column, top_n=backend.config.long_tail_top_n)
         n_validos = perfil.quality["n_validos"]
         perfil.essencial["top_valores"] = [
             {"valor": v, "absoluto": q, "pct_validos": q / n_validos if n_validos else 0}
