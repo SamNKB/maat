@@ -105,6 +105,7 @@ profile = maat.describe(df, config=maat.Config(
     continuous_extremes_levels=5,  # contínua: n maiores e n menores valores observados na tabela de extremos
     long_tail_top_n=10,            # cauda longa: n níveis na tabela, mais a linha "Outros"
     ordinal_levels={},             # ordem declarada por coluna, ex.: {"tamanho": ["P", "M", "G"]}
+    rank_monotonia_minima=0.99,    # |Spearman| contra outra coluna a partir do qual vira rank (§3.3)
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -123,7 +124,9 @@ Regras de inferência (heurísticas iniciais, sempre sobrescrevíveis pelo usuá
 | dtype numérico com casas decimais | Quantitativa contínua |
 | dtype date/datetime, ou string que parseia como data em alta taxa | Temporal (instante) |
 | dtype timedelta, ou diferença entre colunas de data | Temporal (duração) |
-| numérico com cardinalidade ≈ `n` e sem repetição (id) | Identificador — análise reduzida a unicidade e qualidade |
+| numérico que passa em dígito verificador, tem zeros à esquerda ou comprimento fixo | **Identificador · código** (§3.3) — cardinalidade, nunca média |
+| numérico denso e único com \|Spearman\| ≥ 0,99 contra outra coluna | **Rank** (§3.3) — sempre nomeando a coluna de referência |
+| numérico com cardinalidade ≈ `n` e sem repetição (id) | **Identificador · chave** — unicidade e colisões |
 | string com cardinalidade alta (nome, e-mail, endereço) | Qualitativa nominal em **regime textual** (seção 2.4) |
 
 > **Armadilhas conhecidas**: CEP, código de produto e ano são números que *não* são quantitativos (não faz sentido somar CEPs). A inferência deve marcar esses casos como "suspeitos" e sugerir reclassificação. Ano é o caso mais ambíguo: pode ser temporal (eixo) ou ordinal (categoria de agrupamento) dependendo da pergunta.
@@ -387,6 +390,43 @@ Medições em escala real — o caso mais rico da estatística descritiva cláss
 | QQ-plot (vs. normal) | Fase 2 | Diagnóstico de normalidade |
 
 ---
+
+### 3.3 Números que não são quantidades: identificador, código e rank — ✅ consolidada em 2026-08-17
+
+> 🔍 **Página detalhada**: [tipos/nao-quantidades.html](tipos/nao-quantidades.html) ([versão pública](https://samnkb.github.io/maat/tipos/nao-quantidades.html)).
+
+Chegam pela rota numérica, mas média e histograma não significam nada neles. Média de CEP, de `ideCadastro` ou de CNPJ é ruído. Foram descobertos medindo o benchmark (`scripts/sinais_nao_quantidades.py`) — e a regra antiga (`k ≈ n` → identificador) só pegava **chave primária**, deixando passar códigos e chaves estrangeiras.
+
+**As três rotas**:
+
+| Rota | O que é | Exemplo real | O que recebe de análise |
+|---|---|---|---|
+| **Identificador · chave** | identifica a linha; `k ≈ n` | `titanic/PassengerId`, `nyc/id` | unicidade, colisões, duplicatas — fora das estatísticas |
+| **Identificador · código** | identifica uma entidade e **se repete** | `gov-camara/ideCadastro` (391 linhas por valor), `CO_MUN`, CNPJ | análise de cardinalidade como nominal (k, top valores, regime) — **nunca** média ou histograma |
+| **Rank** | posição/colocação | `videogame-sales/Rank`, `world-happiness/Happiness.Rank` | análise ordinal de posição (§2.3) |
+
+#### Os 5 sinais do MVP (+ razão de repetição)
+
+Decisão de 2026-08-17: entram os de **força alta**. Todos determinísticos e independentes de idioma — a rejeição do dicionário de nomes de coluna foi explícita ("contextos regionais interferem").
+
+| Sinal | Definição | Evidência do benchmark |
+|---|---|---|
+| **Dígito verificador** | valida CPF/CNPJ pelo algoritmo oficial (extensível a EAN, ISBN, IBAN) | `cvm/CNPJ_FUNDO_CLASSE`: **100%** válido · `camara/txtCNPJCPF`: 92,7% CNPJ + 1,4% CPF (coluna mista) · controles (`ideCadastro`, `nyc/id`): **0%** |
+| **Zeros à esquerda preservados** | o texto original começa com `0` seguido de dígito | número descarta zero à esquerda; sobreviver a isso prova que é código |
+| **Comprimento fixo** | todos os valores têm o mesmo nº de dígitos no texto | `CO_MUN`: sempre 7 · CNPJ: sempre 14 (18 com máscara) |
+| **Densidade** | `k / (máx − mín + 1)` | separa id **esparso** de denso: `nyc/id` = 0,0013 (2.539…36.487.245) e `stroke/id` = 0,0701, contra 1,0 de um rank |
+| **Monotonia máxima** | maior \|Spearman\| contra as demais colunas numéricas | `videogame/Rank` × `Global_Sales` = **−0,9996** · `happiness/Happiness.Rank` × `Happiness.Score` = **−1,0000** · `titanic/PassengerId` = 0,0695 |
+| **Razão de repetição** | `n / k` — linhas por valor distinto | `ideCadastro`: 391 → chave **estrangeira**, não primária |
+
+#### Rank: por que a monotonia decide, e o que isso custa
+
+Medimos e ficou provado: **nenhum sinal estatístico separa rank de id sequencial**. `Rank` do videogame e `CustomerID` do mall têm assinatura idêntica (k = n, densidade ≈ 1, começa em 1, \|Spearman\| = 0,9996) — a diferença é semântica, não estatística. Um id sequencial num arquivo ordenado por renda *é*, matematicamente, um rank de renda.
+
+Testamos também a **exatidão** (o rank reproduz o ranking da coluna base?) e ela falhou nos dois sentidos: rejeitou um rank verdadeiro (videogame: 3,9%, porque os empates de vendas foram desempatados por outro critério) e aceitou o falso positivo (mall: 100%).
+
+**Decisão de 2026-08-17**: classificar como **rank quando a monotonia é quase perfeita** (\|Spearman\| ≥ 0,99 contra alguma coluna numérica). O custo é conhecido e aceito: `mall/CustomerID` será classificado como rank.
+
+**Mitigação obrigatória**: o perfil de um rank **sempre nomeia a coluna com que é monotônico** — *"rank de `Annual Income` (Spearman +0,9996)"*. O engano fica visível na primeira leitura, em vez de silencioso, e o usuário sobrescreve. Coerente com §0.1 e §0.2.
 
 ## 4. Temporais — o tipo que não se encaixa
 

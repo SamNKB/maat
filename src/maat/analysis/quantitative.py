@@ -33,3 +33,34 @@ def analyze_continuous(backend: Backend, column: str, vtype: VariableType) -> Co
     ECDF e boxplot.
     """
     raise NotImplementedError
+
+
+def analyze_identifier(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
+    """Números que não são quantidades — seção 3.3 do fluxo (consolidada).
+
+    Subtipo KEY (k ≈ n): unicidade, colisões e duplicatas. Fora das
+    estatísticas — média de id não significa nada.
+    Subtipo CODE (identifica entidade e se repete: CNPJ, CO_MUN,
+    ideCadastro): análise de cardinalidade como nominal (k, top valores,
+    regime), **nunca** média ou histograma.
+
+    Sinais determinísticos do MVP (todos independentes de idioma; o
+    dicionário de nomes de coluna foi recusado por decisão): dígito
+    verificador de CPF/CNPJ, zeros à esquerda preservados, comprimento
+    fixo, densidade k/(máx-mín+1) e razão de repetição n/k.
+    """
+    raise NotImplementedError
+
+
+def analyze_rank(backend: Backend, column: str, vtype: VariableType) -> ColumnProfile:
+    """Posição/colocação — seção 3.3 do fluxo (consolidada).
+
+    Detectado por monotonia quase perfeita (|Spearman| >= rank_monotonia_minima)
+    contra alguma outra coluna numérica. Recebe a análise ordinal de posição.
+
+    Nenhum sinal estatístico separa rank de id sequencial — a diferença é
+    semântica. O falso positivo conhecido (mall/CustomerID) é mitigado por
+    construção: `vtype.rank_reference` é obrigatório, e o perfil sempre
+    nomeia a coluna de referência para que um engano fique visível.
+    """
+    raise NotImplementedError

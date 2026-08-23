@@ -79,6 +79,12 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - Não confundir a acumulada ordinal (pela escala, "quanto está abaixo daqui?") com o acumulado do Pareto na cauda longa (por frequência, "quantos níveis dominam?").
 - **Ordem só por caminhos determinísticos**: declarada em `ordinal_levels`, ou número inicial no rótulo (`5-14 years`). **Fora**: dicionário de escalas e coluna irmã numérica (adult `education.num`) — risco de erro silencioso por idioma/cultura, desproporcional para duas medidas.
 
+### Identificador, código e rank — consolidada 2026-08-17 (§3.3)
+- **Três rotas** para números que não são quantidades: **chave** (k≈n → unicidade/colisões), **código** (identifica entidade e se repete: CNPJ, `CO_MUN`, `ideCadastro` → cardinalidade como nominal, **nunca média**) e **rank** (posição).
+- **Dicionário de nomes de coluna: RECUSADO** pelo Sam — "inferir nome da coluna é algo sem noção demais, os contextos regionais interferem". Todos os sinais são determinísticos e independentes de idioma.
+- **5 sinais no MVP** (+ razão de repetição): dígito verificador CPF/CNPJ (cvm: 100%, controles: 0%), zeros à esquerda, comprimento fixo, densidade `k/(máx−mín+1)` (nyc id: 0,0013), monotonia máxima |Spearman| (videogame Rank × Global_Sales: −0,9996). Medidos por `scripts/sinais_nao_quantidades.py`.
+- **Rank**: provado que **nenhum sinal estatístico o separa de id sequencial** (mall/CustomerID tem assinatura idêntica ao Rank do videogame); a exatidão também falhou nos dois sentidos. Decisão: classifica como rank se **|Spearman| ≥ 0,99** (`rank_monotonia_minima`), aceitando o falso positivo do mall. **Mitigação obrigatória por construção**: `VariableType` rejeita RANK sem `rank_reference` — o perfil sempre nomeia a coluna de referência para o engano ficar visível.
+
 ### Quantitativa discreta — consolidada 2026-08-16 (§3.1)
 - **Inteiros são sempre discreta**, independente da cardinalidade; o `k` escolhe o **regime**: `tabela` (k ≤ `max_discrete_levels`, frequência por valor exato) ou `histograma` (bins inteiros).
 - **Essencial**: tabela + mín/máx + moda + **média e mediana** (o par revela assimetria sem jargão).
@@ -109,12 +115,10 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 - **Próxima na fila de discussão: nominal em regime textual** (§2.4) — `name` do nyc (k/n=0,98), SMS spam, descrições do wine-reviews. Decisões previstas: quais checagens de regex entram no MVP (questão nº 6), tamanho das amostras dirigidas, e se a máscara de caractere fica na essencial.
 - Depois: **temporal** (instante e duração); então bivariadas.
-- **Subtipo `rank`** (ordinal com k ≈ n, ex.: colocação de maratona): decidido criar, mas **aguarda datasets reais**. Desafio central: rank e id sequencial são estatisticamente idênticos — o desempate teria de vir do nome da coluna, e na dúvida marcar como suspeita.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
 - **Implementação**: `core/inference.py`, backends e análises ainda são stubs `NotImplementedError`. Plano combinado: implementar inferência + `PandasBackend`, rodar nos 40 datasets, e usar os resultados para resolver o `rank` e calibrar limiares.
 - ~~Rodar ydata-profiling como baseline~~ → **feito em 2026-08-17**, ver `docs/comparacao-ydata.md`. Resultados locais em `benchmarks/ydata/` (fora do git; refazer com `scripts/run_ydata_baseline.py` + `scripts/comparar_com_ydata.py`).
-- **Decisão pendente que o benchmark levantou**: `videogame-sales/Rank` (k=16.598) e `world-happiness/Happiness.Rank` (k=155) são colocações reais classificadas como **identificador** pelas nossas regras atuais — é a evidência empírica que faltava para decidir o subtipo `rank`.
 - **Verificar antes de implementar o regime textual**: o ydata tem análise Unicode de texto (extra opcional) que pode cobrir parte do que planejamos na §2.4 — comparar item a item para não reinventar.
 
 ---
@@ -186,6 +190,7 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
 13. Links de origem (Kaggle e fontes de governo) no manifesto e nas subpáginas.
 14. Ordinal consolidada — o Sam desafia "qual métrica depende de fato da ordem?" e a resposta honesta (duas medidas) define um desenho enxuto.
+16. **2026-08-17** — §3.3 consolidada: identificador vira três rotas (chave/código/rank); o dicionário de nomes é recusado e a decisão passa a apoiar-se em sinais medidos.
 15. **2026-08-17** — baseline competitivo executado: ydata-profiling sobre 39 datasets, 625 colunas comparadas (`docs/comparacao-ydata.md`). Um erro de metodologia (modo mínimo desativa inferência de datas) quase virou conclusão falsa a nosso favor e foi corrigido antes de publicar.
 
 **Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · **ordinal (§2.3)** · discreta (§3.1) · contínua (§3.2) — cada um com subpágina em `docs/tipos/`.

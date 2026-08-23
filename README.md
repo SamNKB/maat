@@ -22,6 +22,11 @@ Variável
 └── Temporal (datas e timestamps)
     ├── Instante  — pontos no tempo (data da venda)
     └── Duração   — intervalos (tempo de entrega)
+
+Números que não são quantidades — chegam pela rota numérica    ✅ consolidada
+├── Identificador · chave  — identifica a linha (PassengerId)
+├── Identificador · código — identifica entidade e repete (CNPJ, CO_MUN)
+└── Rank                   — posição/colocação (Happiness.Rank)
 ```
 
 Datas não se encaixam nem em qualitativa nem em quantitativa porque são **as duas coisas ao mesmo tempo**: uma linha contínua que carrega componentes cíclicos categóricos. Por isso o maat as trata como **tipo de primeira classe**.
@@ -73,4 +78,4 @@ Limiares e comportamentos são parametrizáveis via `maat.Config` (níveis de re
 
 ## Status
 
-🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta** e **quantitativa contínua** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. Próximo: regime textual → temporal; depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.
+🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta**, **quantitativa contínua** e **identificador/código/rank** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. Próximo: regime textual → temporal; depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.

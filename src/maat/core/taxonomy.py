@@ -45,18 +45,29 @@ class VariableSubtype(str, Enum):
     NOMINAL = "nominal"
     ORDINAL = "ordinal"
     BINARY = "binary"
+    # Rank: posição/colocação. Família ordinal (a natureza do dado é ordem),
+    # mas identificado por monotonia com outra coluna — ver seção 3.3.
+    RANK = "rank"
     # Quantitativas
     DISCRETE = "discrete"
     CONTINUOUS = "continuous"
     # Temporais
     INSTANT = "instant"
     DURATION = "duration"
+    # Identificadores (seção 3.3): números que não são quantidades
+    KEY = "key"  # identifica a linha, k ≈ n — unicidade e colisões
+    CODE = "code"  # identifica uma entidade e se repete — cardinalidade, nunca média
 
 
 # Subtipos válidos por classe — usado para validar reclassificações do usuário.
 VALID_SUBTYPES: dict[VariableClass, frozenset[VariableSubtype]] = {
     VariableClass.QUALITATIVE: frozenset(
-        {VariableSubtype.NOMINAL, VariableSubtype.ORDINAL, VariableSubtype.BINARY}
+        {
+            VariableSubtype.NOMINAL,
+            VariableSubtype.ORDINAL,
+            VariableSubtype.BINARY,
+            VariableSubtype.RANK,
+        }
     ),
     VariableClass.QUANTITATIVE: frozenset(
         {VariableSubtype.DISCRETE, VariableSubtype.CONTINUOUS}
@@ -64,7 +75,7 @@ VALID_SUBTYPES: dict[VariableClass, frozenset[VariableSubtype]] = {
     VariableClass.TEMPORAL: frozenset(
         {VariableSubtype.INSTANT, VariableSubtype.DURATION}
     ),
-    VariableClass.IDENTIFIER: frozenset(),
+    VariableClass.IDENTIFIER: frozenset({VariableSubtype.KEY, VariableSubtype.CODE}),
     VariableClass.UNSUPPORTED: frozenset(),
 }
 
@@ -84,6 +95,11 @@ class VariableType:
     ordered_levels: list[str] | None = None
     # Avisos da inferência (ex.: "número com cara de código — confira se é quantitativa").
     warnings: list[str] = field(default_factory=list)
+    # Só para RANK: coluna com que a monotonia foi detectada e o Spearman medido.
+    # Obrigatório — é a mitigação do falso positivo (seção 3.3): nomear a
+    # referência torna um engano visível na primeira leitura.
+    rank_reference: str | None = None
+    rank_spearman: float | None = None
 
     def __post_init__(self) -> None:
         valid = VALID_SUBTYPES[self.var_class]
@@ -91,6 +107,12 @@ class VariableType:
             raise ValueError(
                 f"Subtipo {self.subtype.value!r} inválido para a classe "
                 f"{self.var_class.value!r}"
+            )
+        if self.subtype is VariableSubtype.RANK and not self.rank_reference:
+            raise ValueError(
+                "RANK exige rank_reference: a coluna com que a monotonia foi "
+                "detectada. Nomear a referência é a mitigação do falso positivo "
+                "(seção 3.3 do fluxo de análises)."
             )
         if self.subtype is VariableSubtype.ORDINAL and not self.ordered_levels:
             self.warnings.append(
