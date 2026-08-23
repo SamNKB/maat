@@ -538,9 +538,26 @@ Durações **são** quantitativas contínuas (razões fazem sentido: 4h é o dob
 
 ---
 
-## 5. Análises bivariadas (cruzamentos)
+## 5. Análises bivariadas (cruzamentos) — ⏸️ adiadas para o beta, decisão de 2026-08-17
 
-A matriz tipo × tipo define o que faz sentido cruzar. MVP: usuário escolhe os pares; futuro: sugestão automática dos pares mais informativos.
+**Fora do MVP.** O motivo é a explosão combinatória, medida no próprio benchmark:
+
+| Dataset | Colunas | Pares | Trios |
+|---|---|---|---|
+| fifa19 | 89 | **3.916** | 113.564 |
+| gov-tse-candidatos | 50 | 1.225 | 19.600 |
+| breast-cancer | 33 | 528 | 5.456 |
+| **Total (39 datasets)** | **625** | **9.412** | — |
+
+Um relatório com 9.412 cruzamentos é **ilegível por construção** — e isso só nas bivariadas; as multivariadas escalam muito pior. Cruzar tudo contradiz a camada essencial, que existe para ser legível por qualquer pessoa.
+
+**Direção registrada para o beta — modelo híbrido com IA selecionando os pares pertinentes.** A ideia se encaixa na arquitetura já decidida em §7, com a mesma divisão de responsabilidades que protege os números:
+
+- A **IA sugere quais pares valem a pena** olhar, a partir dos nomes e dos perfis univariados já calculados. É tarefa de **ranqueamento e seleção**, não de cálculo.
+- O **maat calcula deterministicamente** os pares selecionados. Nenhum número vem do modelo — a mesma trava que criamos para as narrativas.
+- O usuário continua podendo escolher os pares manualmente, sem IA nenhuma.
+
+Fica coerente com §0: a IA propõe o recorte, o usuário dispõe, e o cálculo permanece determinístico. **A matriz abaixo já está desenhada e serve de base para o beta** — o que falta decidir é o critério de seleção, não o que calcular em cada célula.
 
 | | Qualitativa | Quantitativa | Temporal |
 |---|---|---|---|

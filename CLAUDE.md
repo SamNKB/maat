@@ -131,7 +131,8 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ## 5. Pendências e questões em aberto
 
-- **O design de TODOS os tipos está fechado** (2026-08-17). Restam: **bivariadas** (§5) e o **contrato de saída** (§6) — este último precisa refletir camadas, narrativa e os campos novos (rank_reference etc.).
+- **O design de TODOS os tipos está fechado** (2026-08-17). Resta uma peça: o **contrato de saída** (§6) — precisa refletir camadas, narrativa e os campos novos (rank_reference etc.).
+- **Bivariadas e multivariadas: ADIADAS para o beta** (decisão de 2026-08-17). Motivo medido: explosão combinatória — fifa19 tem 3.916 pares sozinho, os 39 datasets somam 9.412; um relatório assim é ilegível por construção e contradiz a camada essencial. Direção registrada para o beta: **modelo híbrido com IA selecionando os pares pertinentes** (ranqueamento a partir de nomes e perfis univariados) e o **maat calculando deterministicamente** os escolhidos — mesma divisão das narrativas, que mantém os números fora do alcance do modelo. A matriz tipo × tipo da §5 já está desenhada; falta decidir o critério de seleção.
 - Depois: implementação (`core/inference.py` + `PandasBackend`), **em incrementos com o Sam presente**.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
@@ -208,6 +209,7 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
 13. Links de origem (Kaggle e fontes de governo) no manifesto e nas subpáginas.
 14. Ordinal consolidada — o Sam desafia "qual métrica depende de fato da ordem?" e a resposta honesta (duas medidas) define um desenho enxuto.
+19. **2026-08-17** — bivariadas adiadas para o beta com a explosão combinatória medida; direção do modelo híbrido com IA registrada.
 18. **2026-08-17** — §4 (temporal) consolidada: a ambiguidade dd/mm é medida e o indecidível passa a ser declarado; entram as quebras de calendário do Spark. **Design de todos os tipos fechado.**
 17. **2026-08-17** — §2.4 (textual) consolidada: 15 checagens medidas em dados reais, palavrões recusados, execução sempre na base inteira.
 16. **2026-08-17** — §3.3 consolidada: identificador vira três rotas (chave/código/rank); o dicionário de nomes é recusado e a decisão passa a apoiar-se em sinais medidos.
