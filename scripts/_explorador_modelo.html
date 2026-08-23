@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maat // explorador do repositório</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --void:#05070F; --navy:#0A0E1A; --panel:#101828; --cyan:#00E5FF; --ice:#E6F7FF;
+    --magenta:#FF2E88; --violet:#9D4EDD; --steel:#3A4A63; --mist:#8FA3BF;
+    --amber:#FFB03A; --mint:#3DF5C6;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:radial-gradient(ellipse at 25% -10%, #0D1526 0%, var(--void) 60%);
+    color:var(--ice); font-family:'Space Grotesk',sans-serif; min-height:100vh; padding:22px;
+  }
+  header{margin-bottom:16px}
+  h1{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:27px; letter-spacing:1px;
+     color:var(--cyan); text-shadow:0 0 18px rgba(0,229,255,.4)}
+  h1 span{color:var(--magenta); text-shadow:0 0 18px rgba(255,46,136,.4)}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+  .chip{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+    border:1px solid var(--steel); border-radius:999px; padding:3px 11px}
+  .chip b{color:var(--cyan); font-weight:400}
+  .layout{display:grid; grid-template-columns:minmax(230px,300px) 1fr; gap:16px; align-items:start}
+  @media (max-width:760px){.layout{grid-template-columns:1fr}}
+  .caixa{background:rgba(16,24,40,.72); border:1px solid var(--steel); border-radius:12px}
+  #arvore{padding:12px 8px; max-height:74vh; overflow:auto}
+  .no{display:flex; align-items:center; gap:7px; padding:3px 8px; border-radius:6px;
+    cursor:pointer; font-size:13.5px; white-space:nowrap}
+  .no:hover{background:rgba(0,229,255,.09)}
+  .no.sel{background:rgba(0,229,255,.16); box-shadow:inset 2px 0 0 var(--cyan)}
+  .no .ic{font-family:'JetBrains Mono',monospace; font-size:11px; width:13px; color:var(--mist)}
+  .no.pasta > .nome{color:var(--cyan); font-weight:500}
+  .no.arq .nome{color:var(--ice)}
+  .no .meta{margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mist)}
+  .filhos{margin-left:13px; border-left:1px solid rgba(58,74,99,.45); padding-left:5px}
+  .filhos.oculto{display:none}
+  #painel{min-height:74vh; display:flex; flex-direction:column}
+  #cab{padding:13px 16px; border-bottom:1px solid var(--steel)}
+  #cab .caminho{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--cyan)}
+  #cab .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:5px}
+  #cab .sub b{color:var(--mint); font-weight:400}
+  #conteudo{flex:1; overflow:auto; max-height:68vh; padding:0}
+  pre{margin:0; font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.55}
+  .linha{display:flex}
+  .linha:hover{background:rgba(0,229,255,.05)}
+  .num{color:var(--steel); text-align:right; padding:0 12px 0 14px; user-select:none;
+    min-width:52px; border-right:1px solid rgba(58,74,99,.35)}
+  .txt{padding:0 14px; white-space:pre; color:var(--ice)}
+  .vazio{padding:34px 18px; color:var(--mist); font-size:14px}
+  #busca{width:100%; background:var(--navy); border:1px solid var(--steel); border-radius:8px;
+    color:var(--ice); font-family:'JetBrains Mono',monospace; font-size:12px; padding:7px 11px;
+    margin-bottom:10px}
+  #busca:focus{outline:none; border-color:var(--cyan); box-shadow:0 0 12px rgba(0,229,255,.25)}
+</style>
+</head>
+<body>
+<header>
+  <h1>maat <span>//</span> explorador do repositório</h1>
+  <div class="chips">
+    <span class="chip">branch <b>__BRANCH__</b></span>
+    <span class="chip"><b>__N_ARQUIVOS__</b> arquivos versionados</span>
+    <span class="chip"><b>__N_COMMITS__</b> commits</span>
+    <span class="chip"><b>__LINHAS__</b> linhas</span>
+    <span class="chip"><b>__KB__</b> KB</span>
+  </div>
+</header>
+<div class="layout">
+  <div class="caixa" style="padding:12px">
+    <input id="busca" placeholder="filtrar arquivos..." autocomplete="off">
+    <div id="arvore"></div>
+  </div>
+  <div class="caixa" id="painel">
+    <div id="cab"><div class="caminho">selecione um arquivo</div>
+      <div class="sub">a árvore mostra apenas o que está versionado no git</div></div>
+    <div id="conteudo"><div class="vazio">Clique em um arquivo à esquerda para ver o conteúdo.
+      Pastas abrem e fecham com um clique.</div></div>
+  </div>
+</div>
+<script>
+const DADOS = __DADOS__;
+
+function montarArvore(caminhos){
+  const raiz = {};
+  for (const c of caminhos){
+    const partes = c.split("/");
+    let no = raiz;
+    partes.forEach((p, i) => {
+      const folha = i === partes.length - 1;
+      if (folha) (no._arquivos = no._arquivos || []).push([p, c]);
+      else no = (no[p] = no[p] || {});
+    });
+  }
+  return raiz;
+}
+
+function tamanho(b){
+  return b < 1024 ? b + " B" : (b/1024).toFixed(b < 10240 ? 1 : 0) + " KB";
+}
+
+function render(no, container, prefixo){
+  const pastas = Object.keys(no).filter(k => k !== "_arquivos").sort();
+  for (const p of pastas){
+    const el = document.createElement("div");
+    el.className = "no pasta";
+    el.innerHTML = '<span class="ic">▾</span><span class="nome">' + p + '/</span>';
+    const filhos = document.createElement("div");
+    filhos.className = "filhos";
+    el.onclick = e => {
+      e.stopPropagation();
+      filhos.classList.toggle("oculto");
+      el.querySelector(".ic").textContent = filhos.classList.contains("oculto") ? "▸" : "▾";
+    };
+    container.appendChild(el);
+    container.appendChild(filhos);
+    render(no[p], filhos, prefixo + p + "/");
+  }
+  for (const [nome, caminho] of (no._arquivos || []).sort()){
+    const info = DADOS[caminho];
+    const el = document.createElement("div");
+    el.className = "no arq";
+    el.dataset.caminho = caminho;
+    el.innerHTML = '<span class="ic">·</span><span class="nome">' + nome +
+      '</span><span class="meta">' + tamanho(info.bytes) + '</span>';
+    el.onclick = e => { e.stopPropagation(); abrir(caminho, el); };
+    container.appendChild(el);
+  }
+}
+
+function abrir(caminho, el){
+  document.querySelectorAll(".no.sel").forEach(n => n.classList.remove("sel"));
+  if (el) el.classList.add("sel");
+  const info = DADOS[caminho];
+  const c = info.commit || {};
+  document.querySelector("#cab .caminho").textContent = caminho;
+  document.querySelector("#cab .sub").innerHTML =
+    "<b>" + info.linguagem + "</b> · " + tamanho(info.bytes) +
+    (info.linhas ? " · <b>" + info.linhas + "</b> linhas" : "") +
+    (c.hash ? " · último commit <b>" + c.hash + "</b> em " + c.data + " — " + c.assunto : "");
+  const alvo = document.getElementById("conteudo");
+  if (info.conteudo === null || info.conteudo === undefined){
+    alvo.innerHTML = '<div class="vazio">Conteúdo não exibido (binário ou muito grande).</div>';
+    return;
+  }
+  const pre = document.createElement("pre");
+  info.conteudo.split("\n").forEach((linha, i) => {
+    const d = document.createElement("div");
+    d.className = "linha";
+    const n = document.createElement("span");
+    n.className = "num"; n.textContent = i + 1;
+    const t = document.createElement("span");
+    t.className = "txt"; t.textContent = linha;
+    d.append(n, t); pre.appendChild(d);
+  });
+  alvo.innerHTML = ""; alvo.appendChild(pre); alvo.scrollTop = 0;
+}
+
+const arvore = document.getElementById("arvore");
+function desenhar(filtro){
+  arvore.innerHTML = "";
+  const caminhos = Object.keys(DADOS)
+    .filter(c => !filtro || c.toLowerCase().includes(filtro.toLowerCase())).sort();
+  render(montarArvore(caminhos), arvore, "");
+}
+desenhar("");
+document.getElementById("busca").oninput = e => desenhar(e.target.value);
+abrir("README.md", null);
+</script>
+</body>
+</html>

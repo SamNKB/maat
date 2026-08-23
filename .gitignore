@@ -17,3 +17,6 @@ build/
 *.egg-info/
 .ipynb_checkpoints/
 spark-warehouse/
+
+# Explorador gerado localmente (contem o conteudo dos arquivos)
+explorador.html
