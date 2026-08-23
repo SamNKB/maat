@@ -78,7 +78,9 @@ class ColumnProfile:
 
     def to_dict(self, camada: Camada = "ambas") -> dict[str, Any]:
         """Estrutura serializável — a fonte de todos os renderizadores."""
-        raise NotImplementedError
+        from maat.render import coluna_para_dict
+
+        return coluna_para_dict(self, camada)
 
 
 @dataclass
@@ -105,26 +107,45 @@ class DatasetProfile:
 
     def to_dict(self, camada: Camada = "ambas") -> dict[str, Any]:
         """Estrutura serializável — fonte única dos renderizadores abaixo."""
-        raise NotImplementedError
+        from maat.render import dataset_para_dict
+
+        return dataset_para_dict(self, camada)
 
     def to_json(self, path: str | None = None, camada: Camada = "ambas",
                 compact: bool = True) -> str:
         """JSON — o formato de máquina. Compacto por padrão: medido em
         0,63x os tokens do JSON indentado e mais barato que YAML."""
-        raise NotImplementedError
+        from maat.render import para_json
+
+        return _escreve(para_json(self, camada, compact), path)
 
     def to_yaml(self, path: str | None = None, camada: Camada = "ambas") -> str:
         """YAML — mais legível para edição à mão (0,73x o JSON indentado)."""
-        raise NotImplementedError
+        from maat.render import para_yaml
+
+        return _escreve(para_yaml(self, camada), path)
 
     def to_markdown(self, path: str | None = None,
                     camada: Camada = "essencial") -> str:
         """Markdown — nativo para humano e para LLM ao mesmo tempo. O mais
         barato em tokens (0,30x); default na camada essencial, que é o caso
         de uso de mandar o perfil para um agente ou colar num trabalho."""
-        raise NotImplementedError
+        from maat.render import para_markdown
+
+        return _escreve(para_markdown(self, camada), path)
 
     def to_html(self, path: str | None = None, camada: Camada = "ambas") -> str:
         """HTML navegável — a ponta humana, com a identidade visual do
         projeto e as camadas separadas na interface."""
-        raise NotImplementedError
+        from maat.render import para_html
+
+        return _escreve(para_html(self, camada), path)
+
+
+def _escreve(conteudo: str, path: str | None) -> str:
+    """Grava em arquivo quando `path` é dado; sempre devolve o conteúdo."""
+    if path:
+        from pathlib import Path
+
+        Path(path).write_text(conteudo, encoding="utf-8")
+    return conteudo

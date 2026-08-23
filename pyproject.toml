@@ -6,12 +6,31 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Sam Nobukuni", email = "samnobukuni@gmail.com" }]
+keywords = ["eda", "data-profiling", "pandas", "pyspark", "análise descritiva"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Natural Language :: Portuguese (Brazilian)",
+]
+# O núcleo não tem dependências: a taxonomia, a inferência e os
+# renderizadores são código puro. Cada backend traz a sua.
 dependencies = []
 
 [project.optional-dependencies]
 pandas = ["pandas>=2.0"]
 spark = ["pyspark>=3.4"]
-dev = ["pytest>=8.0", "ruff>=0.4"]
+yaml = ["pyyaml>=6.0"]
+dev = ["pytest>=8.0", "ruff>=0.4", "pandas>=2.0", "pyyaml>=6.0"]
+# ydata-profiling exige numpy<=2.3 e pandas<3 — instale em ambiente isolado
+# para rodar o baseline competitivo (ver docs/comparacao-ydata.md).
+baseline = ["ydata-profiling>=4.0"]
+
+[project.urls]
+Homepage = "https://github.com/SamNKB/maat"
+Documentation = "https://samnkb.github.io/maat/fluxo-interativo.html"
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -22,7 +41,16 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+markers = [
+    "benchmark: roda sobre os 40 datasets completos; pulado se ausentes",
+    "spark: exige PySpark e Java instalados",
+]
 
 [tool.ruff]
-line-length = 100
+line-length = 90
 src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]

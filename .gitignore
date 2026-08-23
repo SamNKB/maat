@@ -20,3 +20,6 @@ spark-warehouse/
 
 # Explorador gerado localmente (contem o conteudo dos arquivos)
 explorador.html
+
+# ambiente virtual e build local
+*.egg-info/
