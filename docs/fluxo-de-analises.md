@@ -4,6 +4,8 @@ Este documento é o mapa conceitual do maat: dado um DataFrame qualquer, **como 
 
 É um documento vivo de discussão. Cada seção lista as análises candidatas; ao consolidarmos, marcamos o que entra no MVP e o que fica para depois.
 
+> ✅ **Implementado desde 2026-08-23.** Tudo abaixo roda em pandas e PySpark, validado sobre 38 datasets e 609 colunas reais. Cada decisão consolidada tem teste que a protege em `tests/` — se um quebrar, ou o código regrediu ou a decisão mudou. A única seção ainda não implementada é a §5 (bivariadas), adiada por decisão.
+
 > 🖥️ **Versão interativa**: [`fluxo-interativo.html`](fluxo-interativo.html) — o fluxo de classificação como grafo arrastável, com exemplos e análises no hover de cada nó, na identidade visual do projeto. Versão pública: https://samnkb.github.io/maat/fluxo-interativo.html
 
 ---
@@ -91,7 +93,7 @@ As linhas de `avaliacao` e `cep` mostram o princípio central: **a inferência p
 
 ### 1.2 Parâmetros do usuário
 
-Os limiares de classificação não são constantes do maat — são parâmetros com defaults, expostos numa configuração única:
+Os limiares de classificação não são constantes do maat — são parâmetros com defaults, expostos numa configuração única ([`maat.Config`](../src/maat/core/config.py), implementada):
 
 ```python
 import maat
@@ -596,6 +598,8 @@ DatasetProfile
 
 **`VizSuggestion`** nunca carrega dados brutos — só o agregado pronto para plotar (§0.4).
 
+> Implementação: o contrato está em [`core/profile.py`](../src/maat/core/profile.py) e os renderizadores em [`render.py`](../src/maat/render.py).
+
 ### 6.1 Formatos do MVP
 
 Decisão de 2026-08-17: quatro renderizadores, expostos como **métodos dedicados** (mais descobríveis no autocomplete), todos aceitando `camada`.
@@ -630,7 +634,7 @@ O maat gera, junto com cada perfil, **prosa pronta para uso** — o caso motivad
 
 1. **Núcleo determinístico**: templates por tipo/regime em **pt-BR e inglês**, preenchidos com os números do `ColumnProfile`. Sem dependências, offline, números que nunca mentem. Tom do MVP: **acadêmico** (outros tons ficam para depois).
 2. **Plug opcional de LLM local e gratuito (Ollama)** — nunca APIs de nuvem por padrão: o dado do usuário não sai da máquina. O LLM **não gera análise**: só reformula/traduz o texto-template pronto para outros idiomas ou estilos. Modelos sugeridos (pequenos bastam para reformular): Llama 3.2 3B, Gemma 3 4B, Qwen 2.5 3B.
-3. **Trava de números**: após qualquer reformulação, validação determinística — todos os números do template original devem aparecer intactos no texto reformulado (comparação dos tokens numéricos dos dois lados). Se o LLM alterou um número, o texto é descartado e o usuário recebe o template original com aviso. Alucinação numérica vira erro detectado, não risco silencioso.
+3. **Trava de números** ([`narrative/numbers.py`](../src/maat/narrative/numbers.py), implementada): após qualquer reformulação, validação determinística — todos os números do template original devem aparecer intactos no texto reformulado (comparação dos tokens numéricos dos dois lados). Se o LLM alterou um número, o texto é descartado e o usuário recebe o template original com aviso. Alucinação numérica vira erro detectado, não risco silencioso.
 
 ```python
 maat.describe(df, config=maat.Config(

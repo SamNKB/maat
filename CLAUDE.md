@@ -25,7 +25,8 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
   4. `README.md` — taxonomia e status
   5. `src/maat/analysis/*.py` — docstring do stub reflete a decisão
   6. `src/maat/core/taxonomy.py` — enums, se houver regime novo
-  7. Este `CLAUDE.md` — decisão + estado
+  7. `tests/` — cada decisão consolidada tem teste que a protege, citando a seção
+  8. Este `CLAUDE.md` — decisão + estado
 
 ---
 
@@ -40,9 +41,32 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 | `datasets/README.md` | Manifesto dos 40 datasets (dados fora do git) |
 | `scripts/benchmark_examples.py` | Reproduz todos os números citados na documentação |
 | `scripts/download_datasets.py` / `download_gov_datasets.py` | Re-download do benchmark |
-| `src/maat/` | `core/` (taxonomy, inference, profile) · `backends/` (base, pandas, spark) · `analysis/` · `viz/` |
+| `scripts/run_ydata_baseline.py` / `comparar_com_ydata.py` | Baseline competitivo (exige ambiente isolado) |
+| `scripts/custo_bateria_textual.py` / `sinais_temporais.py` | Medições que embasaram as decisões |
+| `scripts/gera_explorador.py` | Explorador navegável do repositório |
+| `src/maat/` | ver §2b — a organização real do código |
+| `tests/fixtures/` | fatias reais do benchmark (114 KB versionados) que preservam a sujeira do mundo real |
 
 ---
+
+## 2b. Como o código está organizado (implementado em 2026-08-23)
+
+| Módulo | Papel |
+|---|---|
+| `core/config.py` | ~20 parâmetros do usuário, com defaults. Nada de limiar fixo no código |
+| `core/meta.py` | `ColumnMeta`: os sinais que o backend calcula (densidade, monotonia, dígito verificador, evidência de formato de data) |
+| `core/signals.py` | Detecções determinísticas **compartilhadas** pelos dois backends: CPF/CNPJ, normalização de variantes, as 15 checagens de texto, sentinelas de data |
+| `core/inference.py` | O roteamento da §1 — **código puro** sobre `ColumnMeta`, sem pandas nem Spark |
+| `backends/` | `base.py` é o contrato; pandas e Spark implementam. Todo custo mora aqui |
+| `analysis/` | Uma função por tipo consolidado; recebe agregados, devolve `ColumnProfile` |
+| `narrative/` | Templates pt-BR/en + a trava de números (`numeros_preservados`) |
+| `render.py` | Os 4 formatos sobre a estrutura em memória |
+
+**Diferenças reais entre os backends** (descobertas rodando, não previstas):
+- pandas 3.x usa **PyArrow** para strings, e o motor RE2 **não suporta retrovisor** — `(.){3,}` precisa de fallback para o `re` do Python (`PandasBackend._contains`).
+- Spark 4 usa **modo ANSI** por padrão: `to_timestamp` **levanta exceção** em valor malformado. Usar `try_to_timestamp` + `coalesce` de formatos.
+- Spark também recusa retrovisor e lookahead: as checagens `repeticao` e `misto_alfabeto` têm variante própria ou são puladas.
+- `approxQuantile` gera divergência esperada: no titanic, 118 atípicos no Spark contra 116 no pandas. O campo `quantile_error` reporta isso.
 
 ## 3. Princípios (decididos, valem para tudo)
 
@@ -143,7 +167,9 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - Depois: implementação (`core/inference.py` + `PandasBackend`), **em incrementos com o Sam presente**.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
-- **Implementação**: `core/inference.py`, backends e análises ainda são stubs `NotImplementedError`. Plano combinado: implementar inferência + `PandasBackend`, rodar nos 40 datasets, e usar os resultados para resolver o `rank` e calibrar limiares.
+- **Implementação: FEITA** (2026-08-23). O núcleo roda em pandas **e PySpark**, validado sobre 38 datasets e 609 colunas reais. Único stub restante: `analysis/bivariate.py`, adiado por decisão.
+- **Ambiente**: pandas 3.0.5, numpy 2.5.2, pyspark 4.2.0, OpenJDK 17 (`C:\Program Files\Microsoft\jdk-17.0.20.101-hotspot`). O pacote está instalado em modo editável (`pip install -e ".[dev]"`), então `import maat` funciona de qualquer lugar e o `PYTHONPATH` não é mais necessário.
+- **ydata-profiling quebrou** com as versões novas (o numba dele exige numpy ≤ 2.3). O baseline já rodou e está salvo em `benchmarks/ydata/`; para refazer, use ambiente isolado (`pip install 'maat[baseline]'` em outro venv).
 - ~~Rodar ydata-profiling como baseline~~ → **feito em 2026-08-17**, ver `docs/comparacao-ydata.md`. Resultados locais em `benchmarks/ydata/` (fora do git; refazer com `scripts/run_ydata_baseline.py` + `scripts/comparar_com_ydata.py`).
 - **Verificar antes de implementar o regime textual**: o ydata tem análise Unicode de texto (extra opcional) que pode cobrir parte do que planejamos na §2.4 — comparar item a item para não reinventar.
 
