@@ -271,6 +271,18 @@ def _esc(valor: Any) -> str:
     return escape(str(valor))
 
 
+def _esc_negrito(texto: str) -> str:
+    """Escapa e converte o `**negrito**` dos templates em `<strong>`.
+
+    As narrativas sao escritas uma vez, em markdown, e servem aos quatro
+    renderizadores — aqui traduzimos a enfase para HTML.
+    """
+    import re
+
+    padrao = re.compile(r"\*\*([^*]+)\*\*")
+    return padrao.sub(r"<strong>\g<1></strong>", _esc(texto))
+
+
 def para_html(perfil: DatasetProfile, camada: Camada = "ambas") -> str:
     corpo = [
         f"<h1>Perfil de dados — {_esc(perfil.source or 'DataFrame')}</h1>",
@@ -325,7 +337,7 @@ def _coluna_html(c: ColumnProfile, camada: Camada) -> list[str]:
                  f"({vt.rank_spearman:+.4f})</span>")
 
     if c.narrative:
-        p.append(f'<div class="narrativa">{_esc(c.narrative)}</div>')
+        p.append(f'<div class="narrativa">{_esc_negrito(c.narrative)}</div>')
 
     e = c.essencial
     metricas = [(k, r) for k, r in (("min", "MÍN"), ("q1", "Q1"), ("mediana", "MEDIANA"),
