@@ -160,6 +160,16 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ---
 
+## 4b. Fila de decisões que a implementação levantou (2026-08-23)
+
+Enfileiradas em vez de decididas sozinho, conforme combinado. Evidência completa em `docs/limites-da-inferencia.md`.
+
+1. **Chaves estrangeiras** — o maior gap aberto. `movies/userId` (k=346, 87 linhas por valor), `movies/movieId`, `gov-camara/nuDeputadoId` (319 linhas por valor) e `nyc/host_id` são identificadores que **se repetem** e caem em `discreta`. Média de `nuDeputadoId` é tão sem sentido quanto média de CEP, mas nenhum sinal determinístico os separa de uma contagem legítima. Opções: (a) aceitar como limite declarado; (b) admitir um sinal mais fraco (inteiro esparso de magnitude alta com repetição), pegando mais casos ao custo de falsos positivos.
+2. **Ano** — `avocado/year`, `netflix/release_year`, `suicide-rates/year` caem em discreta. É ambiguidade genuína (temporal, ordinal ou discreta conforme a pergunta). Manter em discreta e deixar o usuário reclassificar, ou marcar como suspeita?
+3. **Data quebrada em colunas** — `hotel-bookings` tem `arrival_date_year` + `_month` + `_day_of_month`. A natureza temporal some. Reconstruir exigiria inferência entre colunas (território das bivariadas, adiadas).
+4. **Epoch como inteiro** — `creditcard-fraud/Time` (segundos decorridos) vira discreta. Um timestamp Unix também viraria. Detectar faixas plausíveis de epoch ou deixar?
+5. **Exatidão × velocidade no Spark** — a decisão "sempre na base inteira" (§2.4) custa caro em milhões de linhas. A alternativa de duas fases foi medida em 6× mais rápida e **rejeitada** por poder perder sujeira rara. Vale revisitar com o custo medido em mãos?
+
 ## 5. Pendências e questões em aberto
 
 - ✅ **TODO o design está fechado** (2026-08-17): tipos, princípios, narrativas e contrato de saída. O que resta é **implementação**.
