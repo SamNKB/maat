@@ -57,6 +57,21 @@ def infer_column(meta: ColumnMeta, config: Config) -> VariableType:
             warnings=["Coluna sem valores válidos"],
         )
 
+    # Coluna constante não carrega informação: distribuição, dispersão e
+    # frequência são todas triviais. Reportamos o fato — pode ser anonimização
+    # (o `NR_CPF_CANDIDATO` do TSE é -4 em todas as linhas por LGPD), coluna de
+    # controle ou filtro aplicado antes da extração.
+    if meta.n_distinct == 1:
+        return VariableType(
+            VariableClass.UNSUPPORTED,
+            confidence=1.0,
+            warnings=[
+                f"Coluna constante: o único valor é {meta.sample_values[0]!r} em "
+                f"todas as {meta.n_valid} linhas — pode ser anonimização, campo de "
+                "controle ou filtro aplicado na extração"
+            ],
+        )
+
     if meta.dtype_kind is DtypeKind.BOOL:
         return VariableType(VariableClass.QUALITATIVE, VariableSubtype.BINARY)
 

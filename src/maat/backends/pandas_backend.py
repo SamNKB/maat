@@ -138,10 +138,16 @@ class PandasBackend(Backend):
         meta.maximum = float(numerica.max())
         meta.all_integer = bool(np.all(np.mod(numerica.to_numpy(), 1) == 0))
 
-        texto = validos.astype(str)
+        # Um inteiro guardado como float vira "2006.0": medir o comprimento
+        # da representação textual contaria o ".0" e faria um ano de 4 dígitos
+        # parecer código de 6. Contamos dígitos.
+        if meta.all_integer:
+            texto = numerica.astype("int64").astype(str)
+        else:
+            texto = validos.astype(str)
         meta.has_leading_zeros = bool(texto.str.match(RE_ZERO_ESQUERDA).any())
-        comprimentos = texto.str.len()
-        meta.fixed_length = bool(comprimentos.nunique() == 1 and comprimentos.iloc[0] >= 5)
+        digitos = texto.str.replace(r"\D", "", regex=True).str.len()
+        meta.fixed_length = bool(digitos.nunique() == 1 and digitos.iloc[0] >= 5)
         self._meta_digito_verificador(texto, meta)
 
     def _meta_texto(self, validos: pd.Series, meta: ColumnMeta) -> None:

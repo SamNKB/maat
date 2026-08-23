@@ -328,37 +328,70 @@ class SparkBackend(Backend):
     # --- temporais --------------------------------------------------------
 
     def temporal_summary(self, column: str) -> dict[str, Any]:
+        """Cobertura, granularidade, horizonte, sentinelas e quebras.
+
+        **Uma única agregação** para tudo: horizontes, sentinelas e quebras
+        de calendário viram colunas de um só `agg`. Ingênuo seria um
+        `count()` por checagem — 15 varreduras completas da base.
+        """
         from pyspark.sql import functions as F
 
         alvo = self.df.select(self._data(column).alias("d"))
         validos = alvo.filter(F.col("d").isNotNull())
-        n = int(validos.count())
+
+        d = F.col("d")
+        anos = F.months_between(F.current_timestamp(), d) / 12
+        formatada = F.date_format(d, "yyyy-MM-dd")
+
+        expressoes = [
+            F.count(F.lit(1)).alias("n"),
+            F.min("d").alias("min"),
+            F.max("d").alias("max"),
+            F.sum(F.when(d > F.current_timestamp(), 1).otherwise(0)).alias("fut"),
+            F.sum(F.when(F.hour(d) + F.minute(d) + F.second(d) == 0, 1)
+                  .otherwise(0)).alias("meia_noite"),
+            F.sum(F.when(F.dayofmonth(d) == 1, 1).otherwise(0)).alias("dia_um"),
+        ]
+        for a in self.config.date_horizons:
+            expressoes.append(
+                F.sum(F.when(anos > a, 1).otherwise(0)).alias(f"h_{a}")
+            )
+        for i, data in enumerate(DATAS_SENTINELA):
+            expressoes.append(
+                F.sum(F.when(formatada == data, 1).otherwise(0)).alias(f"s_{i}")
+            )
+        expressoes += [
+            F.sum(F.when(d < F.lit(CORTE_GREGORIANO).cast("timestamp"), 1)
+                  .otherwise(0)).alias("q_rebase"),
+            F.sum(F.when(
+                (d >= F.lit(LACUNA_GREGORIANA[0]).cast("timestamp"))
+                & (d <= F.lit(LACUNA_GREGORIANA[1]).cast("timestamp")), 1)
+                .otherwise(0)).alias("q_lacuna"),
+            F.sum(F.when(
+                (d < F.lit(LIMITE_PANDAS_MIN).cast("timestamp"))
+                | (d > F.lit(LIMITE_PANDAS_MAX).cast("timestamp")), 1)
+                .otherwise(0)).alias("q_dtype"),
+        ]
+
+        r = validos.agg(*expressoes).collect()[0]
+        n = int(r["n"] or 0)
         if not n:
             return {"n": 0}
 
         bruto_nao_nulo = int(self._validos(column).count())
-        linha = validos.agg(
-            F.min("d").alias("min"), F.max("d").alias("max"),
-            F.sum(F.when(F.col("d") > F.current_timestamp(), 1).otherwise(0)).alias("fut"),
-            F.sum(F.when(F.hour("d") + F.minute("d") + F.second("d") == 0, 1)
-                  .otherwise(0)).alias("meia_noite"),
-        ).collect()[0]
-
-        minimo, maximo = linha["min"], linha["max"]
-        futuro = int(linha["fut"])
-        horizonte = {}
-        for anos in self.config.date_horizons:
-            horizonte[f">{anos} anos"] = int(
-                validos.filter(
-                    F.months_between(F.current_timestamp(), F.col("d")) / 12 > anos
-                ).count()
-            )
+        minimo, maximo = r["min"], r["max"]
+        futuro = int(r["fut"])
 
         sentinelas = {}
-        for data, descricao in DATAS_SENTINELA.items():
-            q = int(validos.filter(F.date_format("d", "yyyy-MM-dd") == data).count())
+        for i, (data, descricao) in enumerate(DATAS_SENTINELA.items()):
+            q = int(r[f"s_{i}"] or 0)
             if q:
                 sentinelas[data] = {"n": q, "significado": descricao}
+
+        if int(r["meia_noite"]) == n:
+            granularidade = "mensal" if int(r["dia_um"]) == n else "diaria"
+        else:
+            granularidade = "com_hora"
 
         n_ext = self.config.temporal_extremes_levels
         antigas = validos.orderBy(F.asc("d")).limit(n_ext).collect()
@@ -371,14 +404,34 @@ class SparkBackend(Backend):
             "minimo": minimo.isoformat(),
             "maximo": maximo.isoformat(),
             "amplitude_dias": (maximo - minimo).days,
-            "granularidade": "diaria" if int(linha["meia_noite"]) == n else "com_hora",
+            "granularidade": granularidade,
             "no_futuro": futuro,
             "pct_futuro": futuro / n,
-            "horizonte": horizonte,
+            "horizonte": {
+                f">{a} anos": int(r[f"h_{a}"] or 0) for a in self.config.date_horizons
+            },
             "sentinelas": sentinelas,
-            "mais_antigas": [r["d"].isoformat() for r in antigas],
-            "mais_futuras": [r["d"].isoformat() for r in reversed(futuras)],
-            "quebras": self._quebras_calendario(validos),
+            "mais_antigas": [x["d"].isoformat() for x in antigas],
+            "mais_futuras": [x["d"].isoformat() for x in reversed(futuras)],
+            "quebras": {
+                "rebase_spark": {
+                    "n": int(r["q_rebase"] or 0),
+                    "criterio": f"anteriores a {CORTE_GREGORIANO}; mudam de valor entre "
+                                "calendário híbrido e proléptico ao ler Parquet/Avro",
+                },
+                "lacuna_gregoriana": {
+                    "n": int(r["q_lacuna"] or 0),
+                    "criterio": f"entre {LACUNA_GREGORIANA[0]} e "
+                                f"{LACUNA_GREGORIANA[1]}, dias que não existem no "
+                                "calendário híbrido",
+                },
+                "fora_datetime64_ns": {
+                    "n": int(r["q_dtype"] or 0),
+                    "criterio": f"antes de {LIMITE_PANDAS_MIN} ou após "
+                                f"{LIMITE_PANDAS_MAX}: o Spark representa, o pandas "
+                                "não — armadilha de interoperabilidade",
+                },
+            },
             "gaps": [],
         }
 
@@ -510,13 +563,20 @@ class SparkBackend(Backend):
         }
 
     def _padrao_dominante(self, alvo: DataFrame):
+        """Aderência dos padrões conhecidos em **uma** agregação, não sete."""
         from pyspark.sql import functions as F
 
-        total = int(alvo.count()) or 1
+        expressoes = [F.count(F.lit(1)).alias("_total")]
+        for nome, regex in PADROES_DOMINANTES:
+            expressoes.append(
+                F.sum(F.when(F.col("v").rlike(regex), 1).otherwise(0)).alias(nome)
+            )
+        r = alvo.agg(*expressoes).collect()[0]
+        total = int(r["_total"] or 0) or 1
+
         melhor, melhor_taxa, melhor_regex = None, 0.0, None
         for nome, regex in PADROES_DOMINANTES:
-            qtd = int(alvo.filter(F.col("v").rlike(regex)).count())
-            taxa = qtd / total
+            taxa = int(r[nome] or 0) / total
             if taxa > melhor_taxa:
                 melhor, melhor_taxa, melhor_regex = nome, taxa, regex
         if melhor is None or melhor_taxa < 0.5:
