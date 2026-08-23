@@ -20,7 +20,16 @@ def analyze_nominal(backend: Backend, column: str, vtype: VariableType) -> Colum
     concentração (níveis para 50%/80%/95%); k, singletons e número de
     grupos de variantes de grafia. Completa = Herfindahl, entropia
     normalizada e a lista dos grupos de variantes.
-    TEXTUAL: perfil da string (forma, padrão, sujeira) — ver §2.4.
+    TEXTUAL (§2.4, consolidada): perfil da string em três frentes.
+    Forma (essencial): comprimento + amostras dirigidas — mais curtas,
+    mais longas e aleatórias (`textual_sample_size`).
+    Padrão: formato dominante com taxa de aderência **e** amostra das
+    violações juntas; máscara de caractere na camada completa.
+    Sujeira: bateria de 15 checagens (espaços, invisíveis, mojibake, url,
+    markdown, PIX, base64, JSON, CPF/CNPJ, placeholder, misto de alfabeto),
+    cada uma com contagem, % e amostra dos ofensores; extensível via
+    `textual_extra_checks`. Sem lista de palavrões — é juízo de conteúdo.
+    Roda sempre na base inteira: exatidão acima de velocidade (~11 µs/string).
     """
     raise NotImplementedError
 

@@ -73,6 +73,15 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - **Completa**: Herfindahl, entropia normalizada, lista dos grupos de variantes, cauda completa sob demanda.
 - **Variantes de grafia: o maat MOSTRA** (Câmara: `UBER…LTDA.` 10.267 + `Uber…Ltda.` 8). *(Princípio dado pelo Sam: "se o dataframe está ruim, você mostra e o usuário toma uma ação em cima de corrigir ou não" — com a condição de **critérios claros**.)* Critério determinístico e declarado: minúsculas + sem acentos + espaços colapsados + bordas aparadas. **Sem semelhança aproximada.** O maat nunca une, corrige nem sugere correção.
 
+### Nominal em regime textual — consolidada 2026-08-17 (§2.4)
+- **15 checagens de sujeira** + **interface de extensão** (`textual_extra_checks`) desde o MVP. Sugestões do Sam que entraram: `url`, `markdown`, `pix_brcode` (caso real dele em produção: payload PIX em campo de complemento), `base64_longo`, `json_embutido`, `cpf_cnpj_mascara`.
+- **Lista de palavrões: RECUSADA** — é juízo de conteúdo, não descrição, e depende de idioma. No lugar entrou `placeholder` (asdasd, xxx, 123123, null): sinal de qualidade sem juízo moral.
+- **Amostras dirigidas**: mais curtas, mais longas **e aleatórias** (`textual_sample_size`) — a aleatória mostra o caso típico.
+- **Padrão dominante**: aderência **e** amostra das violações juntas. *("contaminações eu gostaria que surgissem nesses relatórios")*. Máscara de caractere na completa.
+- **Execução sempre na base inteira** — o Sam rejeitou a alternativa de duas fases (amostra detecta, base conta) mesmo sendo **6× mais rápida** (4,0 s vs 24,2 s em 2,08 mi): ela poderia perder sujeira rara. Exatidão acima de velocidade.
+- **Custo medido** (`scripts/custo_bateria_textual.py`): ~11 µs/string; máscara custa 1/3; amostras desprezíveis. Regex única combinada rende só 1,2× — medido e descartado.
+- Achados reais: `markdown` disparou 71× em **nomes** do nyc; CPF/CNPJ apareceu 2× em campo de **fornecedor**; 89 URLs no SMS spam.
+
 ### Ordinal — consolidada 2026-08-16 (§2.3)
 - **Tipo próprio que herda toda a análise da nominal** (inclusive regimes); sem ordem, degrada para nominal e informa.
 - **O que a ordem habilita, honestamente**: só duas medidas — **acumulada na ordem natural** ("46,5% dos vinhos até nota 5") e **categoria mediana/quartis** (wine: moda 5, **mediana 6**). Tabela ordenada é **cosmética**. **Média é inválida**, mesmo com níveis numéricos. *(O Sam desafiou: "qual métrica dependeria de fato da ordenação?" — a lista curta é a resposta.)*
@@ -113,8 +122,8 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ## 5. Pendências e questões em aberto
 
-- **Próxima na fila de discussão: nominal em regime textual** (§2.4) — `name` do nyc (k/n=0,98), SMS spam, descrições do wine-reviews. Decisões previstas: quais checagens de regex entram no MVP (questão nº 6), tamanho das amostras dirigidas, e se a máscara de caractere fica na essencial.
-- Depois: **temporal** (instante e duração); então bivariadas.
+- **Próxima na fila: temporal** (§4) — instante e duração. É o tipo que motivou o projeto e tem as decisões mais estruturais: decomposição cíclica (mês/dia da semana/hora), granularidade detectada, gaps de coleta. Protagonistas: netflix `date_added`, ecommerce `InvoiceDate`, séries do BCB, hotel-bookings (data quebrada em 3 colunas).
+- Depois: bivariadas (§5) e o contrato de saída (§6); então implementação.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
 - **Implementação**: `core/inference.py`, backends e análises ainda são stubs `NotImplementedError`. Plano combinado: implementar inferência + `PandasBackend`, rodar nos 40 datasets, e usar os resultados para resolver o `rank` e calibrar limiares.
@@ -190,7 +199,8 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
 13. Links de origem (Kaggle e fontes de governo) no manifesto e nas subpáginas.
 14. Ordinal consolidada — o Sam desafia "qual métrica depende de fato da ordem?" e a resposta honesta (duas medidas) define um desenho enxuto.
+17. **2026-08-17** — §2.4 (textual) consolidada: 15 checagens medidas em dados reais, palavrões recusados, execução sempre na base inteira.
 16. **2026-08-17** — §3.3 consolidada: identificador vira três rotas (chave/código/rank); o dicionário de nomes é recusado e a decisão passa a apoiar-se em sinais medidos.
 15. **2026-08-17** — baseline competitivo executado: ydata-profiling sobre 39 datasets, 625 colunas comparadas (`docs/comparacao-ydata.md`). Um erro de metodologia (modo mínimo desativa inferência de datas) quase virou conclusão falsa a nosso favor e foi corrigido antes de publicar.
 
-**Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · **ordinal (§2.3)** · discreta (§3.1) · contínua (§3.2) — cada um com subpágina em `docs/tipos/`.
+**Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · ordinal (§2.3) · **textual (§2.4)** · discreta (§3.1) · contínua (§3.2) · **identificador/código/rank (§3.3)** — cada um com subpágina em `docs/tipos/`.

@@ -185,7 +185,8 @@ const NODES=[
   ex:["nyc neighbourhood: k=221 · 36 para 80%","câmara fornecedor: k=22.024 · 43,1% singletons"],an:["Essencial: top-10 + linha 'Outros' (declara quantos níveis agrega)","Essencial: concentração — níveis para 50% / 80% / 95%","Essencial: k, singletons e nº de grupos de variantes de grafia","Variantes: critério determinístico (minúsculas, sem acento, espaços) — mostra, nunca corrige","Completa: Herfindahl, entropia, lista de variantes","Visual: Pareto"]},
  {id:"rt",k:"regime",kk:"REGIME",x:1360,y:900,t:"Textual",s:"ex.: e-mail, nome, endereço",
   d:"k ≈ n: frequência vira inútil e a própria string é o objeto de análise — forma, padrão e sujeira, sempre com amostras dirigidas.",
-  ex:["nyc name: k/n = 0,98 (47.905 de 48.895)","comprimento: mediana 37 · máx 179"],an:["Distribuição de comprimento + extremos","Máscara de caractere (Aa9)","Padrão dominante + % de violações","Regex de sujeira: invisíveis, mojibake, espaços","Amostra dos ofensores em cada checagem"]}
+  h:"tipos/textual.html",
+  ex:["nyc name: k/n = 0,98 · 6 checagens disparam","sms-spam: 89 URLs embutidas","câmara: máscara AAA domina (31.514)"],an:["Essencial: comprimento + amostras (curtas, longas e aleatórias)","Completa: máscara de caractere (Aa9)","Padrão dominante com aderência E amostra das violações","15 checagens de sujeira + extensão pelo usuário","Sem lista de palavrões: é juízo, não descrição","Custo medido: ~11 µs por string, sempre na base inteira"]}
 ];
 const EDGES=[
  ["col","amostra",""],["amostra","dtype",""],

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maat // regimes // nominal textual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --void:#05070F; --navy:#0A0E1A; --panel:#101828; --cyan:#00E5FF; --ice:#E6F7FF;
+    --magenta:#FF2E88; --violet:#9D4EDD; --steel:#3A4A63; --mist:#8FA3BF;
+    --amber:#FFB03A; --mint:#3DF5C6;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:radial-gradient(ellipse at 30% -10%, #0D1526 0%, var(--void) 60%);
+    color:var(--ice); font-family:'Space Grotesk',sans-serif; min-height:100vh;
+    padding:28px 24px 48px; line-height:1.65;
+  }
+  main{max-width:860px; margin:0 auto}
+  nav{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mist); margin-bottom:26px}
+  nav a{color:var(--cyan); text-decoration:none}
+  nav a:hover{text-shadow:0 0 10px rgba(0,229,255,.6)}
+  .status{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px;
+    color:var(--mint); border:1px solid rgba(61,245,198,.45); border-radius:999px; padding:3px 12px; margin-bottom:14px;
+  }
+  h1{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:34px; letter-spacing:1px;
+     color:var(--magenta); text-shadow:0 0 18px rgba(255,46,136,.4); margin-bottom:6px}
+  h1 small{color:var(--mist); font-size:16px; font-weight:500; display:block; letter-spacing:0}
+  h2{font-family:'Rajdhani',sans-serif; font-weight:600; font-size:21px; color:var(--cyan);
+     margin:38px 0 12px; letter-spacing:.5px}
+  h2 .tag{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.5px;
+     color:var(--violet); border:1px solid var(--violet); border-radius:5px; padding:2px 8px;
+     vertical-align:middle; margin-left:10px}
+  p{color:var(--ice); font-size:15px; margin-bottom:10px}
+  .muted{color:var(--mist); font-size:13.5px}
+  .card{background:var(--panel); border:1px solid var(--steel); border-radius:12px; padding:18px 20px; margin:14px 0}
+  table{width:100%; border-collapse:collapse; font-size:14px; margin:8px 0}
+  th{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--mist);
+     text-align:left; padding:8px 10px; border-bottom:1px solid var(--steel)}
+  td{padding:7px 10px; border-bottom:1px solid rgba(58,74,99,.35)}
+  td.num{font-family:'JetBrains Mono',monospace; color:var(--ice); text-align:right}
+  tr.outros td{color:var(--mist); font-style:italic}
+  .vbar{display:flex; align-items:center; gap:10px; margin:3px 0}
+  .vbar .lab{font-size:12.5px; color:var(--ice); width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .vbar .track{flex:1; background:var(--navy); border:1px solid rgba(58,74,99,.5); border-radius:5px; height:19px; overflow:hidden}
+  .vbar .fill{height:100%; background:rgba(255,46,136,.28); border-right:1px solid var(--magenta);
+     display:flex; align-items:center; padding:0 7px; font-family:'JetBrains Mono',monospace;
+     font-size:10.5px; color:var(--magenta); white-space:nowrap}
+  .stats{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+  .stat{border:1px solid var(--steel); border-radius:8px; padding:8px 14px; text-align:center; flex:1; min-width:92px}
+  .stat b{display:block; font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:var(--cyan)}
+  .stat span{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--mist)}
+  .stat.hot b{color:var(--magenta)}
+  .warn{border-color:rgba(255,176,58,.5)}
+  .warn h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:17px; margin-bottom:6px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src a{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(0,229,255,.5)}
+  .g .src a:hover{text-shadow:0 0 8px rgba(0,229,255,.6)}
+  .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
+  .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
+  code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
+       background:rgba(61,245,198,.08); border-radius:4px; padding:1px 5px}
+  blockquote{border-left:2px solid var(--violet); padding:10px 16px; margin:10px 0;
+     background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
+  footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
+  footer a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="../fluxo-interativo.html">&larr; grafo interativo</a> &nbsp;&middot;&nbsp; maat // regimes // <span style="color:var(--ice)">nominal textual</span> &nbsp;&middot;&nbsp; <a href="../fluxo-de-analises.md">fluxo-de-analises.md &sect;2.4</a></nav>
+
+<span class="status">CONSOLIDADA &middot; 2026-08-17</span>
+<h1>Nominal &middot; regime textual<small>quando k &asymp; n, a frequ&ecirc;ncia &eacute; in&uacute;til &mdash; a pr&oacute;pria string vira o objeto de an&aacute;lise</small></h1>
+
+<p>Em <code>name</code> do nyc-airbnb, 47.905 dos 48.895 valores s&atilde;o &uacute;nicos (k/n = 0,98). Contar frequ&ecirc;ncia n&atilde;o diz nada &mdash; tudo aparece uma vez. O m&eacute;todo passa a ser <strong>estat&iacute;sticas globais + amostras dirigidas</strong>, em tr&ecirc;s frentes: forma, padr&atilde;o e sujeira.</p>
+
+<h2>Frente 1 &middot; Forma <span class="tag">ESSENCIAL</span></h2>
+<div class="card">
+  <p class="muted">O comprimento da string &eacute; uma quantitativa derivada &mdash; herda a an&aacute;lise cont&iacute;nua. Em <code>nyc/name</code>:</p>
+  <div class="stats">
+    <div class="stat"><b>1</b><span>M&Iacute;NIMO</span></div>
+    <div class="stat"><b>37</b><span>MEDIANA</span></div>
+    <div class="stat"><b>179</b><span>M&Aacute;XIMO</span></div>
+    <div class="stat"><b>0,98</b><span>k / n</span></div>
+  </div>
+  <p class="muted" style="margin-top:10px"><strong>Amostras dirigidas</strong> (<code>textual_sample_size</code>, default 5 de cada): as mais curtas, as mais longas <strong>e as aleat&oacute;rias</strong>. A aleat&oacute;ria entrou por decis&atilde;o de 2026-08-17 &mdash; ela mostra o caso t&iacute;pico, que os extremos escondem.</p>
+</div>
+
+<h2>Frente 2 &middot; Padr&atilde;o <span class="tag">ADER&Ecirc;NCIA + VIOLA&Ccedil;&Otilde;ES</span></h2>
+<div class="card">
+  <p class="muted">Detec&ccedil;&atilde;o do formato dominante (e-mail, URL, telefone, CPF/CNPJ, CEP, UUID) com a <strong>taxa de ader&ecirc;ncia e a amostra das viola&ccedil;&otilde;es lado a lado</strong> &mdash; decis&atilde;o expl&iacute;cita: <em>"contamina&ccedil;&otilde;es devem surgir nesses relat&oacute;rios"</em>. Reportar 98,7% sem mostrar os 1,3% que falham esconde justamente o que interessa.</p>
+  <p class="muted">Na camada <strong>completa</strong>: <strong>m&aacute;scara de caractere</strong> &mdash; abstrair <code>"Rua X, 123"</code> em <code>"Aaa A, 999"</code> revela os formatos que convivem no campo sem precisar ler as strings. Em <code>camara/txtFornecedor</code>, as tr&ecirc;s m&aacute;scaras mais comuns s&atilde;o <code>AAA</code> (31.514), <code>AAAA AA AAAAAA AAAAAAAAAA AAAA.</code> (10.267) e <code>AAAA</code> (5.746).</p>
+</div>
+
+<h2>Frente 3 &middot; Sujeira <span class="tag">15 CHECAGENS</span></h2>
+<div class="card">
+  <p class="muted">Cada checagem devolve contagem, % e <strong>amostra dos ofensores</strong> &mdash; a amostra &eacute; o que torna o achado acion&aacute;vel. Ocorr&ecirc;ncias medidas no benchmark:</p>
+  <table>
+    <tr><th>CHECAGEM</th><th>DETECTA</th><th>OCORR&Ecirc;NCIA REAL</th></tr>
+    <tr><td><code>espaco_borda</code></td><td>espa&ccedil;o no in&iacute;cio/fim</td><td class="num">238 nyc &middot; 188 SMS</td></tr>
+    <tr><td><code>espaco_duplo</code></td><td>espa&ccedil;os consecutivos</td><td class="num">1.435 nyc &middot; 1.449 C&acirc;mara</td></tr>
+    <tr><td><code>invisivel</code></td><td>zero-width, NBSP, BOM</td><td class="num">3 nyc</td></tr>
+    <tr><td><code>nao_imprimivel</code></td><td>controle / lixo bin&aacute;rio</td><td class="num">&mdash;</td></tr>
+    <tr><td><code>repeticao</code></td><td>4+ caracteres iguais seguidos</td><td class="num">92 nyc &middot; 165 SMS</td></tr>
+    <tr><td><code>mojibake</code></td><td>dupla codifica&ccedil;&atilde;o (<code>&Atilde;&copy;</code>)</td><td class="num">&mdash;</td></tr>
+    <tr><td><code>html_residual</code></td><td>entidade ou tag HTML</td><td class="num">309 SMS &middot; 312 C&acirc;mara</td></tr>
+    <tr><td><code>url</code></td><td>URL embutida</td><td class="num" style="color:var(--mint)">89 SMS spam</td></tr>
+    <tr><td><code>markdown</code></td><td><code>**negrito**</code>, <code>[link](url)</code>, cercas</td><td class="num" style="color:var(--mint)">71 nos nomes do nyc</td></tr>
+    <tr><td><code>pix_brcode</code></td><td>payload PIX copia-e-cola</td><td class="num">&mdash; (caso real em produ&ccedil;&atilde;o)</td></tr>
+    <tr><td><code>base64_longo</code></td><td>payload codificado no campo</td><td class="num">&mdash;</td></tr>
+    <tr><td><code>json_embutido</code></td><td>JSON ou lista dentro da c&eacute;lula</td><td class="num">1 google-play</td></tr>
+    <tr><td><code>cpf_cnpj_mascara</code></td><td>CPF/CNPJ onde deveria haver texto</td><td class="num" style="color:var(--mint)">2 na C&acirc;mara</td></tr>
+    <tr><td><code>placeholder</code></td><td>preenchimento de teste (<code>asdasd</code>, <code>xxx</code>, <code>null</code>)</td><td class="num">1 nyc (<code>xxx</code>)</td></tr>
+    <tr><td><code>misto_alfabeto</code></td><td>latino + cir&iacute;lico/grego</td><td class="num">3 nyc &middot; 13 google-play</td></tr>
+  </table>
+  <p class="muted"><strong>Extens&iacute;vel pelo usu&aacute;rio</strong> desde o MVP: registrar checagens pr&oacute;prias com <code>nome</code>, <code>regex</code> e <code>descri&ccedil;&atilde;o</code> em <code>textual_extra_checks</code>. A bateria embutida &eacute; o piso, n&atilde;o o teto.</p>
+</div>
+<div class="card warn">
+  <h3>O que a bateria existe para revelar</h3>
+  <p class="muted"><code>markdown</code> disparando <strong>71 vezes em nomes de an&uacute;ncio</strong> e CPF/CNPJ aparecendo em <strong>campo de fornecedor</strong> s&atilde;o contamina&ccedil;&atilde;o: um tipo de conte&uacute;do vazando para um campo destinado a outro. O caso que motivou incluir <code>pix_brcode</code> foi exatamente esse &mdash; payload de PIX encontrado em campo de complemento, em produ&ccedil;&atilde;o.</p>
+</div>
+
+<h2>Fora, por decis&atilde;o <span class="tag">E POR QU&Ecirc;</span></h2>
+<div class="card warn">
+  <h3>Lista de palavr&otilde;es</h3>
+  <p class="muted">Apontar palavr&atilde;o &eacute; <strong>ju&iacute;zo de conte&uacute;do, n&atilde;o descri&ccedil;&atilde;o de dado</strong> &mdash; um campo de avalia&ccedil;&atilde;o de produto <em>deve</em> conter linguagem forte. Soma-se a depend&ecirc;ncia de idioma (a mesma obje&ccedil;&atilde;o que derrubou o dicion&aacute;rio de nomes de coluna) e os falsos positivos cl&aacute;ssicos de substring. No lugar entrou <code>placeholder</code>: sinal de qualidade, independente de idioma, sem ju&iacute;zo moral.</p>
+</div>
+<div class="card warn">
+  <h3>Execu&ccedil;&atilde;o em duas fases</h3>
+  <p class="muted">Medimos uma alternativa que detecta numa amostra de 50k e conta na base s&oacute; as checagens que dispararam: <strong>6&times; mais r&aacute;pida</strong> (4,0 s contra 24,2 s em 2,08 milh&otilde;es de strings). <strong>Rejeitada</strong>: uma sujeira rar&iacute;ssima ausente da amostra passaria despercebida. Exatid&atilde;o acima de velocidade &mdash; a bateria roda sempre na base inteira.</p>
+</div>
+
+<h2>Custo medido <span class="tag">MEDIDO, N&Atilde;O ESTIMADO</span></h2>
+<div class="card">
+  <table>
+    <tr><th>OPERA&Ccedil;&Atilde;O</th><th>48.879 STRINGS</th><th>2.082.400 STRINGS</th></tr>
+    <tr><td>bateria de 15 regex</td><td class="num">808 ms</td><td class="num">24,2 s</td></tr>
+    <tr><td>m&aacute;scara de caractere</td><td class="num">255 ms</td><td class="num">7,1 s</td></tr>
+    <tr><td>amostras dirigidas</td><td class="num">15 ms</td><td class="num">0,6 s</td></tr>
+  </table>
+  <p class="muted"><strong>~11 &micro;s por string</strong>, linear. Testamos combinar tudo numa regex &uacute;nica: apenas 1,2&times; mais r&aacute;pido &mdash; n&atilde;o compensa a complexidade. No Spark o custo se dilui em paralelo. Reproduza com <code>python scripts/custo_bateria_textual.py</code>.</p>
+</div>
+
+<h2>Textuais reais do benchmark</h2>
+<div class="grid">
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/dgomonov/new-york-city-airbnb-open-data?select=AB_NYC_2019.csv" target="_blank" rel="noopener">nyc-airbnb</a></span><h3>name</h3><p class="muted">k/n = 0,98 &middot; comprimento 1&hellip;179 &middot; 6 checagens disparam</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset?select=spam.csv" target="_blank" rel="noopener">sms-spam</a></span><h3>mensagem</h3><p class="muted">texto livre &middot; 89 URLs &middot; 309 res&iacute;duos de HTML</p></div>
+  <div class="card g"><span class="src"><a href="https://www.camara.leg.br/transparencia/gastos-parlamentares" target="_blank" rel="noopener">gov-camara-cota</a></span><h3>txtFornecedor</h3><p class="muted">208 mil strings &middot; m&aacute;scara <code>AAA</code> domina com 31.514</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/lava18/google-play-store-apps?select=googleplaystore.csv" target="_blank" rel="noopener">google-play</a></span><h3>App</h3><p class="muted">13 valores com mistura de alfabetos</p></div>
+</div>
+
+<footer>maat &middot; reproduza os n&uacute;meros: <code>python scripts/custo_bateria_textual.py</code> &middot; decis&otilde;es em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (&sect;2.4) &middot; <a href="binaria.html">bin&aacute;ria</a> &middot; <a href="cauda-longa.html">cauda longa</a> &middot; <a href="ordinal.html">ordinal</a> &middot; <a href="discreta.html">discreta</a> &middot; <a href="continua.html">cont&iacute;nua</a> &middot; <a href="nao-quantidades.html">n&atilde;o-quantidades</a> &middot; <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>
+</main>
+</body>
+</html>

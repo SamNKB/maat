@@ -33,11 +33,12 @@ flowchart TD
     B -->|date / datetime| T1["Temporal instante<br/>ex.: data_pedido"]
     B -->|timedelta| T2["Temporal duração<br/>ex.: tempo_entrega"]
 
-    B -->|numérico| N1{"k ≈ n e sem repetição?"}
-    N1 -->|sim| ID["Identificador<br/>ex.: id_pedido<br/>só unicidade e qualidade"]
-    N1 -->|não| N2{"cara de código?<br/>ex.: CEP, ano, cód. produto"}
-    N2 -->|sim| WARN["⚠️ marcada como suspeita<br/>sugere reclassificação"]
-    N2 -->|não| N3{"todos inteiros?"}
+    B -->|numérico| N2{"dígito verificador, zeros à<br/>esquerda ou comprimento fixo?"}
+    N2 -->|sim| COD["Identificador · código<br/>ex.: CNPJ, CO_MUN, ideCadastro<br/>→ cardinalidade, nunca média"]
+    N2 -->|não| N1{"k ≈ n e denso?"}
+    N1 -->|"sim, e monotônica<br/>com outra coluna"| RANK["Rank<br/>ex.: Happiness.Rank<br/>→ sempre nomeia a referência"]
+    N1 -->|"sim, sem monotonia"| ID["Identificador · chave<br/>ex.: PassengerId<br/>→ unicidade e colisões"]
+    N1 -->|não| N3{"todos inteiros?"}
     N3 -->|sim| DIS["Quantitativa discreta<br/>regime tabela ou histograma por k<br/>ex.: SibSp, Quantity"]
     N3 -->|não| CON["Quantitativa contínua<br/>ex.: valor_total, renda"]
 
@@ -59,10 +60,9 @@ flowchart TD
     classDef aviso fill:#101828,stroke:#FFB03A,color:#FFB03A
     classDef neutro fill:#101828,stroke:#3A4A63,color:#8FA3BF
     classDef regime fill:#0F1D2E,stroke:#FF2E88,color:#E6F7FF
-    class A,S,BIN,T1,T2,DIS,CON,ORD,NOM tipo
+    class A,S,BIN,T1,T2,DIS,CON,ORD,NOM,RANK tipo
     class B,N1,N2,N3,S1,S2,S3,R decisao
-    class WARN aviso
-    class ID neutro
+    class ID,COD neutro
     class RC,RT,RL regime
 ```
 
@@ -106,6 +106,8 @@ profile = maat.describe(df, config=maat.Config(
     long_tail_top_n=10,            # cauda longa: n níveis na tabela, mais a linha "Outros"
     ordinal_levels={},             # ordem declarada por coluna, ex.: {"tamanho": ["P", "M", "G"]}
     rank_monotonia_minima=0.99,    # |Spearman| contra outra coluna a partir do qual vira rank (§3.3)
+    textual_sample_size=5,         # n de cada amostra dirigida: mais curtas, mais longas, aleatórias
+    textual_extra_checks=[],       # checagens próprias: {"nome":..., "regex":..., "descricao":...}
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -253,9 +255,24 @@ A mesma empresa dividida em dois níveis pela caixa — sem essa saída, a conce
 | Barras divergentes (Likert) | Completa | Escalas de concordância centradas no neutro |
 | Barra 100% empilhada única | Completa | Composição inteira em uma linha |
 
-### 2.4 Nominal em regime textual (nome, e-mail, endereço)
+### 2.4 Nominal em regime textual (nome, e-mail, endereço) — ✅ consolidada em 2026-08-17
 
-Quando `k ≈ n`, contar frequências não diz nada — cada valor aparece uma vez. O objeto de análise vira **a própria string**, em três frentes: forma, padrão e sujeira. Como inspecionar milhões de strings é inviável, o método é **estatísticas globais + amostras dirigidas** (não aleatórias: amostras dos casos extremos e dos casos suspeitos).
+> 🔍 **Página detalhada**: [tipos/textual.html](tipos/textual.html) ([versão pública](https://samnkb.github.io/maat/tipos/textual.html)).
+
+Quando `k ≈ n`, contar frequências não diz nada — cada valor aparece uma vez. O objeto de análise vira **a própria string**, em três frentes: forma, padrão e sujeira. Como inspecionar milhões de strings é inviável, o método é **estatísticas globais + amostras dirigidas**.
+
+**Decisões de 2026-08-17**:
+
+| Questão | Decisão |
+|---|---|
+| Quais checagens | **As 15 da bateria** (frente 3) **+ interface para o usuário registrar as próprias** (`nome`, `regex`, `descrição`) desde o MVP |
+| Lista de palavrões | **Fora** — apontar palavrão é juízo de conteúdo, não descrição de dado, e depende de idioma (mesma objeção que derrubou o dicionário de nomes de coluna). No lugar entrou **`placeholder`**: preenchimento de teste (`asdasd`, `xxx`, `123123`, `null`), que é sinal de qualidade e não juízo moral |
+| Máscara de caractere | Camada **completa** |
+| Amostras dirigidas | Mais longas, mais curtas **e aleatórias** — a aleatória mostra o caso típico, que os extremos escondem |
+| Padrão dominante | Reporta **aderência + amostra das violações** juntas: *"contaminações devem surgir no relatório"* |
+| Execução | **Sempre na base inteira** — exatidão acima de velocidade. Medimos uma alternativa de duas fases (amostra detecta, base conta) que é 6× mais rápida, mas ela pode perder sujeira rara ausente da amostra. Rejeitada por decisão |
+
+**Custo medido** (`scripts/custo_bateria_textual.py`, em dados reais): **~11 µs por string** para a bateria completa — 0,8 s em 48 mil strings, 24 s em 2,08 milhões. A máscara custa 1/3 disso; as amostras dirigidas são desprezíveis (0,5 s em 2 milhões). Testamos também combinar tudo numa regex única: só 1,2× mais rápido — não vale a complexidade. No Spark o custo se dilui em paralelo.
 
 **Frente 1 — Forma (estatísticas de comprimento e estrutura)**
 
@@ -264,7 +281,7 @@ O comprimento da string é uma variável quantitativa derivada — herda a anál
 | Análise | O que responde |
 |---|---|
 | Distribuição de comprimento (mín, mediana, máx, histograma) | Existe um comprimento "normal"? Bimodalidade sugere dois tipos de dado misturados |
-| Amostra das N strings mais curtas | Curtas demais = truncamento, "a", "-", "." usados como preenchimento |
+| Amostra das N strings mais curtas, mais longas **e N aleatórias** | Curtas demais = truncamento, "a", "-", "." usados como preenchimento |
 | Amostra das N strings mais longas | Longas demais = campo usado para outra coisa (observações coladas no nome) |
 | Nº de tokens/palavras (distribuição) | Nome com 1 token ou 12 tokens é suspeito |
 | % de valores vazios-disfarçados ("", " ", "N/A", "null", "-", "sem informação") | Ausência que não aparece como ausência |
@@ -278,21 +295,33 @@ O comprimento da string é uma variável quantitativa derivada — herda a anál
 | Máscara de caractere (abstrair `Aa9` : "Rua X, 123" → "Aaa A, 999") e top máscaras | Enxergar os formatos coexistentes sem ler as strings |
 | Consistência de caixa (% minúscula, MAIÚSCULA, Título, MiStA) | Padronização de entrada |
 
-**Frente 3 — Sujeira (a bateria de regex de qualidade)**
+**Frente 3 — Sujeira (a bateria de 15 checagens)**
 
-Cada checagem devolve contagem, % e uma **amostra dos ofensores** (a amostra é o que torna o achado acionável):
+Cada checagem devolve contagem, % e uma **amostra dos ofensores** — a amostra é o que torna o achado acionável. Ocorrências reais medidas no benchmark:
 
-| Checagem (regex/verificação) | Sujeira detectada |
-|---|---|
-| Espaços à esquerda/direita (`^\s|\s$`) | Falha de trim na origem |
-| Espaços consecutivos (`\s{2,}`) | Digitação/concatenação malfeita |
-| Caracteres invisíveis (zero-width `​-‍`, NBSP ` `, BOM `﻿`) | Copy-paste de web/Excel — invisível ao olho, quebra joins |
-| Caracteres de controle/não-imprimíveis (`[\x00-\x1f\x7f]`) | Encoding quebrado, lixo binário |
-| Caracteres repetidos em sequência (`(.)\1{3,}`) | "aaaa", "1111" — preenchimento de teclado |
-| Mojibake ("Ã©", "Ã£", "â€™") | Dupla codificação UTF-8/Latin-1 |
-| Mistura de alfabetos (latino + cirílico/grego no mesmo valor) | Homóglifos — erro ou fraude |
-| Dígitos em campo nominal / letras em campo numérico | Conteúdo fora do domínio esperado |
-| HTML/escape residual (`&amp;`, `<br>`, `\n` literal) | Dado raspado sem limpeza |
+| Checagem | Detecta | Ocorrência real medida |
+|---|---|---|
+| `espaco_borda` | espaço no início/fim | 238 no `name` do nyc · 188 no SMS |
+| `espaco_duplo` | espaços consecutivos | 1.435 no nyc · **1.449** nos fornecedores da Câmara |
+| `invisivel` | zero-width, NBSP, BOM | 3 no nyc — invisíveis ao olho, quebram joins |
+| `nao_imprimivel` | controle / lixo binário | — |
+| `repeticao` | 4+ caracteres iguais seguidos | 92 no nyc · 165 no SMS |
+| `mojibake` | dupla codificação UTF-8/Latin-1 (`Ã©`) | — |
+| `html_residual` | entidade ou tag HTML | 309 no SMS · **312** na Câmara |
+| `url` | URL embutida | **89 no SMS spam** |
+| `markdown` | `**negrito**`, `[link](url)`, cercas de código | **71 nos nomes do nyc-airbnb** |
+| `pix_brcode` | payload PIX copia-e-cola (`br.gov.bcb.pix`, prefixo `000201` + CRC16) | — (caso real relatado em produção) |
+| `base64_longo` | payload codificado dentro do campo | — |
+| `json_embutido` | JSON ou lista dentro da célula | 1 no google-play |
+| `cpf_cnpj_mascara` | CPF/CNPJ onde deveria haver texto | **2 nos fornecedores da Câmara** |
+| `placeholder` | preenchimento de teste (`asdasd`, `xxx`, `123123`, `null`) | 1 no nyc (`xxx`) |
+| `misto_alfabeto` | latino + cirílico/grego no mesmo valor | 3 no nyc · 13 no google-play |
+
+> O `markdown` disparando 71 vezes em **nomes de anúncio** e o CPF/CNPJ aparecendo em **campo de fornecedor** são exemplos do que a bateria existe para revelar: contaminação de um tipo de conteúdo em campo destinado a outro.
+
+**Extensão pelo usuário** (decidida no MVP): registrar checagens próprias com `nome`, `regex` e `descrição` — a bateria embutida é o piso, não o teto.
+
+> Nota Spark: todas as checagens são `filter`/`regexp` distribuídos + `take(N)` para amostras. A máscara de caractere é um `regexp_replace` encadeado.
 
 **Visualizações**
 
