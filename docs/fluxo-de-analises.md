@@ -108,6 +108,9 @@ profile = maat.describe(df, config=maat.Config(
     rank_monotonia_minima=0.99,    # |Spearman| contra outra coluna a partir do qual vira rank (§3.3)
     textual_sample_size=5,         # n de cada amostra dirigida: mais curtas, mais longas, aleatórias
     textual_extra_checks=[],       # checagens próprias: {"nome":..., "regex":..., "descricao":...}
+    date_format={},                # formato declarado por coluna quando indecidível, ex.: {"data": "dd/mm"}
+    date_horizons=[10, 20, 30, 40, 50, 100],  # faixas (anos) do perfil de horizonte temporal
+    temporal_extremes_levels=5,    # n datas mais antigas e mais futuras na amostra de extremos
     inference_sample_size=100_000, # linhas amostradas para inferência (None = base inteira)
     sample_size=10,                # N das amostras dirigidas (strings mais curtas/longas, ofensores)
 ))
@@ -466,38 +469,72 @@ Testamos também a **exatidão** (o rank reproduz o ranking da coluna base?) e e
 
 A solução do maat: temporal é um **tipo de primeira classe** que, na análise, se **decompõe** — gera automaticamente derivadas qualitativas (mês, dia da semana, hora, trimestre) e quantitativas (posição na linha do tempo, durações), e cada derivada herda o fluxo de análise do seu tipo.
 
-### 4.1 Instante (data da venda, timestamp do evento)
+### 4.1 Instante (data da venda, timestamp do evento) — ✅ consolidada em 2026-08-17
 
-**Resumos numéricos**
+> 🔍 **Página detalhada**: [tipos/temporal.html](tipos/temporal.html) ([versão pública](https://samnkb.github.io/maat/tipos/temporal.html)).
 
-| Análise | O que responde |
+O tipo que motivou o projeto. Todos os sinais abaixo foram medidos no benchmark (`scripts/sinais_temporais.py`).
+
+#### A ambiguidade dd/mm × mm/dd — o problema central
+
+Descoberto medindo: em toda coluna com padrão `A/B/AAAA`, **39% a 50% dos valores são individualmente ambíguos** (`12/01/2010` pode ser 12 de janeiro ou 1º de dezembro). A prova vem da minoria que desambigua — um valor com o primeiro campo maior que 12 só pode ser dia.
+
+| Estado | Critério | Exemplo real |
+|---|---|---|
+| **Provado dd/mm** | existe valor com 1º campo > 12, nenhum com 2º campo > 12 | `bcb/dolar` (1.378 provas) · `tesouro/Data Vencimento` (87.801) |
+| **Provado mm/dd** | o inverso | `ecommerce/InvoiceDate` (308.950 provas) |
+| **Misturados** | provas dos **dois** lados na mesma coluna | dado corrompido — reportar como tal |
+| **Indecidível** | nenhum valor desambigua (todos os campos ≤ 12) | `ecommerce/InvoiceDate` nas 300 primeiras linhas: 100% ambíguo |
+
+**Decisão de 2026-08-17 — no caso indecidível, o maat reporta e não escolhe**: classifica como temporal, declara *"formato indecidível entre dd/mm e mm/dd — declare para análise correta"*, e **suspende as análises que dependem do dia** (dia da semana, perfil diário) até a declaração. O pandas escolhe em silêncio; nós dizemos que não dá para saber. É §0.1 e §0.2 aplicados.
+
+#### Qualidade e quebras (todas determinísticas, custo de comparação de data)
+
+| Checagem | O que revela | Evidência |
+|---|---|---|
+| **Falha de parse** | valores que não viraram data | estruturalmente datas mas inválidas (`2023-02-31`, `2023-02-29`) falham no parse — distinguíveis de lixo |
+| **Nulos na origem** | ausência em campo já temporal | `camara/datEmissao`: 3,77% |
+| **Granularidade real** | timestamp que é diário disfarçado | netflix e BCB: todo horário é `00:00` |
+| **Cobertura** | mínimo, máximo, amplitude | tesouro: 2005 a **2084** (29.200 dias) |
+| **No futuro** | contagem e % após hoje | tesouro: **39,43%** — e está **correto** (data de vencimento). Futuro é fato, nunca erro |
+| **Horizonte** | quantas datas passam de 10/20/30/40/50/100 anos | substitui "biologicamente impossível" sem exigir semântica: o absurdo fica visível sem o maat saber o que a coluna significa |
+| **Datas-sentinela** | `1900-01-01` e `1899-12-30` (zero do Excel), `1970-01-01` (epoch), `0001-01-01`, `9999-12-31`, `2999-12-31` | significam "vazio", não um instante |
+| **Amostra dos extremos** | as N datas mais antigas e mais futuras | mesma lógica da contínua (§3.2) |
+
+#### Quebras de calendário e de dtype
+
+Levantadas pelo Sam e confirmadas em teste — nenhuma ferramenta de perfilamento que examinamos reporta isso:
+
+| Checagem | Por que importa |
 |---|---|
-| Cobertura: mínimo, máximo, amplitude | Que período os dados cobrem? |
-| Granularidade detectada (diária? horária? mensal?) | Qual a resolução real do dado? (se toda hora é 00:00, é diário disfarçado) |
-| Contagem de registros por período | Volume ao longo do tempo — a análise temporal mais básica |
-| Gaps e buracos (períodos sem registros) | Falhas de coleta ou sazonalidade extrema? |
-| Duplicatas de timestamp | Eventos simultâneos são esperados? |
-| Perfil cíclico: distribuição por mês, dia da semana, hora | Existe sazonalidade? (cada componente vira uma análise ordinal) |
-| Datas no futuro / anteriores a limiar plausível (ex.: 1900) | Qualidade do dado |
-| % ausentes | Qualidade do dado |
+| **Janela de rebase do Spark** — datas anteriores a `1582-10-15` | O Spark converte entre o calendário híbrido (Juliano + Gregoriano) e o Proléptico Gregoriano ao ler/escrever Parquet e Avro. Datas antes do corte **mudam de valor** conforme o modo de rebase (`datetimeRebaseModeInRead`) |
+| **Lacuna gregoriana** — `1582-10-05` a `1582-10-14` | Esses dias **não existem** no calendário híbrido; sua presença denuncia conversão malfeita |
+| **Fora do alcance do dtype** — antes de `1677-09-21` ou depois de `2262-04-11` | Limite do `datetime64[ns]` do pandas: `1500-01-01` levanta `OutOfBoundsDatetime`. O Spark cobre ano 1 a 9999 — é armadilha de interoperabilidade real |
+| **Horário inexistente por DST** | Timestamps no salto de horário de verão quebram ao converter fuso |
+| **Datas impossíveis no calendário** | `31/02`, `29/02` em ano não bissexto, `31/04` — parsers tolerantes convertem em silêncio para outro dia |
+
+#### Decomposição cíclica
+
+O temporal se decompõe e cada derivada herda o fluxo do seu tipo: **mês, dia da semana, hora e trimestre** viram ordinais cíclicas (§2.3); a posição na linha do tempo vira quantitativa. Contagem por período, gaps de coleta e perfis cíclicos são a análise essencial.
 
 **Visualizações**
 
-| Visual | Quando usar |
-|---|---|
-| Linha do tempo de contagens (por dia/semana/mês) | Padrão — volume ao longo do tempo |
-| Barras por componente cíclico (dia da semana, mês, hora) | Sazonalidade — um painel por componente |
-| Heatmap calendário | Padrões diários em períodos longos (estilo GitHub) |
-| Heatmap hora × dia da semana | Padrões de comportamento intra-semana |
-| Faixa de gaps sobre a linha do tempo | Evidenciar buracos de coleta |
+| Visual | Camada | Quando usar |
+|---|---|---|
+| Linha do tempo de contagens (dia/semana/mês) | Essencial | Padrão — volume ao longo do tempo |
+| Barras por componente cíclico | Essencial | Sazonalidade: dia da semana, mês, hora |
+| Faixa de gaps sobre a linha do tempo | Essencial | Evidenciar buracos de coleta |
+| Heatmap calendário | Completa | Padrões diários em períodos longos |
+| Heatmap hora × dia da semana | Completa | Comportamento intra-semana |
 
-### 4.2 Duração (tempo de entrega, tempo de sessão)
+### 4.2 Duração (tempo de entrega, tempo de sessão) — ✅ consolidada em 2026-08-17
 
-Durações **são** quantitativas contínuas (razões fazem sentido: 4h é o dobro de 2h) — herdam toda a seção 3.2. O que muda:
+Durações **são** quantitativas contínuas (razões fazem sentido: 4h é o dobro de 2h) — herdam toda a §3.2, incluindo o resumo de cinco números e a tabela de extremos de valor. O que muda:
 
-- Unidade de exibição inteligente (segundos → minutos → horas → dias conforme a magnitude).
-- Distribuições de duração são quase sempre assimétricas à direita → sugerir log/percentis por padrão, e mediana como resumo principal (não média).
-- Durações negativas = erro de dado → checagem de qualidade específica.
+- **Unidade de exibição inteligente**: segundos → minutos → horas → dias conforme a magnitude.
+- **Mediana como resumo principal**: distribuições de duração são quase sempre assimétricas à direita; a narrativa sugere leitura em escala logarítmica quando média ≫ mediana.
+- **Durações negativas**: reportadas como **fato** (contagem, % e amostra), nunca rotuladas como erro — o mesmo tratamento dado aos negativos de `Quantity` na §3.1. Fim antes do início pode ser estorno, fuso mal aplicado ou erro; quem sabe é o usuário.
+- **Duração derivada de duas datas**: quando calculada pelo maat, herda a incerteza das colunas de origem — se uma delas tem formato indecidível (§4.1), a duração também fica suspensa.
 
 ---
 

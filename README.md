@@ -20,8 +20,8 @@ Variável
 │   ├── Discreta  — contagens (inteiros); regimes: tabela / histograma  ✅ consolidada
 │   └── Contínua  — medições com casas decimais (renda, preço)  ✅ consolidada
 └── Temporal (datas e timestamps)
-    ├── Instante  — pontos no tempo (data da venda)
-    └── Duração   — intervalos (tempo de entrega)
+    ├── Instante  — pontos no tempo (data da venda)              ✅ consolidada
+    └── Duração   — intervalos (tempo de entrega)               ✅ consolidada
 
 Números que não são quantidades — chegam pela rota numérica    ✅ consolidada
 ├── Identificador · chave  — identifica a linha (PassengerId)
@@ -78,4 +78,4 @@ Limiares e comportamentos são parametrizáveis via `maat.Config` (níveis de re
 
 ## Status
 
-🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta**, **quantitativa contínua** e **identificador/código/rank** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. Próximo: temporal (instante e duração); depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.
+🚧 Em construção por design conjunto — as decisões de análise são discutidas e registradas antes do código. Consolidados até agora: **binária**, **nominal em cauda longa**, **ordinal**, **quantitativa discreta**, **quantitativa contínua** **identificador/código/rank** e **temporal** (cada uma com [subpágina detalhada](https://samnkb.github.io/maat/tipos/binaria.html) usando números reais do benchmark), a arquitetura de **narrativas** e a **identidade visual**. **O design dos tipos está fechado.** Próximo: bivariadas (§5) e contrato de saída (§6); depois, implementação da inferência + backend pandas e benchmark nos 40 datasets.

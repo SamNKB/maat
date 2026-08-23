@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maat // tipos // temporal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --void:#05070F; --navy:#0A0E1A; --panel:#101828; --cyan:#00E5FF; --ice:#E6F7FF;
+    --magenta:#FF2E88; --violet:#9D4EDD; --steel:#3A4A63; --mist:#8FA3BF;
+    --amber:#FFB03A; --mint:#3DF5C6;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:radial-gradient(ellipse at 30% -10%, #0D1526 0%, var(--void) 60%);
+    color:var(--ice); font-family:'Space Grotesk',sans-serif; min-height:100vh;
+    padding:28px 24px 48px; line-height:1.65;
+  }
+  main{max-width:860px; margin:0 auto}
+  nav{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mist); margin-bottom:26px}
+  nav a{color:var(--cyan); text-decoration:none}
+  nav a:hover{text-shadow:0 0 10px rgba(0,229,255,.6)}
+  .status{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px;
+    color:var(--mint); border:1px solid rgba(61,245,198,.45); border-radius:999px; padding:3px 12px; margin-bottom:14px;
+  }
+  h1{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:34px; letter-spacing:1px;
+     color:var(--coral, #FF2E88); text-shadow:0 0 18px rgba(255,46,136,.4); margin-bottom:6px}
+  h1 small{color:var(--mist); font-size:16px; font-weight:500; display:block; letter-spacing:0}
+  h2{font-family:'Rajdhani',sans-serif; font-weight:600; font-size:21px; color:var(--cyan);
+     margin:38px 0 12px; letter-spacing:.5px}
+  h2 .tag{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.5px;
+     color:var(--violet); border:1px solid var(--violet); border-radius:5px; padding:2px 8px;
+     vertical-align:middle; margin-left:10px}
+  p{color:var(--ice); font-size:15px; margin-bottom:10px}
+  .muted{color:var(--mist); font-size:13.5px}
+  .card{background:var(--panel); border:1px solid var(--steel); border-radius:12px; padding:18px 20px; margin:14px 0}
+  table{width:100%; border-collapse:collapse; font-size:14px; margin:8px 0}
+  th{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--mist);
+     text-align:left; padding:8px 10px; border-bottom:1px solid var(--steel)}
+  td{padding:7px 10px; border-bottom:1px solid rgba(58,74,99,.35)}
+  td.num{font-family:'JetBrains Mono',monospace; color:var(--ice); text-align:right}
+  tr.med{background:rgba(0,229,255,.07)}
+  tr.med td{color:var(--cyan)}
+  .vbar{display:flex; align-items:center; gap:10px; margin:3px 0}
+  .vbar .lab{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist); width:26px; text-align:right}
+  .vbar .track{flex:1; background:var(--navy); border:1px solid rgba(58,74,99,.5); border-radius:5px; height:20px; overflow:hidden}
+  .vbar .fill{height:100%; background:rgba(0,229,255,.30); border-right:1px solid var(--cyan);
+     display:flex; align-items:center; padding:0 7px; font-family:'JetBrains Mono',monospace;
+     font-size:10.5px; color:var(--cyan); white-space:nowrap}
+  .vbar .cum{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--magenta); width:58px}
+  .stats{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+  .stat{border:1px solid var(--steel); border-radius:8px; padding:8px 14px; text-align:center; flex:1; min-width:96px}
+  .stat b{display:block; font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:var(--cyan)}
+  .stat span{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--mist)}
+  .out{border-color:rgba(255,176,58,.5)}
+  .out h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:16.5px; margin-bottom:4px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src a{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(0,229,255,.5)}
+  .g .src a:hover{text-shadow:0 0 8px rgba(0,229,255,.6)}
+  .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
+  .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
+  code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
+       background:rgba(61,245,198,.08); border-radius:4px; padding:1px 5px}
+  blockquote{border-left:2px solid var(--violet); padding:10px 16px; margin:10px 0;
+     background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
+  footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
+  footer a{color:var(--cyan)}
+  td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="../fluxo-interativo.html">&larr; grafo interativo</a> &nbsp;&middot;&nbsp; maat // tipos // <span style="color:var(--ice)">temporal</span> &nbsp;&middot;&nbsp; <a href="../fluxo-de-analises.md">fluxo-de-analises.md &sect;4</a></nav>
+
+<span class="status">CONSOLIDADA &middot; 2026-08-17</span>
+<h1>Temporal<small>instante e dura&ccedil;&atilde;o &mdash; o tipo que n&atilde;o cabia em qualitativa nem quantitativa, e que motivou o projeto</small></h1>
+
+<p>Uma data &eacute; <strong>as duas coisas ao mesmo tempo</strong>: um eixo cont&iacute;nuo (diferen&ccedil;as fazem sentido, raz&otilde;es n&atilde;o) que carrega componentes c&iacute;clicos categ&oacute;ricos (m&ecirc;s, dia da semana, hora &mdash; onde dezembro &eacute; vizinho de janeiro). Por isso o maat a trata como <strong>tipo de primeira classe que se decomp&otilde;e</strong>: cada derivada herda o fluxo do seu pr&oacute;prio tipo.</p>
+
+<h2>A ambiguidade dd/mm &times; mm/dd <span class="tag">O PROBLEMA CENTRAL</span></h2>
+<div class="card">
+  <p class="muted">Descoberto medindo o benchmark: em toda coluna com padr&atilde;o <code>A/B/AAAA</code>, <strong>39% a 50% dos valores s&atilde;o individualmente amb&iacute;guos</strong>. <code>12/01/2010</code> pode ser 12 de janeiro ou 1&ordm; de dezembro. A prova vem da minoria que desambigua &mdash; um valor com o primeiro campo maior que 12 s&oacute; pode ser dia.</p>
+  <table>
+    <tr><th>COLUNA</th><th>PROVA dd/mm</th><th>PROVA mm/dd</th><th>AMB&Iacute;GUOS</th><th>VEREDITO</th></tr>
+    <tr><td><code>ecommerce/InvoiceDate</code></td><td class="num">0</td><td class="num" style="color:var(--mint)">308.950</td><td class="num">43,0%</td><td style="color:var(--mint)">provado mm/dd</td></tr>
+    <tr><td><code>bcb/dolar</code></td><td class="num" style="color:var(--mint)">1.378</td><td class="num">0</td><td class="num">39,0%</td><td style="color:var(--mint)">provado dd/mm</td></tr>
+    <tr><td><code>tesouro/Data Vencimento</code></td><td class="num" style="color:var(--mint)">87.801</td><td class="num">0</td><td class="num">49,8%</td><td style="color:var(--mint)">provado dd/mm</td></tr>
+    <tr><td><code>ecommerce</code> (300 linhas)</td><td class="num">0</td><td class="num">0</td><td class="num" style="color:var(--amber)">100%</td><td style="color:var(--amber)">INDECID&Iacute;VEL</td></tr>
+  </table>
+  <p class="muted">Um quarto estado existe: provas dos <strong>dois</strong> lados na mesma coluna significa formatos genuinamente misturados &mdash; dado corrompido.</p>
+</div>
+<div class="card out">
+  <h3>No caso indecid&iacute;vel, o maat reporta e n&atilde;o escolhe</h3>
+  <p class="muted">Classifica como temporal, declara <em>"formato indecid&iacute;vel entre dd/mm e mm/dd &mdash; declare para an&aacute;lise correta"</em> e <strong>suspende as an&aacute;lises que dependem do dia</strong> (dia da semana, perfil di&aacute;rio) at&eacute; a declara&ccedil;&atilde;o em <code>date_format</code>. O pandas escolhe em sil&ecirc;ncio; n&oacute;s dizemos que n&atilde;o d&aacute; para saber.</p>
+</div>
+
+<h2>Qualidade e cobertura <span class="tag">MEDIDO NO BENCHMARK</span></h2>
+<div class="card">
+  <table>
+    <tr><th>CHECAGEM</th><th>O QUE REVELA</th><th>EVID&Ecirc;NCIA</th></tr>
+    <tr><td>falha de parse</td><td>valores que n&atilde;o viraram data</td><td><code>2023-02-31</code> e <code>29/02</code> em ano n&atilde;o bissexto falham &mdash; distingu&iacute;veis de lixo pela estrutura</td></tr>
+    <tr><td>nulos na origem</td><td>aus&ecirc;ncia em campo j&aacute; temporal</td><td><code>camara/datEmissao</code>: 3,77%</td></tr>
+    <tr><td>granularidade real</td><td>timestamp que &eacute; di&aacute;rio disfar&ccedil;ado</td><td>netflix e BCB: todo hor&aacute;rio &eacute; <code>00:00</code></td></tr>
+    <tr><td>cobertura</td><td>m&iacute;nimo, m&aacute;ximo, amplitude</td><td>tesouro: 2005 a <strong>2084</strong> (29.200 dias)</td></tr>
+    <tr><td>no futuro</td><td>contagem e % ap&oacute;s hoje</td><td>tesouro: <strong>39,43%</strong> &mdash; e est&aacute; <strong>correto</strong></td></tr>
+    <tr><td>horizonte</td><td>datas com mais de 10/20/30/40/50/100 anos</td><td>substitui "biologicamente imposs&iacute;vel" sem exigir sem&acirc;ntica</td></tr>
+    <tr><td>datas-sentinela</td><td><code>1900-01-01</code>, <code>1899-12-30</code> (zero do Excel), <code>1970-01-01</code> (epoch), <code>9999-12-31</code></td><td>significam "vazio", n&atilde;o um instante</td></tr>
+    <tr><td>amostra dos extremos</td><td>as N datas mais antigas e mais futuras</td><td>mesma l&oacute;gica da cont&iacute;nua</td></tr>
+  </table>
+  <p class="muted">O <code>Data Vencimento</code> do Tesouro com 39,43% no futuro &eacute; a prova viva de que <strong>futuro &eacute; fato, nunca erro</strong>: data de vencimento de t&iacute;tulo <em>deve</em> estar no futuro. Reportamos a contagem e seguimos.</p>
+</div>
+
+<h2>Quebras de calend&aacute;rio e de dtype <span class="tag">NENHUMA FERRAMENTA EXAMINADA REPORTA</span></h2>
+<div class="card warn">
+  <table>
+    <tr><th>CHECAGEM</th><th>POR QUE IMPORTA</th></tr>
+    <tr><td><strong>Rebase do Spark</strong><br>datas antes de <code>1582-10-15</code></td><td>O Spark converte entre o calend&aacute;rio h&iacute;brido (Juliano + Gregoriano) e o Prol&eacute;ptico Gregoriano ao ler/escrever Parquet e Avro. Datas antes do corte <strong>mudam de valor</strong> conforme <code>datetimeRebaseModeInRead</code></td></tr>
+    <tr><td><strong>Lacuna gregoriana</strong><br><code>1582-10-05</code> a <code>1582-10-14</code></td><td>Esses dias <strong>n&atilde;o existem</strong> no calend&aacute;rio h&iacute;brido; sua presen&ccedil;a denuncia convers&atilde;o malfeita</td></tr>
+    <tr><td><strong>Fora do alcance do dtype</strong><br>antes de <code>1677-09-21</code> ou ap&oacute;s <code>2262-04-11</code></td><td>Limite do <code>datetime64[ns]</code> do pandas &mdash; <code>1500-01-01</code> levanta <code>OutOfBoundsDatetime</code>. O Spark cobre ano 1 a 9999: armadilha de interoperabilidade real</td></tr>
+    <tr><td><strong>Hor&aacute;rio inexistente por DST</strong></td><td>Timestamps no salto do hor&aacute;rio de ver&atilde;o quebram ao converter fuso</td></tr>
+    <tr><td><strong>Datas imposs&iacute;veis</strong><br><code>31/02</code>, <code>31/04</code>, <code>29/02</code> n&atilde;o bissexto</td><td>Parsers tolerantes convertem em sil&ecirc;ncio para outro dia</td></tr>
+  </table>
+  <p class="muted">Todas s&atilde;o compara&ccedil;&otilde;es de data &mdash; custo desprez&iacute;vel e determin&iacute;sticas.</p>
+</div>
+
+<h2>Decomposi&ccedil;&atilde;o c&iacute;clica <span class="tag">A RESPOSTA DO PROJETO</span></h2>
+<div class="card">
+  <p class="muted">O temporal se decomp&otilde;e e cada derivada herda o fluxo do seu tipo: <strong>m&ecirc;s, dia da semana, hora e trimestre</strong> viram ordinais c&iacute;clicas (&sect;2.3); a posi&ccedil;&atilde;o na linha do tempo vira quantitativa. Contagem por per&iacute;odo, <strong>gaps de coleta</strong> e perfis c&iacute;clicos formam a an&aacute;lise essencial; heatmap calend&aacute;rio e hora &times; dia da semana ficam na completa.</p>
+</div>
+
+<h2>Dura&ccedil;&atilde;o <span class="tag">&sect;4.2</span></h2>
+<div class="card">
+  <p class="muted">Dura&ccedil;&otilde;es <strong>s&atilde;o</strong> quantitativas cont&iacute;nuas (4h &eacute; o dobro de 2h) e herdam toda a &sect;3.2. O que muda: <strong>unidade de exibi&ccedil;&atilde;o inteligente</strong> (s &rarr; min &rarr; h &rarr; dias), <strong>mediana como resumo principal</strong> (a distribui&ccedil;&atilde;o &eacute; quase sempre assim&eacute;trica &agrave; direita) e <strong>dura&ccedil;&otilde;es negativas reportadas como fato</strong> &mdash; contagem, % e amostra, nunca rotuladas como erro. Fim antes do in&iacute;cio pode ser estorno ou fuso mal aplicado; quem sabe &eacute; o usu&aacute;rio.</p>
+  <p class="muted">Dura&ccedil;&atilde;o derivada de duas datas <strong>herda a incerteza da origem</strong>: se uma delas tem formato indecid&iacute;vel, a dura&ccedil;&atilde;o tamb&eacute;m fica suspensa.</p>
+</div>
+
+<h2>Temporais reais do benchmark</h2>
+<div class="grid">
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/shivamb/netflix-shows?select=netflix_titles.csv" target="_blank" rel="noopener">netflix</a></span><h3>date_added</h3><p class="muted">"September 25, 2021" &middot; 2008 a 2021 &middot; di&aacute;rio disfar&ccedil;ado</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/carrie1/ecommerce-data?select=data.csv" target="_blank" rel="noopener">ecommerce</a></span><h3>InvoiceDate</h3><p class="muted">mm/dd provado por 308.950 valores &middot; 43% amb&iacute;guos</p></div>
+  <div class="card g"><span class="src"><a href="https://www.tesourotransparente.gov.br/ckan/dataset/taxas-dos-titulos-ofertados-pelo-tesouro-direto" target="_blank" rel="noopener">gov-tesouro-direto</a></span><h3>Data Vencimento</h3><p class="muted">39,43% no futuro &mdash; e correto &middot; at&eacute; 2084</p></div>
+  <div class="card g"><span class="src"><a href="https://www3.bcb.gov.br/sgspub/consultarvalores/telaCvsSelecionarSeries.paint" target="_blank" rel="noopener">gov-bcb-dolar</a></span><h3>data</h3><p class="muted">dd/mm provado &middot; s&eacute;rie di&aacute;ria com gaps de fim de semana</p></div>
+</div>
+
+<footer>maat &middot; reproduza os n&uacute;meros: <code>python scripts/sinais_temporais.py</code> &middot; decis&otilde;es em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (&sect;4) &middot; <a href="binaria.html">bin&aacute;ria</a> &middot; <a href="cauda-longa.html">cauda longa</a> &middot; <a href="ordinal.html">ordinal</a> &middot; <a href="textual.html">textual</a> &middot; <a href="discreta.html">discreta</a> &middot; <a href="continua.html">cont&iacute;nua</a> &middot; <a href="nao-quantidades.html">n&atilde;o-quantidades</a> &middot; <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>
+</main>
+</body>
+</html>

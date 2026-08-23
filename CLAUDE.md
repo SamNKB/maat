@@ -73,6 +73,15 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - **Completa**: Herfindahl, entropia normalizada, lista dos grupos de variantes, cauda completa sob demanda.
 - **Variantes de grafia: o maat MOSTRA** (Câmara: `UBER…LTDA.` 10.267 + `Uber…Ltda.` 8). *(Princípio dado pelo Sam: "se o dataframe está ruim, você mostra e o usuário toma uma ação em cima de corrigir ou não" — com a condição de **critérios claros**.)* Critério determinístico e declarado: minúsculas + sem acentos + espaços colapsados + bordas aparadas. **Sem semelhança aproximada.** O maat nunca une, corrige nem sugere correção.
 
+### Temporal — consolidada 2026-08-17 (§4)
+- **Ambiguidade dd/mm × mm/dd é o problema central**, descoberto medindo: 39% a 50% dos valores de uma coluna `A/B/AAAA` são individualmente ambíguos. A prova vem da minoria com campo > 12 (`ecommerce`: mm/dd provado por 308.950 valores; `bcb/dolar` e `tesouro`: dd/mm provado). Quatro estados: provado dd/mm, provado mm/dd, **misturados** (provas dos dois lados = corrompido) e **indecidível**.
+- **Indecidível → reporta e não escolhe**: declara o impasse e **suspende as análises que dependem do dia** até `date_format`. O pandas escolhe em silêncio; nós dizemos que não dá para saber.
+- **Futuro é fato, nunca erro**: `tesouro/Data Vencimento` tem 39,43% no futuro **e está correto**. Substituímos "datas biologicamente impossíveis" (que exige semântica) pela **distribuição de horizonte** (`date_horizons`: 10/20/30/40/50/100 anos) — ideia do Sam, melhor que a alternativa.
+- **Quebras de calendário/dtype** (levantadas pelo Sam, e nenhuma ferramenta examinada reporta): **rebase do Spark** (datas antes de 1582-10-15 mudam de valor entre calendário híbrido e proléptico ao ler Parquet/Avro), **lacuna gregoriana** (05–14/10/1582 não existem), **fora do datetime64[ns]** (antes de 1677-09-21 ou após 2262-04-11 — `1500-01-01` levanta OutOfBoundsDatetime no pandas mas o Spark cobre ano 1–9999), horário inexistente por DST e datas impossíveis (31/02).
+- Também: falha de parse, nulos na origem, granularidade real (netflix e BCB são diários disfarçados), datas-sentinela (1900-01-01, epoch, 9999-12-31), amostra dos extremos.
+- **Duração** (§4.2): herda a §3.2; unidade inteligente, mediana como resumo principal, negativas reportadas como fato; derivada de duas datas herda a incerteza da origem.
+- Medido por `scripts/sinais_temporais.py`.
+
 ### Nominal em regime textual — consolidada 2026-08-17 (§2.4)
 - **15 checagens de sujeira** + **interface de extensão** (`textual_extra_checks`) desde o MVP. Sugestões do Sam que entraram: `url`, `markdown`, `pix_brcode` (caso real dele em produção: payload PIX em campo de complemento), `base64_longo`, `json_embutido`, `cpf_cnpj_mascara`.
 - **Lista de palavrões: RECUSADA** — é juízo de conteúdo, não descrição, e depende de idioma. No lugar entrou `placeholder` (asdasd, xxx, 123123, null): sinal de qualidade sem juízo moral.
@@ -122,8 +131,8 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ## 5. Pendências e questões em aberto
 
-- **Próxima na fila: temporal** (§4) — instante e duração. É o tipo que motivou o projeto e tem as decisões mais estruturais: decomposição cíclica (mês/dia da semana/hora), granularidade detectada, gaps de coleta. Protagonistas: netflix `date_added`, ecommerce `InvoiceDate`, séries do BCB, hotel-bookings (data quebrada em 3 colunas).
-- Depois: bivariadas (§5) e o contrato de saída (§6); então implementação.
+- **O design de TODOS os tipos está fechado** (2026-08-17). Restam: **bivariadas** (§5) e o **contrato de saída** (§6) — este último precisa refletir camadas, narrativa e os campos novos (rank_reference etc.).
+- Depois: implementação (`core/inference.py` + `PandasBackend`), **em incrementos com o Sam presente**.
 - **Regimes de cardinalidade na ordinal**: adiado até casos reais.
 - Questões 2, 3, 4 e 6 da §8 do fluxo seguem abertas (ordem das ordinais, erro do `approxQuantile`, formato do relatório, bateria de regex do textual).
 - **Implementação**: `core/inference.py`, backends e análises ainda são stubs `NotImplementedError`. Plano combinado: implementar inferência + `PandasBackend`, rodar nos 40 datasets, e usar os resultados para resolver o `rank` e calibrar limiares.
@@ -199,8 +208,9 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.
 13. Links de origem (Kaggle e fontes de governo) no manifesto e nas subpáginas.
 14. Ordinal consolidada — o Sam desafia "qual métrica depende de fato da ordem?" e a resposta honesta (duas medidas) define um desenho enxuto.
+18. **2026-08-17** — §4 (temporal) consolidada: a ambiguidade dd/mm é medida e o indecidível passa a ser declarado; entram as quebras de calendário do Spark. **Design de todos os tipos fechado.**
 17. **2026-08-17** — §2.4 (textual) consolidada: 15 checagens medidas em dados reais, palavrões recusados, execução sempre na base inteira.
 16. **2026-08-17** — §3.3 consolidada: identificador vira três rotas (chave/código/rank); o dicionário de nomes é recusado e a decisão passa a apoiar-se em sinais medidos.
 15. **2026-08-17** — baseline competitivo executado: ydata-profiling sobre 39 datasets, 625 colunas comparadas (`docs/comparacao-ydata.md`). Um erro de metodologia (modo mínimo desativa inferência de datas) quase virou conclusão falsa a nosso favor e foi corrigido antes de publicar.
 
-**Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · ordinal (§2.3) · **textual (§2.4)** · discreta (§3.1) · contínua (§3.2) · **identificador/código/rank (§3.3)** — cada um com subpágina em `docs/tipos/`.
+**Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · ordinal (§2.3) · **textual (§2.4)** · discreta (§3.1) · contínua (§3.2) · **identificador/código/rank (§3.3)** · **temporal (§4)** — cada um com subpágina em `docs/tipos/`.
