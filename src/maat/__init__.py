@@ -63,6 +63,11 @@ def describe(
         liberar = getattr(backend, "liberar_cache", None)
         if liberar:
             liberar()
+
+    if config.mask_pii:
+        from maat.privacy import mascarar_perfil
+
+        mascarar_perfil(perfil, config)
     return perfil
 
 

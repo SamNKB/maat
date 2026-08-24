@@ -376,8 +376,12 @@ class SparkBackend(Backend):
             F.sum(F.when(F.dayofmonth(d) == 1, 1).otherwise(0)).alias("dia_um"),
         ]
         for a in self.config.date_horizons:
+            # nos dois sentidos: passado e futuro (ver nota no backend pandas)
             expressoes.append(
-                F.sum(F.when(anos > a, 1).otherwise(0)).alias(f"h_{a}")
+                F.sum(F.when(anos > a, 1).otherwise(0)).alias(f"hp_{a}")
+            )
+            expressoes.append(
+                F.sum(F.when(anos < -a, 1).otherwise(0)).alias(f"hf_{a}")
             )
         for i, data in enumerate(DATAS_SENTINELA):
             expressoes.append(
@@ -431,7 +435,12 @@ class SparkBackend(Backend):
             "no_futuro": futuro,
             "pct_futuro": futuro / n,
             "horizonte": {
-                f">{a} anos": int(r[f"h_{a}"] or 0) for a in self.config.date_horizons
+                chave: int(r[campo] or 0)
+                for a in self.config.date_horizons
+                for chave, campo in (
+                    (f"passado >{a} anos", f"hp_{a}"),
+                    (f"futuro >{a} anos", f"hf_{a}"),
+                )
             },
             "sentinelas": sentinelas,
             "mais_antigas": [x["d"].isoformat() for x in antigas],

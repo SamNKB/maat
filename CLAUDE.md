@@ -107,7 +107,7 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 ### Temporal — consolidada 2026-08-17 (§4)
 - **Ambiguidade dd/mm × mm/dd é o problema central**, descoberto medindo: 39% a 50% dos valores de uma coluna `A/B/AAAA` são individualmente ambíguos. A prova vem da minoria com campo > 12 (`ecommerce`: mm/dd provado por 308.950 valores; `bcb/dolar` e `tesouro`: dd/mm provado). Quatro estados: provado dd/mm, provado mm/dd, **misturados** (provas dos dois lados = corrompido) e **indecidível**.
 - **Indecidível → reporta e não escolhe**: declara o impasse e **suspende as análises que dependem do dia** até `date_format`. O pandas escolhe em silêncio; nós dizemos que não dá para saber.
-- **Futuro é fato, nunca erro**: `tesouro/Data Vencimento` tem 39,43% no futuro **e está correto**. Substituímos "datas biologicamente impossíveis" (que exige semântica) pela **distribuição de horizonte** (`date_horizons`: 10/20/30/40/50/100 anos) — ideia do Sam, melhor que a alternativa.
+- **Futuro é fato, nunca erro**: `tesouro/Data Vencimento` tem 39,43% no futuro **e está correto**. Substituímos "datas biologicamente impossíveis" (que exige semântica) pela **distribuição de horizonte** (`date_horizons`: 10/20/30/40/50/100 anos) — ideia do Sam, melhor que a alternativa. **Bidirecional desde 2026-08-23** (o Sam notou que só cobria o passado): reporta `passado >N anos` e `futuro >N anos`. No Tesouro isso revela 1.540 vencimentos a mais de 50 anos à frente.
 - **Quebras de calendário/dtype** (levantadas pelo Sam, e nenhuma ferramenta examinada reporta): **rebase do Spark** (datas antes de 1582-10-15 mudam de valor entre calendário híbrido e proléptico ao ler Parquet/Avro), **lacuna gregoriana** (05–14/10/1582 não existem), **fora do datetime64[ns]** (antes de 1677-09-21 ou após 2262-04-11 — `1500-01-01` levanta OutOfBoundsDatetime no pandas mas o Spark cobre ano 1–9999), horário inexistente por DST e datas impossíveis (31/02).
 - Também: falha de parse, nulos na origem, granularidade real (netflix e BCB são diários disfarçados), datas-sentinela (1900-01-01, epoch, 9999-12-31), amostra dos extremos.
 - **Duração** (§4.2): herda a §3.2; unidade inteligente, mediana como resumo principal, negativas reportadas como fato; derivada de duas datas herda a incerteza da origem.
@@ -149,7 +149,11 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 
 ### Narrativas (data-to-text) — decidida 2026-08-16 (§7)
 - **Núcleo**: templates determinísticos em **pt-BR e inglês**, tom **acadêmico** no MVP (caso motivador: quem escreve TCC).
-- **Plug opcional**: LLM **local e gratuito** (Ollama — Llama 3.2 3B, Gemma 3 4B, Qwen 2.5 3B). **Nunca API de nuvem por padrão** — o dado não sai da máquina. *(Escolha explícita do Sam: "quero usando modelos gratuitos localmente".)*
+- 🚧 **Plug de LLM: EM CONSTRUÇÃO, não use como pronto.** O parâmetro `Config.narrative_llm` existe mas **nada o consome** — passar um valor hoje não faz nada. A trava de números (`narrative/numbers.py`) está implementada e testada; falta o cliente.
+  - Decisão original: LLM **local e gratuito**, nunca API de nuvem por padrão — o dado não sai da máquina. *(Escolha explícita do Sam: "quero usando modelos gratuitos localmente".)*
+  - **Problema levantado pelo Sam em 2026-08-23**: exigir instalação do Ollama contradiz "ajudar qualquer pessoa no mundo" — `pip install` não traz um binário externo + serviço + GB de pesos. Direção proposta (não decidida): contrato **agnóstico**, em que `narrative_llm` aceita qualquer função texto→texto e o maat nunca instala nem gerencia modelo.
+  - **Cuidado com licenças**: Llama usa licença própria da Meta (teto de 700M MAU, proibição de treinar concorrentes) — é "open-weights", não open source. No Qwen 2.5, **o 3B e o 72B têm licença própria**; os demais tamanhos (0.5B, 1.5B, 7B, 14B, 32B) são Apache 2.0. O Sam está avaliando o Qwen.
+  - **Insight registrado**: os templates inteiros têm ~8 KB (≈50 frases por idioma). Traduzir para um idioma novo pode ser mais simples e melhor que gerar em runtime — determinístico, instantâneo, revisável por falante nativo.
 - O LLM **não gera análise**: só reformula/traduz texto já pronto — foi assim que resolvemos o problema de idiomas que o Sam levantou.
 - **Trava de números**: após reformular, validar que todos os números do original aparecem intactos; se mudou, descartar e usar o template com aviso.
 
@@ -246,7 +250,7 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 6. Princípios "descreve, não julga" e "duas camadas" nascem das correções do Sam sobre a binária.
 7. 10 datasets de governo BR; exemplos da documentação passam a usar números reais verificados.
 8. Subpáginas por tipo (modelo aprovado com a binária).
-9. Arquitetura de narrativas (templates + Ollama local + trava de números).
+9. Arquitetura de narrativas (templates + trava de números; o plug de LLM segue em construção).
 10. Discreta e contínua consolidadas; auditoria que corrigiu README, enums e docstrings defasados.
 11. `CLAUDE.md` vira registro completo (decisões, porquês, ambiente, histórico).
 12. Cauda longa consolidada — o corolário "mostrar é obrigação, agir é do usuário" nasce da posição do Sam sobre variantes de grafia.

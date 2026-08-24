@@ -108,8 +108,36 @@ class Config:
     """Tom da narrativa. MVP: só acadêmico."""
 
     narrative_llm: str | None = None
-    """LLM local opcional para reformular/traduzir, ex.: "ollama/llama3.2:3b".
-    Nunca gera análise e nunca altera números (trava validada)."""
+    """🚧 EM CONSTRUÇÃO — este parâmetro ainda não tem efeito.
+
+    A intenção é permitir reformulação ou tradução do texto-template por um
+    LLM, sob a trava de números (que já existe em `narrative.numbers`). Falta
+    decidir o contrato: exigir Ollama instalado contradiz o objetivo de servir
+    qualquer pessoa, então a direção em avaliação é aceitar **qualquer função
+    texto→texto** fornecida pelo usuário, sem o maat instalar ou gerenciar
+    modelo algum.
+
+    O LLM nunca gera análise e nunca pode alterar números.
+    """
+
+    # --- privacidade (opt-in) ---
+    mask_pii: bool = False
+    """Mascara PII/PHI nas **amostras e ofensores** do resultado.
+
+    Usa o Microsoft Presidio, com reconhecedores próprios de CPF e CNPJ
+    validados por dígito verificador. O mascaramento é **parcial**:
+    `123.456.789-01` vira `***.456.789-**`, preservando a pontuação.
+
+    Exige `pip install 'maat[pii]'`. Se a flag estiver ligada e o Presidio
+    faltar, o maat **levanta erro** em vez de entregar dado exposto — nunca
+    mascaramos em silêncio.
+    """
+
+    pii_language: str = "en"
+    """Idioma do modelo do Presidio. O padrão baixa `en_core_web_lg` (~400 MB).
+    Para melhor detecção de nomes e endereços em português, instale
+    `pt_core_news_lg` e use "pt" — CPF e CNPJ são detectados por dígito
+    verificador e independem do idioma."""
 
     # --- sobrescritas de tipo ---
     overrides: dict[str, Any] = field(default_factory=dict)

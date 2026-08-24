@@ -165,6 +165,23 @@ def test_horizonte_e_futuro_sao_reportados():
     assert "no_futuro" in perfil.essencial
 
 
+def test_horizonte_cobre_passado_e_futuro():
+    """§4.1: uma data 60 anos à frente é tão notável quanto 60 anos atrás.
+
+    Antes o horizonte só media o passado, e o futuro virava um único
+    "N no futuro" — no Tesouro, um vencimento de 2027 ficava indistinguível
+    de um de 2084.
+    """
+    import pandas as pd
+
+    df = pd.DataFrame({
+        "quando": pd.to_datetime(["1966-01-01", "2086-01-01", "2026-01-01"])
+    })
+    horizonte = maat.describe(df)["quando"].essencial["horizonte"]
+    assert horizonte["passado >50 anos"] == 1
+    assert horizonte["futuro >50 anos"] == 1
+
+
 # --------------------------------------------------------------------------
 # §3.3 identificador e rank
 # --------------------------------------------------------------------------

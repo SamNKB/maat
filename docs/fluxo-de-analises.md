@@ -500,7 +500,7 @@ Descoberto medindo: em toda coluna com padrão `A/B/AAAA`, **39% a 50% dos valor
 | **Granularidade real** | timestamp que é diário disfarçado | netflix e BCB: todo horário é `00:00` |
 | **Cobertura** | mínimo, máximo, amplitude | tesouro: 2005 a **2084** (29.200 dias) |
 | **No futuro** | contagem e % após hoje | tesouro: **39,43%** — e está **correto** (data de vencimento). Futuro é fato, nunca erro |
-| **Horizonte** | quantas datas passam de 10/20/30/40/50/100 anos | substitui "biologicamente impossível" sem exigir semântica: o absurdo fica visível sem o maat saber o que a coluna significa |
+| **Horizonte** | quantas datas passam de 10/20/30/40/50/100 anos, **no passado e no futuro** | substitui "biologicamente impossível" sem exigir semântica: o absurdo fica visível sem o maat saber o que a coluna significa. A simetria importa — o Tesouro tem **1.540 vencimentos a mais de 50 anos à frente**, informação que se perderia num único "72,6% no futuro" |
 | **Datas-sentinela** | `1900-01-01` e `1899-12-30` (zero do Excel), `1970-01-01` (epoch), `0001-01-01`, `9999-12-31`, `2999-12-31` | significam "vazio", não um instante |
 | **Amostra dos extremos** | as N datas mais antigas e mais futuras | mesma lógica da contínua (§3.2) |
 
@@ -633,14 +633,18 @@ O maat gera, junto com cada perfil, **prosa pronta para uso** — o caso motivad
 **Arquitetura (decisão)**:
 
 1. **Núcleo determinístico**: templates por tipo/regime em **pt-BR e inglês**, preenchidos com os números do `ColumnProfile`. Sem dependências, offline, números que nunca mentem. Tom do MVP: **acadêmico** (outros tons ficam para depois).
-2. **Plug opcional de LLM local e gratuito (Ollama)** — nunca APIs de nuvem por padrão: o dado do usuário não sai da máquina. O LLM **não gera análise**: só reformula/traduz o texto-template pronto para outros idiomas ou estilos. Modelos sugeridos (pequenos bastam para reformular): Llama 3.2 3B, Gemma 3 4B, Qwen 2.5 3B.
+2. 🚧 **Plug de LLM — EM CONSTRUÇÃO.** O parâmetro existe, mas o cliente ainda não; passar um valor hoje não tem efeito.
+   - Princípio mantido: o LLM **não gera análise**, só reformula ou traduz o texto-template já pronto, e o dado do usuário não sai da máquina.
+   - **Questão aberta** (levantada em 2026-08-23): exigir instalação de Ollama contradiz o objetivo de servir qualquer pessoa — `pip install` não traz binário externo, serviço e gigabytes de pesos. A direção em avaliação é um **contrato agnóstico**: `narrative_llm` aceita qualquer função texto→texto, e o maat nunca instala nem gerencia modelo.
+   - **Licenças importam**: Llama é "open-weights" sob licença própria da Meta (teto de 700M usuários, proibição de treinar concorrentes). No Qwen 2.5, **o 3B e o 72B têm licença própria**; 0.5B, 1.5B, 7B, 14B e 32B são Apache 2.0.
+   - **Alternativa em avaliação**: como os templates inteiros têm ~8 KB (≈50 frases por idioma), traduzir diretamente pode superar a geração em runtime em todos os eixos — determinístico, instantâneo, sem instalação e revisado por falante nativo.
 3. **Trava de números** ([`narrative/numbers.py`](../src/maat/narrative/numbers.py), implementada): após qualquer reformulação, validação determinística — todos os números do template original devem aparecer intactos no texto reformulado (comparação dos tokens numéricos dos dois lados). Se o LLM alterou um número, o texto é descartado e o usuário recebe o template original com aviso. Alucinação numérica vira erro detectado, não risco silencioso.
 
 ```python
 maat.describe(df, config=maat.Config(
     language="pt-BR",              # idioma do núcleo de templates (pt-BR | en)
     narrative_tone="academico",    # MVP: só acadêmico
-    narrative_llm=None,            # ex.: "ollama/llama3.2:3b" — opcional, local
+    narrative_llm=None,            # 🚧 em construção — hoje não tem efeito
 ))
 ```
 

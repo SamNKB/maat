@@ -55,7 +55,7 @@ Datas não cabem em qualitativa nem em quantitativa porque são **as duas coisas
 2. **O maat descreve, não julga** — contagens, proporções e amostras; sem quality gates nem vereditos. *Corolário: mostrar é obrigação, agir é do usuário* — se o dado tem problema visível, o maat mostra o fato com o critério declarado junto, e você decide se corrige.
 3. **Duas camadas em todo perfil** — essencial (legível por qualquer pessoa) e completa (profundidade estatística).
 4. **O custo mora no backend** — agregações no motor; o visual recebe só dados pré-agregados.
-5. **Narrativas com números garantidos** — prosa acadêmica por templates determinísticos, com LLM local opcional apenas para reformular, sob trava de validação numérica.
+5. **Narrativas com números garantidos** — prosa acadêmica por templates determinísticos em pt-BR e inglês. A reformulação por LLM está 🚧 **em construção**: a trava de validação numérica já existe e é testada, mas o cliente ainda não; o parâmetro `narrative_llm` hoje não tem efeito.
 
 ## O que ele detecta que outros não detectam
 
@@ -76,6 +76,7 @@ Tudo determinístico e independente de idioma — nunca inferência difusa:
 pip install -e ".[pandas]"        # local
 pip install -e ".[spark]"         # distribuído
 pip install -e ".[pandas,yaml,dev]"
+pip install -e ".[pii]"           # mascaramento de PII/PHI (~400 MB de modelo)
 ```
 
 O núcleo não tem dependências: taxonomia, inferência e renderizadores são código puro. Cada backend traz a sua.
@@ -104,9 +105,11 @@ profile = maat.describe(df, maat.Config(
     ordinal_levels={"quality": [3, 4, 5, 6, 7, 8]},  # declara a ordem
     date_format={"data": "dd/mm"},                   # resolve a ambiguidade
     language="pt-BR",                                # ou "en"
-    narrative_llm=None,                              # "ollama/llama3.2:3b" opcional
+    narrative_llm=None,                              # 🚧 em construção — hoje não tem efeito
+    mask_pii=False,                                  # mascara PII/PHI nas amostras
 ))
 ```
+
 
 ## Estrutura do projeto
 

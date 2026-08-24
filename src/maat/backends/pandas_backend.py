@@ -334,10 +334,14 @@ class PandasBackend(Backend):
             return {"n": 0}
 
         hoje = pd.Timestamp.now().normalize()
-        idade_anos = (hoje - d).dt.days / 365.25
-        horizonte = {
-            f">{a} anos": int((idade_anos > a).sum()) for a in self.config.date_horizons
-        }
+        # Horizonte nos DOIS sentidos: uma data 60 anos no futuro é tão
+        # notável quanto uma 60 anos no passado, e contar só o passado
+        # esconderia metade do absurdo. No Tesouro, os vencimentos vão a 2084.
+        distancia_anos = (hoje - d).dt.days / 365.25
+        horizonte = {}
+        for a in self.config.date_horizons:
+            horizonte[f"passado >{a} anos"] = int((distancia_anos > a).sum())
+            horizonte[f"futuro >{a} anos"] = int((distancia_anos < -a).sum())
 
         sentinelas = {}
         formatadas = d.dt.strftime("%Y-%m-%d")
