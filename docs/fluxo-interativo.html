@@ -98,7 +98,7 @@
 <div class="bar">
   <span class="chip"><span class="dot" style="background:var(--cyan)"></span>tipo / resultado</span>
   <span class="chip"><span class="dot" style="background:var(--violet)"></span>decisão</span>
-  <span class="chip"><span class="dot" style="background:var(--magenta)"></span>regime de cardinalidade</span>
+  <span class="chip"><span class="dot" style="background:var(--magenta)"></span>fluxo entre etapas</span>
   <span class="chip"><span class="dot" style="background:var(--amber)"></span>aviso</span>
   <span class="chip"><span class="dot" style="background:var(--steel)"></span>identificador</span>
   <span class="chip" title="cardinalidade"><b style="color:var(--mint)">k</b>&nbsp;= nº de valores distintos da coluna</span>
@@ -178,14 +178,14 @@ const NODES=[
  {id:"r",k:"decisao",kk:"DECISÃO",x:1220,y:840,t:"Regime por k e k/n",s:"limiares do usuário",
   d:"Os dois limiares são parâmetros de maat.Config: max_categorical_levels (default 30) e textual_unique_ratio (default 0.5).",
   ex:["education k=16 → categórico","neighbourhood k=221 → cauda longa","name k/n=0,98 → textual"],an:["Regime é modificador, não tipo","Coluna migra de regime quando os dados crescem"]},
- {id:"rc",k:"regime",kk:"REGIME",x:900,y:900,t:"Categórico",s:"ex.: sexo, UF",
+ {id:"rc",k:"tipo",kk:"REGIME",x:900,y:900,t:"Categórico",s:"ex.: sexo, UF",h:"tipos/categorico.html",
   d:"Poucos níveis: todos aparecem no resumo e no gráfico. O mundo clássico da tabela de frequências.",
   ex:["adult education: k=16 · top HS-grad 32%","uf: k=27"],an:["Frequências completas (abs. e %)","Moda e força da moda","Completa: entropia e desbalanceamento","Barras ordenadas / lollipop"]},
- {id:"rl",k:"regime",kk:"REGIME",x:1130,y:940,t:"Cauda longa",s:"ex.: cidade, produto",
+ {id:"rl",k:"tipo",kk:"REGIME",x:1130,y:940,t:"Cauda longa",s:"ex.: cidade, produto",
   d:"Muitos níveis com repetição relevante: a frequência ainda importa, mas mostrar tudo afoga o leitor.",
   h:"tipos/cauda-longa.html",
   ex:["nyc neighbourhood: k=221 · 36 para 80%","câmara fornecedor: k=22.024 · 43,1% singletons"],an:["Essencial: top-10 + linha 'Outros' (declara quantos níveis agrega)","Essencial: concentração — níveis para 50% / 80% / 95%","Essencial: k, singletons e nº de grupos de variantes de grafia","Variantes: critério determinístico (minúsculas, sem acento, espaços) — mostra, nunca corrige","Completa: Herfindahl, entropia, lista de variantes","Visual: Pareto"]},
- {id:"rt",k:"regime",kk:"REGIME",x:1360,y:900,t:"Textual",s:"ex.: e-mail, nome, endereço",
+ {id:"rt",k:"tipo",kk:"REGIME",x:1360,y:900,t:"Textual",s:"ex.: e-mail, nome, endereço",
   d:"k ≈ n: frequência vira inútil e a própria string é o objeto de análise — forma, padrão e sujeira, sempre com amostras dirigidas.",
   h:"tipos/textual.html",
   ex:["nyc name: k/n = 0,98 · 6 checagens disparam","sms-spam: 89 URLs embutidas","câmara: máscara AAA domina (31.514)"],an:["Essencial: comprimento + amostras (curtas, longas e aleatórias)","Completa: máscara de caractere (Aa9)","Padrão dominante com aderência E amostra das violações","15 checagens de sujeira + extensão pelo usuário","Sem lista de palavrões: é juízo, não descrição","Custo medido: ~11 µs por string, sempre na base inteira"]}

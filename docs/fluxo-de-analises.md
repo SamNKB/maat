@@ -171,7 +171,13 @@ flowchart LR
 
 Os limiares exatos entre regimes são **parâmetros do usuário** (seção 1.2) — resta calibrar os defaults com uso real. Importante: o regime **não é um tipo** — é um modificador que seleciona a estratégia dentro do tipo. Uma coluna pode migrar de regime quando os dados crescem.
 
-### 2.1 Nominal em regime categórico (sexo, UF, canal de venda)
+### 2.1 Nominal em regime categórico (sexo, UF, canal de venda) — ✅ consolidada em 2026-08-23
+
+> 🔍 **Página detalhada**: [tipos/categorico.html](tipos/categorico.html) ([versão pública](https://samnkb.github.io/maat/tipos/categorico.html)).
+
+O caso-base da nominal, que ficou implícito enquanto os outros regimes eram discutidos. **Essencial**: tabela de frequência completa (todos os níveis), moda e força da moda — que responde o que a moda sozinha não responde (`adult/education`: moda `HS-grad` com apenas 32,3%, ou seja, o dominante ainda é minoria). **Completa**: entropia normalizada e razão de desbalanceamento, que resumem a forma num número e permitem comparar colunas (`education` 0,733 contra `workclass` 0,520, onde `Private` concentra 69,7%).
+
+O aviso *"possível ordinal"* aparece **só aqui**: em cauda longa ou textual seria ruído, porque ninguém declara ordem para 22 mil fornecedores.
 
 **Resumos numéricos**
 

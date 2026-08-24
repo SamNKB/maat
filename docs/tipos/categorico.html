@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maat // regimes // nominal categorico</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+  :root{
+    --void:#05070F; --navy:#0A0E1A; --panel:#101828; --cyan:#00E5FF; --ice:#E6F7FF;
+    --magenta:#FF2E88; --violet:#9D4EDD; --steel:#3A4A63; --mist:#8FA3BF;
+    --amber:#FFB03A; --mint:#3DF5C6;
+  }
+  *{box-sizing:border-box; margin:0}
+  body{
+    background:radial-gradient(ellipse at 30% -10%, #0D1526 0%, var(--void) 60%);
+    color:var(--ice); font-family:'Space Grotesk',sans-serif; min-height:100vh;
+    padding:28px 24px 48px; line-height:1.65;
+  }
+  main{max-width:860px; margin:0 auto}
+  nav{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mist); margin-bottom:26px}
+  nav a{color:var(--cyan); text-decoration:none}
+  nav a:hover{text-shadow:0 0 10px rgba(0,229,255,.6)}
+  .status{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px;
+    color:var(--mint); border:1px solid rgba(61,245,198,.45); border-radius:999px; padding:3px 12px; margin-bottom:14px;
+  }
+  h1{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:34px; letter-spacing:1px;
+     color:var(--cyan); text-shadow:0 0 18px rgba(0,229,255,.4); margin-bottom:6px}
+  h1 small{color:var(--mist); font-size:16px; font-weight:500; display:block; letter-spacing:0}
+  h2{font-family:'Rajdhani',sans-serif; font-weight:600; font-size:21px; color:var(--cyan);
+     margin:38px 0 12px; letter-spacing:.5px}
+  h2 .tag{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:1.5px;
+     color:var(--violet); border:1px solid var(--violet); border-radius:5px; padding:2px 8px;
+     vertical-align:middle; margin-left:10px}
+  p{color:var(--ice); font-size:15px; margin-bottom:10px}
+  .muted{color:var(--mist); font-size:13.5px}
+  .card{background:var(--panel); border:1px solid var(--steel); border-radius:12px; padding:18px 20px; margin:14px 0}
+  table{width:100%; border-collapse:collapse; font-size:14px; margin:8px 0}
+  th{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--mist);
+     text-align:left; padding:8px 10px; border-bottom:1px solid var(--steel)}
+  td{padding:7px 10px; border-bottom:1px solid rgba(58,74,99,.35)}
+  td.num{font-family:'JetBrains Mono',monospace; color:var(--ice); text-align:right}
+  tr.outros td{color:var(--mist); font-style:italic}
+  .vbar{display:flex; align-items:center; gap:10px; margin:3px 0}
+  .vbar .lab{font-size:12.5px; color:var(--ice); width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .vbar .track{flex:1; background:var(--navy); border:1px solid rgba(58,74,99,.5); border-radius:5px; height:19px; overflow:hidden}
+  .vbar .fill{height:100%; background:rgba(255,46,136,.28); border-right:1px solid var(--magenta);
+     display:flex; align-items:center; padding:0 7px; font-family:'JetBrains Mono',monospace;
+     font-size:10.5px; color:var(--magenta); white-space:nowrap}
+  .stats{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+  .stat{border:1px solid var(--steel); border-radius:8px; padding:8px 14px; text-align:center; flex:1; min-width:92px}
+  .stat b{display:block; font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:700; color:var(--cyan)}
+  .stat span{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--mist)}
+  .stat.hot b{color:var(--magenta)}
+  .warn{border-color:rgba(255,176,58,.5)}
+  .warn h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:17px; margin-bottom:6px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+  .g .src a{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(0,229,255,.5)}
+  .g .src a:hover{text-shadow:0 0 8px rgba(0,229,255,.6)}
+  .g .src{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist)}
+  .g h3{font-family:'Rajdhani',sans-serif; font-size:17px; color:var(--ice); margin:2px 0 4px}
+  code{font-family:'JetBrains Mono',monospace; font-size:.92em; color:var(--mint);
+       background:rgba(61,245,198,.08); border-radius:4px; padding:1px 5px}
+  blockquote{border-left:2px solid var(--violet); padding:10px 16px; margin:10px 0;
+     background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
+  footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
+  footer a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<main>
+<nav><a href="../fluxo-interativo.html">&larr; grafo interativo</a> &nbsp;&middot;&nbsp; maat // regimes // <span style="color:var(--ice)">nominal categ&oacute;rico</span> &nbsp;&middot;&nbsp; <a href="../fluxo-de-analises.md">fluxo-de-analises.md &sect;2.1</a></nav>
+
+<span class="status">CONSOLIDADA &middot; 2026-08-23</span>
+<h1>Nominal &middot; regime categ&oacute;rico<small>poucos n&iacute;veis &mdash; o caso em que cabe mostrar tudo</small></h1>
+
+<p>&Eacute; o regime mais simples e o mais comum: <strong>k pequeno o bastante para todos os n&iacute;veis aparecerem</strong> no resumo e no gr&aacute;fico. Vale enquanto <code>k &le; max_categorical_levels</code> (default 30) &mdash; acima disso a nominal migra para <a href="cauda-longa.html">cauda longa</a> ou <a href="textual.html">textual</a>.</p>
+
+<h2>Camada essencial <span class="tag">TODOS OS N&Iacute;VEIS</span></h2>
+<div class="card">
+  <p class="muted">Tabela de frequ&ecirc;ncia completa, moda e for&ccedil;a da moda. <code>education</code> do adult-census (n = 32.561, k = 16):</p>
+  <table>
+    <tr><th>N&Iacute;VEL</th><th style="text-align:right">ABSOLUTO</th><th style="text-align:right">% V&Aacute;LIDOS</th></tr>
+    <tr><td>HS-grad</td><td class="num">10.501</td><td class="num">32,3%</td></tr>
+    <tr><td>Some-college</td><td class="num">7.291</td><td class="num">22,4%</td></tr>
+    <tr><td>Bachelors</td><td class="num">5.355</td><td class="num">16,4%</td></tr>
+    <tr><td class="muted">&hellip; e mais 13 n&iacute;veis, todos exibidos</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+  </table>
+  <div class="stats">
+    <div class="stat"><b>16</b><span>N&Iacute;VEIS (k)</span></div>
+    <div class="stat"><b>HS-grad</b><span>MODA</span></div>
+    <div class="stat"><b>32,3%</b><span>FOR&Ccedil;A DA MODA</span></div>
+  </div>
+  <p class="muted" style="margin-top:10px">A <strong>for&ccedil;a da moda</strong> responde &agrave; pergunta que a moda sozinha n&atilde;o responde: <em>o n&iacute;vel dominante domina de verdade?</em> Aqui 32,3% significa que o mais comum ainda &eacute; minoria.</p>
+</div>
+
+<h2>Camada completa <span class="tag">PARA QUEM QUER PROFUNDIDADE</span></h2>
+<div class="card">
+  <p class="muted">Duas medidas que resumem a forma da distribui&ccedil;&atilde;o num n&uacute;mero s&oacute;, permitindo comparar colunas entre si:</p>
+  <table>
+    <tr><th>COLUNA</th><th>k</th><th>FOR&Ccedil;A DA MODA</th><th>ENTROPIA NORM.</th><th>DESBALANCEAMENTO</th></tr>
+    <tr><td><code>adult/education</code></td><td class="num">16</td><td class="num">32,3%</td><td class="num">0,733</td><td class="num">206:1</td></tr>
+    <tr><td><code>adult/workclass</code></td><td class="num">9</td><td class="num">69,7%</td><td class="num">0,520</td><td class="num">3.242:1</td></tr>
+    <tr><td><code>mushrooms/odor</code></td><td class="num">9</td><td class="num">&mdash;</td><td class="num">0,732</td><td class="num">&mdash;</td></tr>
+  </table>
+  <p class="muted"><strong>Entropia normalizada</strong> vai de 0 (tudo num n&iacute;vel s&oacute;) a 1 (perfeitamente equilibrado). O contraste entre <code>education</code> (0,733) e <code>workclass</code> (0,520) diz, num n&uacute;mero, que a escolaridade se espalha bem mais que o tipo de v&iacute;nculo &mdash; onde <code>Private</code> concentra 69,7%. A <strong>raz&atilde;o de desbalanceamento</strong> compara o n&iacute;vel mais comum com o mais raro: 3.242 para 1 em <code>workclass</code>.</p>
+  <p class="muted">Ambas moram na completa por decis&atilde;o (&sect;0.3): exigem leitura estat&iacute;stica, e a essencial precisa ser leg&iacute;vel por qualquer pessoa.</p>
+</div>
+
+<h2>Poss&iacute;vel ordinal <span class="tag">A INFER&Ecirc;NCIA PROP&Otilde;E</span></h2>
+<div class="card warn">
+  <h3>Toda categ&oacute;rica com mais de 2 n&iacute;veis recebe uma observa&ccedil;&atilde;o</h3>
+  <p class="muted"><em>"Poss&iacute;vel ordinal: declare a ordem dos n&iacute;veis para habilitar acumulada e categoria mediana."</em></p>
+  <p class="muted">O <code>education</code> &eacute; o exemplo perfeito: <code>Preschool</code> &lt; <code>1st-4th</code> &lt; &hellip; &lt; <code>Bachelors</code> &lt; <code>Doctorate</code> tem ordem &oacute;bvia para um humano, mas o maat n&atilde;o adivinha &mdash; dicion&aacute;rio de escalas foi <strong>recusado</strong> por depender de idioma e contexto regional (&sect;2.3). Declarando a ordem em <code>ordinal_levels</code>, a coluna vira <a href="ordinal.html">ordinal</a> e ganha a frequ&ecirc;ncia acumulada e a categoria mediana.</p>
+  <p class="muted">O aviso s&oacute; aparece no regime categ&oacute;rico: em cauda longa ou textual seria ru&iacute;do, porque ningu&eacute;m declara ordem para 22 mil fornecedores.</p>
+</div>
+
+<h2>Visual recomendado</h2>
+<div class="card">
+  <p class="muted"><strong>Barras ordenadas por frequ&ecirc;ncia</strong> &mdash; o padr&atilde;o do regime, at&eacute; ~15 categorias. Acima disso, lollipop mant&eacute;m a leitura limpa. <strong>Pizza fica fora</strong>: s&oacute; funciona com 4 n&iacute;veis ou menos, e mesmo a&iacute; a barra vence em precis&atilde;o de compara&ccedil;&atilde;o.</p>
+  <p class="muted">Diferente da <a href="ordinal.html">ordinal</a>, aqui ordenar por frequ&ecirc;ncia &eacute; correto: sem ordem natural, a frequ&ecirc;ncia &eacute; a &uacute;nica ordena&ccedil;&atilde;o informativa.</p>
+</div>
+
+<h2>Narrativa gerada <span class="tag">TOM ACAD&Ecirc;MICO</span></h2>
+<blockquote>A vari&aacute;vel <strong>education</strong> &eacute; qualitativa nominal, observada em 32.561 registros, sem valores ausentes, com 16 n&iacute;veis distintos. O n&iacute;vel mais frequente &eacute; <strong>HS-grad</strong> (10.501 registros; 32,3%).</blockquote>
+
+<h2>Categ&oacute;ricas reais do benchmark</h2>
+<div class="grid">
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/uciml/adult-census-income?select=adult.csv" target="_blank" rel="noopener">adult-census</a></span><h3>education</h3><p class="muted">k=16 &middot; entropia 0,733 &middot; a ordinal disfar&ccedil;ada cl&aacute;ssica</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/uciml/adult-census-income?select=adult.csv" target="_blank" rel="noopener">adult-census</a></span><h3>workclass</h3><p class="muted">k=9 &middot; <code>Private</code> concentra 69,7% &middot; desbalanceamento 3.242:1</p></div>
+  <div class="card g"><span class="src"><a href="https://www.kaggle.com/datasets/uciml/mushroom-classification" target="_blank" rel="noopener">mushrooms</a></span><h3>22 colunas categ&oacute;ricas</h3><p class="muted">dataset inteiramente qualitativo &mdash; <code>odor</code> tem k=9</p></div>
+  <div class="card g"><span class="src"><a href="https://www.camara.leg.br/transparencia/gastos-parlamentares" target="_blank" rel="noopener">gov-camara-cota</a></span><h3>txtDescricao</h3><p class="muted">k=18 &middot; mesma tabela cujo <code>txtFornecedor</code> tem k=22.024 &mdash; o regime &eacute; do dado, n&atilde;o do dataset</p></div>
+</div>
+
+<footer>maat &middot; reproduza os n&uacute;meros: <code>python scripts/benchmark_examples.py</code> &middot; decis&otilde;es em <a href="../fluxo-de-analises.md">fluxo-de-analises.md</a> (&sect;2.1) &middot; <a href="binaria.html">bin&aacute;ria</a> &middot; <a href="cauda-longa.html">cauda longa</a> &middot; <a href="ordinal.html">ordinal</a> &middot; <a href="textual.html">textual</a> &middot; <a href="discreta.html">discreta</a> &middot; <a href="continua.html">cont&iacute;nua</a> &middot; <a href="temporal.html">temporal</a> &middot; <a href="nao-quantidades.html">n&atilde;o-quantidades</a> &middot; <a href="https://github.com/SamNKB/maat">github.com/SamNKB/maat</a></footer>
+</main>
+</body>
+</html>

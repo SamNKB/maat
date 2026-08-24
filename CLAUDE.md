@@ -263,4 +263,4 @@ O mais próximo é **ydata-profiling** (ex-pandas-profiling): perfil por coluna,
 16. **2026-08-17** — §3.3 consolidada: identificador vira três rotas (chave/código/rank); o dicionário de nomes é recusado e a decisão passa a apoiar-se em sinais medidos.
 15. **2026-08-17** — baseline competitivo executado: ydata-profiling sobre 39 datasets, 625 colunas comparadas (`docs/comparacao-ydata.md`). Um erro de metodologia (modo mínimo desativa inferência de datas) quase virou conclusão falsa a nosso favor e foi corrigido antes de publicar.
 
-**Consolidados até aqui**: binária (§2.5) · cauda longa (§2.2) · ordinal (§2.3) · **textual (§2.4)** · discreta (§3.1) · contínua (§3.2) · **identificador/código/rank (§3.3)** · **temporal (§4)** — cada um com subpágina em `docs/tipos/`.
+**Consolidados até aqui**: binária (§2.5) · **categórico (§2.1)** · cauda longa (§2.2) · ordinal (§2.3) · textual (§2.4) · discreta (§3.1) · contínua (§3.2) · identificador/código/rank (§3.3) · temporal (§4) — todos com subpágina em `docs/tipos/` — cada um com subpágina em `docs/tipos/`.
