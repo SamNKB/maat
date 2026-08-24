@@ -214,8 +214,7 @@ NODES.forEach(n=>{
   el.style.left=n.x+"px"; el.style.top=n.y+"px";
   canvas.appendChild(el); els[n.id]=el;
   el.addEventListener("pointerdown",e=>startDrag(e,n.id));
-  el.addEventListener("pointerenter",()=>{if(!drag)showTip(n)});
-  el.addEventListener("pointermove",e=>{if(!drag)moveTip(e)});
+  el.addEventListener("pointerenter",()=>{if(!drag)showTip(n,el)});
   el.addEventListener("pointerleave",hideTip);
 });
 function anchors(a,b){
@@ -264,20 +263,34 @@ document.addEventListener("pointerup",()=>{
   }
   drag=null;
 });
-function showTip(n){
+function showTip(n,el){
   tip.innerHTML=`<h5>${n.t}</h5><p>${n.d}</p>
-    <div class="lbl">EXEMPLOS</div><div class="exs">${n.ex.map(e=>`<span class="ex">${e}</span>`).join("")}</div>
+    <div class="lbl">EXEMPLOS REAIS DO BENCHMARK</div><div class="exs">${n.ex.map(e=>`<span class="ex">${e}</span>`).join("")}</div>
     ${n.an.length?`<div class="lbl">ANÁLISES / NOTAS</div><ul>${n.an.map(a=>`<li>${a}</li>`).join("")}</ul>`:""}
     ${n.h?`<div class="lbl" style="margin-top:10px;color:var(--cyan)">CLIQUE PARA ABRIR A PÁGINA DETALHADA →</div>`:""}`;
   tip.style.display="block";
+  posicionarTip(el);
 }
-function moveTip(e){
-  const w=330,h=tip.offsetHeight;
-  let x=e.clientX+18,y=e.clientY+14;
-  if(x+w>innerWidth)x=e.clientX-w-14;
-  if(y+h>innerHeight)y=Math.max(8,innerHeight-h-8);
-  tip.style.left=x+"px"; tip.style.top=y+"px";
+
+// Ancora no CARD, nao no cursor. Antes `showTip` so ligava o display e
+// deixava o posicionamento para o `pointermove` — quem entrasse no card sem
+// mexer o mouse via o balao no rodape da pagina, ou seja, nao via.
+function posicionarTip(el){
+  if(!el) return;
+  const r=el.getBoundingClientRect(), w=tip.offsetWidth, h=tip.offsetHeight, folga=12;
+  let x=r.right+folga;
+  if(x+w>innerWidth) x=r.left-w-folga;
+  if(x<folga) x=Math.max(folga,(innerWidth-w)/2);
+  let y=r.top;
+  if(y+h>innerHeight) y=innerHeight-h-folga;
+  // trava nas duas bordas: o grafo tem rolagem interna, e um card perto do
+  // limite jogaria o balao para fora da tela
+  x=Math.min(Math.max(folga,x), innerWidth-w-folga);
+  y=Math.min(Math.max(folga,y), innerHeight-h-folga);
+  tip.style.left=Math.round(x)+"px";
+  tip.style.top=Math.round(y)+"px";
 }
+
 function hideTip(){tip.style.display="none"}
 document.getElementById("reset").onclick=()=>{
   NODES.forEach(n=>{pos[n.id]=[...orig[n.id]];
