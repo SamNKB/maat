@@ -10,7 +10,8 @@ from __future__ import annotations
 from typing import Any
 
 from maat.core.profile import ColumnProfile
-from maat.core.taxonomy import CardinalityRegime, VariableSubtype
+from maat.core.taxonomy import (CardinalityRegime, VariableSubtype,
+                                granularidade_legivel)
 
 # --------------------------------------------------------------------------
 # formatação numérica por idioma
@@ -311,10 +312,11 @@ def _temporal(perfil: ColumnProfile, idioma: str) -> str:
             f"({_num(cob.get('amplitude_dias'), 0, idioma)} dias)"
         )
     if e.get("granularidade"):
+        rotulo = granularidade_legivel(e["granularidade"], idioma)
         texto += (
-            f", at {e['granularidade']} granularity"
+            f", at {rotulo} granularity"
             if idioma == "en"
-            else f", com granularidade {e['granularidade']}"
+            else f", com granularidade {rotulo}"
         )
     if e.get("no_futuro"):
         texto += (

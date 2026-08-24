@@ -59,6 +59,42 @@
      background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -111,8 +147,8 @@
         <tr><th>VALOR</th><th>OCORRÊNCIAS</th></tr>
         <tr><td class="num">0</td><td class="num">×11</td></tr>
         <tr><td class="num">10</td><td class="num">×17</td></tr>
-        <tr><td class="num">11</td><td class="num">×1</td></tr>
-        <tr><td class="num">12</td><td class="num">×1</td></tr>
+        <tr><td class="num">11</td><td class="num">×3</td></tr>
+        <tr><td class="num">12</td><td class="num">×4</td></tr>
         <tr><td class="num">13</td><td class="num">×1</td></tr>
       </table>
     </div>
@@ -135,6 +171,42 @@
   <h3>price é inteiro — e não é contagem</h3>
   <p class="muted">O nyc armazena a diária em dólares cheios (dtype inteiro), e a heurística mandaria a coluna para discreta em regime histograma. É o caso-exemplo de <strong>reclassificação para contínua</strong>: medição arredondada não é contagem. Simétrico ao <code>quality</code> do wine (inteiro que é escala Likert → ordinal).</p>
 </div>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">Mensalidade com centavos: as casas decimais medem em vez de contar, e é isso que separa contínua de discreta. A tabela de extremos entrega os limites reais do plano — 18,25 e 118,75 — sem pedir que ninguém interprete um desvio padrão.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>telco-churn/WA_Fn-UseC_-Telco-Customer-Churn.csv</b> &middot; coluna
+    <b>MonthlyCharges</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="MonthlyCharges">MonthlyCharges</h2><div class="card"><span class="chip tipo">quantitative/continuous</span><span class="chip">n = 7.043</span><span class="chip">ausentes 0</span><div class="narrativa">A variável <strong>MonthlyCharges</strong> é quantitativa contínua, observada em 7.043 registros, sem valores ausentes, variando de 18,25 a 118,75. Média (64,76) e mediana (70,35) são próximas, sugerindo distribuição equilibrada.</div><div class="metricas"><div class="metrica"><b>18,25</b><span>MÍN</span></div><div class="metrica"><b>35,5</b><span>Q1</span></div><div class="metrica"><b>70,35</b><span>MEDIANA</span></div><div class="metrica"><b>64,76</b><span>MÉDIA</span></div><div class="metrica"><b>89,85</b><span>Q3</span></div><div class="metrica"><b>118,75</b><span>MÁX</span></div></div><table><tr><th>MAIORES VALORES</th><th>OCORRÊNCIAS</th></tr><tr><td>118,75</td><td class="num">1</td></tr><tr><td>118,65</td><td class="num">1</td></tr><tr><td>118,6</td><td class="num">2</td></tr><tr><td>118,35</td><td class="num">1</td></tr><tr><td>118,2</td><td class="num">1</td></tr></table><table><tr><th>MENORES VALORES</th><th>OCORRÊNCIAS</th></tr><tr><td>18,25</td><td class="num">1</td></tr><tr><td>18,4</td><td class="num">1</td></tr><tr><td>18,55</td><td class="num">1</td></tr><tr><td>18,7</td><td class="num">2</td></tr><tr><td>18,75</td><td class="num">1</td></tr></table><div class="sub">completa — p1: 19,2 · p5: 19,65 · p95: 107,4 · p99: 114,73 · desvio_padrao: 30,09 · iqr: 54,35 · cv: 0,4646 · assimetria: -0,2205 · curtose: -1,257 · atipicos_iqr: 0 · pct_atipicos_iqr: 0 · criterio_atipicos: fora de [q1 − 1,5×IQR, q3 + 1,5×IQR]; descritivo, nunca veredito de erro</div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;telco-churn/WA_Fn-UseC_-Telco-Customer-Churn.csv&quot;)
+maat.describe(df[[&#x27;MonthlyCharges&#x27;]])[&quot;MonthlyCharges&quot;]</pre>
+<h2>Antes: o que a infer&ecirc;ncia prop&otilde;e <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">A diária do NYC é gravada em dólares inteiros, então a inferência a manda para discreta em regime histograma. Não é erro: é o que o dado mostra. Quem sabe que aquilo é medição arredondada declara o tipo — e as duas saídas abaixo, uma sob a outra, são o princípio <em>a inferência propõe, o usuário dispõe</em> em forma de output.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>nyc-airbnb/AB_NYC_2019.csv</b> &middot; coluna
+    <b>price</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="price">price</h2><div class="card"><span class="chip tipo">quantitative/discrete[histogram]</span><span class="chip">n = 48.895</span><span class="chip">ausentes 0</span><div class="narrativa">A variável <strong>price</strong> é quantitativa discreta, observada em 48.895 registros, sem valores ausentes, variando de 0 a 10.000, com média 152,72 e mediana 106,00.</div><div class="metricas"><div class="metrica"><b>0</b><span>MÍN</span></div><div class="metrica"><b>106</b><span>MEDIANA</span></div><div class="metrica"><b>152,72</b><span>MÉDIA</span></div><div class="metrica"><b>10.000</b><span>MÁX</span></div></div><table><tr><th>MAIS FREQUENTES</th><th>REGISTROS</th></tr><tr><td>100</td><td class="num">2.051</td></tr><tr><td>150</td><td class="num">2.047</td></tr><tr><td>50</td><td class="num">1.534</td></tr><tr><td>60</td><td class="num">1.458</td></tr><tr><td>200</td><td class="num">1.401</td></tr></table><table><tr><th>MENOS FREQUENTES</th><th>REGISTROS</th></tr><tr><td>8.500</td><td class="num">1</td></tr><tr><td>8.000</td><td class="num">1</td></tr><tr><td>7.703</td><td class="num">1</td></tr><tr><td>6.800</td><td class="num">1</td></tr><tr><td>6.419</td><td class="num">1</td></tr></table><div class="sub">completa — desvio_padrao: 240,15 · q1: 69 · q3: 175 · iqr: 106 · pct_zeros: 0,000225 · pct_negativos: 0</div><div class="nota">Média supera a mediana: distribuição assimétrica à direita — a mediana representa melhor o caso típico, e a leitura em escala logarítmica ajuda</div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;nyc-airbnb/AB_NYC_2019.csv&quot;)
+maat.describe(df[[&#x27;price&#x27;]])[&quot;price&quot;]</pre>
+<h2>Depois: <code>overrides</code> declara cont&iacute;nua <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">Com o tipo declarado, a mesma coluna passa a entregar o resumo de cinco números e a tabela de extremos de valor — onde aparecem os 11 anúncios a preço 0 e as 3 diárias de 10.000 que a tabela de frequência escondia.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>nyc-airbnb/AB_NYC_2019.csv</b> &middot; coluna
+    <b>price</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="price">price</h2><div class="card"><span class="chip tipo">quantitative/continuous</span><span class="chip">n = 48.895</span><span class="chip">ausentes 0</span><div class="narrativa">A variável <strong>price</strong> é quantitativa contínua, observada em 48.895 registros, sem valores ausentes, variando de 0,00 a 10.000,00. A média (152,72) supera a mediana (106,00), indicando distribuição assimétrica à direita — valores extremos elevam a média, e a mediana representa melhor o caso típico. Pela regra de 1,5×IQR, 2.972 observações (6,1%) são atípicas.</div><div class="metricas"><div class="metrica"><b>0</b><span>MÍN</span></div><div class="metrica"><b>69</b><span>Q1</span></div><div class="metrica"><b>106</b><span>MEDIANA</span></div><div class="metrica"><b>152,72</b><span>MÉDIA</span></div><div class="metrica"><b>175</b><span>Q3</span></div><div class="metrica"><b>10.000</b><span>MÁX</span></div></div><table><tr><th>MAIORES VALORES</th><th>OCORRÊNCIAS</th></tr><tr><td>10.000</td><td class="num">3</td></tr><tr><td>9.999</td><td class="num">3</td></tr><tr><td>8.500</td><td class="num">1</td></tr><tr><td>8.000</td><td class="num">1</td></tr><tr><td>7.703</td><td class="num">1</td></tr></table><table><tr><th>MENORES VALORES</th><th>OCORRÊNCIAS</th></tr><tr><td>0</td><td class="num">11</td></tr><tr><td>10</td><td class="num">17</td></tr><tr><td>11</td><td class="num">3</td></tr><tr><td>12</td><td class="num">4</td></tr><tr><td>13</td><td class="num">1</td></tr></table><div class="sub">completa — p1: 30 · p5: 40 · p95: 355 · p99: 799 · desvio_padrao: 240,15 · iqr: 106 · cv: 1,573 · assimetria: 19,12 · curtose: 585,67 · atipicos_iqr: 2.972 · pct_atipicos_iqr: 0,06078 · criterio_atipicos: fora de [q1 − 1,5×IQR, q3 + 1,5×IQR]; descritivo, nunca veredito de erro</div><div class="nota">Média supera a mediana: distribuição assimétrica à direita — a mediana representa melhor o caso típico, e a leitura em escala logarítmica ajuda</div></div></div>
+</div>
+<pre class="repro">from maat.core.taxonomy import (VariableClass, VariableSubtype,
+                                VariableType)
+df = pd.read_csv(&quot;nyc-airbnb/AB_NYC_2019.csv&quot;)
+maat.describe(df[[&#x27;price&#x27;]], maat.Config(overrides={&quot;price&quot;: VariableType(
+        VariableClass.QUANTITATIVE, VariableSubtype.CONTINUOUS)}))[&quot;price&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>Contínuas reais do benchmark</h2>
 <div class="grid">

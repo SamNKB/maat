@@ -66,6 +66,42 @@
      background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -124,6 +160,19 @@
 
 <h2>Narrativa gerada <span class="tag">TOM ACAD&Ecirc;MICO</span></h2>
 <blockquote>A vari&aacute;vel <strong>education</strong> &eacute; qualitativa nominal, observada em 32.561 registros, sem valores ausentes, com 16 n&iacute;veis distintos. O n&iacute;vel mais frequente &eacute; <strong>HS-grad</strong> (10.501 registros; 32,3%).</blockquote>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">16 níveis cabem inteiros na tabela — é o que define o regime categórico. E este é o caso da ordinal disfarçada: a ordem entre Preschool e Doctorate existe para qualquer humano, mas o maat não a inventa. Ele registra a nota no rodapé e devolve a decisão a quem conhece o dado.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>adult-census/adult.csv</b> &middot; coluna
+    <b>education</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="education">education</h2><div class="card"><span class="chip tipo">qualitative/nominal[categorical]</span><span class="chip">n = 32.561</span><span class="chip">ausentes 0</span><div class="narrativa">A variável <strong>education</strong> é qualitativa nominal, observada em 32.561 registros, sem valores ausentes, com 16 níveis distintos. O nível mais frequente é <strong>HS-grad</strong> (10.501 registros; 32,3%).</div><table><tr><th>NÍVEL</th><th>ABSOLUTO</th><th>% VÁLIDOS</th></tr><tr><td>HS-grad</td><td class="num">10.501</td><td class="num">0,3225</td></tr><tr><td>Some-college</td><td class="num">7.291</td><td class="num">0,2239</td></tr><tr><td>Bachelors</td><td class="num">5.355</td><td class="num">0,1645</td></tr><tr><td>Masters</td><td class="num">1.723</td><td class="num">0,05292</td></tr><tr><td>Assoc-voc</td><td class="num">1.382</td><td class="num">0,04244</td></tr><tr><td>11th</td><td class="num">1.175</td><td class="num">0,03609</td></tr><tr><td>Assoc-acdm</td><td class="num">1.067</td><td class="num">0,03277</td></tr><tr><td>10th</td><td class="num">933</td><td class="num">0,02865</td></tr><tr><td>7th-8th</td><td class="num">646</td><td class="num">0,01984</td></tr><tr><td>Prof-school</td><td class="num">576</td><td class="num">0,01769</td></tr><tr><td>9th</td><td class="num">514</td><td class="num">0,01579</td></tr><tr><td>12th</td><td class="num">433</td><td class="num">0,0133</td></tr><tr><td>Doctorate</td><td class="num">413</td><td class="num">0,01268</td></tr><tr><td>5th-6th</td><td class="num">333</td><td class="num">0,01023</td></tr><tr><td>1st-4th</td><td class="num">168</td><td class="num">0,00516</td></tr><tr><td>Preschool</td><td class="num">51</td><td class="num">0,001566</td></tr></table><div class="sub">completa — entropia_normalizada: 0,7328 · desbalanceamento: 205,9</div><div class="nota">Possível ordinal: declare a ordem dos níveis para habilitar acumulada e categoria mediana</div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;adult-census/adult.csv&quot;)
+maat.describe(df[[&#x27;education&#x27;]])[&quot;education&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>Categ&oacute;ricas reais do benchmark</h2>
 <div class="grid">

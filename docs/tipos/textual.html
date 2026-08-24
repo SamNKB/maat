@@ -66,6 +66,42 @@
      background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -100,7 +136,7 @@
   <p class="muted">Cada checagem devolve contagem, % e <strong>amostra dos ofensores</strong> &mdash; a amostra &eacute; o que torna o achado acion&aacute;vel. Ocorr&ecirc;ncias medidas no benchmark:</p>
   <table>
     <tr><th>CHECAGEM</th><th>DETECTA</th><th>OCORR&Ecirc;NCIA REAL</th></tr>
-    <tr><td><code>espaco_borda</code></td><td>espa&ccedil;o no in&iacute;cio/fim</td><td class="num">238 nyc &middot; 188 SMS</td></tr>
+    <tr><td><code>espaco_borda</code></td><td>espa&ccedil;o no in&iacute;cio/fim</td><td class="num">237 nyc &middot; 188 SMS</td></tr>
     <tr><td><code>espaco_duplo</code></td><td>espa&ccedil;os consecutivos</td><td class="num">1.435 nyc &middot; 1.449 C&acirc;mara</td></tr>
     <tr><td><code>invisivel</code></td><td>zero-width, NBSP, BOM</td><td class="num">3 nyc</td></tr>
     <tr><td><code>nao_imprimivel</code></td><td>controle / lixo bin&aacute;rio</td><td class="num">&mdash;</td></tr>
@@ -116,6 +152,13 @@
     <tr><td><code>placeholder</code></td><td>preenchimento de teste (<code>asdasd</code>, <code>xxx</code>, <code>null</code>)</td><td class="num">1 nyc (<code>xxx</code>)</td></tr>
     <tr><td><code>misto_alfabeto</code></td><td>latino + cir&iacute;lico/grego</td><td class="num">3 nyc &middot; 13 google-play</td></tr>
   </table>
+  <p class="muted" style="border-left:2px solid var(--amber);padding-left:12px">
+    <strong style="color:var(--amber)">Como ler os n&uacute;meros da C&acirc;mara</strong> &mdash;
+    <code>txtFornecedor</code> tem k/n = 0,106 e cai em <strong>cauda longa</strong>, n&atilde;o em
+    textual: no roteamento padr&atilde;o a bateria n&atilde;o roda nele. Os 1.449, 312 e 2 vieram de
+    for&ccedil;ar o regime com <code>maat.Config(textual_unique_ratio=0.001)</code> &mdash; valem
+    como prova de que as checagens acham sujeira real, n&atilde;o como retrato do default nessa
+    coluna. Os n&uacute;meros do nyc, do SMS e do google-play s&atilde;o de roteamento padr&atilde;o.</p>
   <p class="muted"><strong>Extens&iacute;vel pelo usu&aacute;rio</strong> desde o MVP: registrar checagens pr&oacute;prias com <code>nome</code>, <code>regex</code> e <code>descri&ccedil;&atilde;o</code> em <code>textual_extra_checks</code>. A bateria embutida &eacute; o piso, n&atilde;o o teto.</p>
 </div>
 <div class="card warn">
@@ -143,6 +186,19 @@
   </table>
   <p class="muted"><strong>~11 &micro;s por string</strong>, linear. Testamos combinar tudo numa regex &uacute;nica: apenas 1,2&times; mais r&aacute;pido &mdash; n&atilde;o compensa a complexidade. No Spark o custo se dilui em paralelo. Reproduza com <code>python scripts/custo_bateria_textual.py</code>.</p>
 </div>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">98% dos valores são únicos, então contar frequência não diria nada e a string vira o objeto da análise. As sete checagens abaixo dispararam sobre títulos reais de anúncios — inclusive 3 casos de alfabeto misto e 1 placeholder, achados que nenhuma contagem de nível encontraria.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>nyc-airbnb/AB_NYC_2019.csv</b> &middot; coluna
+    <b>name</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="name">name</h2><div class="card"><span class="chip tipo">qualitative/nominal[textual]</span><span class="chip">n = 48.879</span><span class="chip">ausentes 16</span><div class="narrativa">A variável <strong>name</strong> é qualitativa nominal em regime textual, observada em 48.879 registros, com 16 valores ausentes (0,0%), com 47.905 valores distintos (98,0% únicos). O comprimento varia de 1 a 179 caracteres, com mediana 37. Entre as checagens de qualidade, <strong>espaco_duplo</strong> foi a mais frequente (1.435 registros; 2,9%).</div><div class="metricas"><div class="metrica"><b>1</b><span>MÍN CARACT.</span></div><div class="metrica"><b>37</b><span>MEDIANA</span></div><div class="metrica"><b>179</b><span>MÁX</span></div></div><div class="card check"><h3>Checagens que dispararam</h3><table><tr><th>CHECAGEM</th><th>n</th><th>%</th><th>CRITÉRIO</th></tr><tr><td>espaco_borda</td><td class='num'>237</td><td class='num'>0,004849</td><td>espaço no início ou fim</td></tr><tr><td>espaco_duplo</td><td class='num'>1.435</td><td class='num'>0,02936</td><td>espaços consecutivos</td></tr><tr><td>invisivel</td><td class='num'>3</td><td class='num'>0,00006138</td><td>zero-width, NBSP ou BOM</td></tr><tr><td>repeticao</td><td class='num'>92</td><td class='num'>0,001882</td><td>4 ou mais caracteres iguais seguidos</td></tr><tr><td>markdown</td><td class='num'>71</td><td class='num'>0,001453</td><td>sintaxe markdown</td></tr><tr><td>placeholder</td><td class='num'>1</td><td class='num'>0,00002046</td><td>preenchimento de teste ou vazio disfarçado</td></tr><tr><td>misto_alfabeto</td><td class='num'>3</td><td class='num'>0,00006138</td><td>alfabeto latino misturado com cirílico ou grego</td></tr></table></div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;nyc-airbnb/AB_NYC_2019.csv&quot;)
+maat.describe(df[[&#x27;name&#x27;]])[&quot;name&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>Textuais reais do benchmark</h2>
 <div class="grid">

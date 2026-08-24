@@ -158,6 +158,7 @@ Biblioteca de **análise descritiva de dados** sobre **pandas e PySpark** com a 
 - **Trava de números**: após reformular, validar que todos os números do original aparecem intactos; se mudou, descartar e usar o template com aviso.
 
 ### Documentação e identidade
+- **Exemplos de benchmark são saída real, nunca escrita à mão** *(2026-08-24, pedido do Sam)*: toda subpágina de tipo embute o output verdadeiro do `maat.describe()` para a coluna-exemplo, gerado por `scripts/gera_exemplos_reais.py`, com o comando que o reproduz. Motivo: a primeira geração expôs, na hora, três bugs de renderizador e quatro números publicados errados que as tabelas manuais escondiam. O que sobrou de escrito à mão é verificado por `scripts/verifica_numeros_doc.py` (22 afirmações recomputadas; divergência devolve status 1).
 - **Subpáginas por tipo e por regime** (aprovado), com selo de status, camadas, "fora por decisão" com porquês, narrativa de exemplo e galeria de casos reais do benchmark.
 - **Identidade Blade Runner**: void navy `#0A0E1A`, panel `#101828`, **neon cyan `#00E5FF` (a cor do maat)**, ice `#E6F7FF`; secundárias magenta `#FF2E88` (movimento/arestas), violet `#9D4EDD` (decisões), steel/mist (neutros); terciárias **só semânticas** — amber `#FFB03A` (aviso), mint `#3DF5C6` (sucesso), red `#FF4757` (erro).
 - **Fontes aprovadas**: Rajdhani (títulos/diagramas) + Space Grotesk (corpo) + JetBrains Mono (código/dados); Share Tech Mono como acento opcional.
@@ -191,11 +192,13 @@ Enfileiradas em vez de decididas sozinho, conforme combinado. Evidência complet
 
 ## 5b. Retomada — por onde começar na próxima sessão
 
-Duas frentes possíveis; o Sam escolhe:
+Estado em 2026-08-24: implementação fechada, 72 testes passando, documentação
+auditada e com exemplos gerados a partir da saída real. As frentes abertas:
 
-- **(a) Decisão madura na mesa**: o subtipo `rank`. O benchmark trouxe a evidência que faltava (`videogame-sales/Rank` k=16.598 e `world-happiness/Happiness.Rank` k=155 caem em "identificador" pelas regras atuais). Discussão curta, destrava a questão nº 8.
-- **(b) Continuar o design**: regime textual (§2.4) — mas **antes**, comparar item a item com a análise Unicode do ydata (`benchmarks/ydata/*.html`) para não reinventar. Ou temporal (§4), o tipo que motivou o projeto.
-- **(c) Implementar**: `core/inference.py` + `PandasBackend`, **em incrementos, com o Sam presente** (ver §1 — nunca em lote).
+- **(a) Fila da §4b** — cinco decisões esperando o Sam, sendo chaves estrangeiras a maior lacuna. É o caminho mais produtivo.
+- **(b) Contrato de LLM** — o Sam ainda está refletindo sobre o Qwen. Direção proposta e não decidida: contrato agnóstico texto→texto, com `numeros_preservados` travando os números fora do alcance do modelo. Marcado 🚧 em toda a documentação.
+- **(c) Visualizações (`viz/`)** — desenhadas na §2–§4, nunca implementadas. Cada tipo já declara o visual recomendado.
+- **(d) Bivariadas (§5)** — adiadas para o beta por decisão; falta o critério de seleção de pares.
 
 ## 6. Concorrência (levantada em 2026-08-16, medida em 2026-08-17)
 

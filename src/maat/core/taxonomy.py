@@ -118,3 +118,24 @@ class VariableType:
             self.warnings.append(
                 "Ordinal sem ordem declarada — análises de ordem ficarão indisponíveis"
             )
+
+
+# Tokens de granularidade temporal emitidos pelos backends. O token é o valor
+# estável do contrato (JSON/YAML); o rótulo é o que vai para olho humano —
+# sem o mapa, a narrativa escrevia "granularidade diaria" e "at diaria
+# granularity".
+GRANULARIDADE_LEGIVEL: dict[str, dict[str, str]] = {
+    "mensal": {"pt": "mensal", "en": "monthly"},
+    "diaria": {"pt": "diária", "en": "daily"},
+    "minuto": {"pt": "de minuto", "en": "minute"},
+    "segundo": {"pt": "de segundo", "en": "second"},
+    "com_hora": {"pt": "com hora", "en": "sub-daily"},
+}
+
+
+def granularidade_legivel(token: str | None, idioma: str = "pt-BR") -> str:
+    """Rótulo humano de um token de granularidade; devolve o token se não mapeado."""
+    if not token:
+        return "—"
+    chave = "en" if idioma == "en" else "pt"
+    return GRANULARIDADE_LEGIVEL.get(token, {}).get(chave, token)

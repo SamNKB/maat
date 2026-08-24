@@ -313,7 +313,7 @@ Cada checagem devolve contagem, % e uma **amostra dos ofensores** — a amostra 
 
 | Checagem | Detecta | Ocorrência real medida |
 |---|---|---|
-| `espaco_borda` | espaço no início/fim | 238 no `name` do nyc · 188 no SMS |
+| `espaco_borda` | espaço no início/fim | 237 no `name` do nyc · 188 no SMS |
 | `espaco_duplo` | espaços consecutivos | 1.435 no nyc · **1.449** nos fornecedores da Câmara |
 | `invisivel` | zero-width, NBSP, BOM | 3 no nyc — invisíveis ao olho, quebram joins |
 | `nao_imprimivel` | controle / lixo binário | — |
@@ -330,6 +330,8 @@ Cada checagem devolve contagem, % e uma **amostra dos ofensores** — a amostra 
 | `misto_alfabeto` | latino + cirílico/grego no mesmo valor | 3 no nyc · 13 no google-play |
 
 > O `markdown` disparando 71 vezes em **nomes de anúncio** e o CPF/CNPJ aparecendo em **campo de fornecedor** são exemplos do que a bateria existe para revelar: contaminação de um tipo de conteúdo em campo destinado a outro.
+
+> ⚠️ **Como ler os números da Câmara** (`espaco_duplo` 1.449, `html_residual` 312, `cpf_cnpj_mascara` 2): `txtFornecedor` tem k/n = 0,106 e por isso cai em **cauda longa**, não em textual — no roteamento padrão a bateria não roda nele. As medições acima vêm de forçar o regime (`maat.Config(textual_unique_ratio=0.001)`), e valem como evidência de que as checagens encontram sujeira real, não como retrato do que o maat devolve por default nessa coluna. Os números do nyc, do SMS e do google-play são de roteamento padrão.
 
 **Extensão pelo usuário** (decidida no MVP): registrar checagens próprias com `nome`, `regex` e `descrição` — a bateria embutida é o piso, não o teto.
 
@@ -408,7 +410,9 @@ Nota do regime histograma: valores negativos aparecem como fato no mín/máx e n
 
 > 🔍 **Página detalhada**: [tipos/continua.html](tipos/continua.html) ([versão pública](https://samnkb.github.io/maat/tipos/continua.html)), também via clique no nó do grafo interativo.
 
-Medições em escala real — o caso mais rico da estatística descritiva clássica. Protagonistas do benchmark: `MonthlyCharges` do telco (bem-comportada: assimetria -0,22, zero atípicos) e `price` do nyc-airbnb (selvagem: assimetria 19,1, máx 10.000, 11 anúncios a preço 0).
+Medições em escala real — o caso mais rico da estatística descritiva clássica. Protagonistas do benchmark: `MonthlyCharges` do telco (bem-comportada: assimetria -0,22, zero atípicos) e `price` do nyc-airbnb (selvagem: assimetria 19,12, máx 10.000, 11 anúncios a preço 0).
+
+> ⚠️ **Leia o `price` com esta ressalva**: por ser gravado em dólares inteiros, ele **não** cai aqui por padrão — a inferência o manda para discreta em regime histograma, e todos os números de `price` citados nesta seção só aparecem **depois** que o usuário declara o tipo. Ver a pegadinha registrada ao final da seção, e as duas saídas lado a lado (antes e depois do override) em [tipos/continua.html](tipos/continua.html).
 
 **Camada essencial** *(decisão de 2026-08-16)*: o **resumo de cinco números + média** — mínimo, q1, mediana, média, q3, máximo — mais o histograma e a **tabela de extremos de valor** (os 5 maiores e 5 menores valores observados, com contagem quando o valor se repete — no `price`: "0 (×11)" e "10.000 (×3)" aparecem sem nenhum jargão). Parâmetro: `continuous_extremes_levels` (default 5).
 
@@ -456,7 +460,7 @@ Decisão de 2026-08-17: entram os de **força alta**. Todos determinísticos e i
 | **Zeros à esquerda preservados** | o texto original começa com `0` seguido de dígito | número descarta zero à esquerda; sobreviver a isso prova que é código |
 | **Comprimento fixo** | todos os valores têm o mesmo nº de dígitos no texto | `CO_MUN`: sempre 7 · CNPJ: sempre 14 (18 com máscara) |
 | **Densidade** | `k / (máx − mín + 1)` | separa id **esparso** de denso: `nyc/id` = 0,0013 (2.539…36.487.245) e `stroke/id` = 0,0701, contra 1,0 de um rank |
-| **Monotonia máxima** | maior \|Spearman\| contra as demais colunas numéricas | `videogame/Rank` × `Global_Sales` = **−0,9996** · `happiness/Happiness.Rank` × `Happiness.Score` = **−1,0000** · `titanic/PassengerId` = 0,0695 |
+| **Monotonia máxima** | maior \|Spearman\| contra as demais colunas numéricas | `videogame/Rank` × `Global_Sales` = **−0,9996** · `happiness/Happiness.Rank` × `Happiness.Score` = **−1,0000** · `titanic/PassengerId` × `SibSp` = **−0,0612** (longe do piso de 0,99) |
 | **Razão de repetição** | `n / k` — linhas por valor distinto | `ideCadastro`: 391 → chave **estrangeira**, não primária |
 
 #### Rank: por que a monotonia decide, e o que isso custa

@@ -68,6 +68,42 @@
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
   td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -98,7 +134,7 @@
     <tr><td><strong>Zeros &agrave; esquerda</strong></td><td>texto original come&ccedil;a com <code>0</code> + d&iacute;gito</td><td>n&uacute;mero descarta zero &agrave; esquerda; sobreviver prova que &eacute; c&oacute;digo</td></tr>
     <tr><td><strong>Comprimento fixo</strong></td><td>todos os valores com o mesmo n&ordm; de d&iacute;gitos</td><td><code>CO_MUN</code>: sempre 7 &middot; CNPJ: sempre 14</td></tr>
     <tr><td><strong>Densidade</strong></td><td><code>k / (m&aacute;x &minus; m&iacute;n + 1)</code></td><td><code>nyc/id</code>: <strong>0,0013</strong> (2.539&hellip;36.487.245) &middot; <code>stroke/id</code>: 0,0701 &middot; rank: 1,0</td></tr>
-    <tr><td><strong>Monotonia m&aacute;xima</strong></td><td>maior |Spearman| contra as demais num&eacute;ricas</td><td><code>videogame/Rank</code>: <strong>&minus;0,9996</strong> &middot; <code>happiness/Happiness.Rank</code>: <strong>&minus;1,0000</strong> &middot; <code>titanic/PassengerId</code>: 0,0695</td></tr>
+    <tr><td><strong>Monotonia m&aacute;xima</strong></td><td>maior |Spearman| contra as demais num&eacute;ricas</td><td><code>videogame/Rank</code>: <strong>&minus;0,9996</strong> &middot; <code>happiness/Happiness.Rank</code>: <strong>&minus;1,0000</strong> &middot; <code>titanic/PassengerId</code>: &minus;0,0612 (vs <code>SibSp</code>)</td></tr>
     <tr><td><strong>Raz&atilde;o de repeti&ccedil;&atilde;o</strong></td><td><code>n / k</code> &mdash; linhas por valor distinto</td><td><code>ideCadastro</code>: <strong>391</strong> &rarr; chave estrangeira, n&atilde;o prim&aacute;ria</td></tr>
   </table>
 </div>
@@ -111,7 +147,7 @@
     <tr><td><code>videogame/Rank</code></td><td style="color:var(--mint)">rank</td><td class="num">1,00</td><td class="num">0,9999</td><td class="num">0,9996</td></tr>
     <tr><td><code>happiness/Happiness.Rank</code></td><td style="color:var(--mint)">rank</td><td class="num">1,00</td><td class="num">1,0000</td><td class="num">1,0000</td></tr>
     <tr><td><code>mall/CustomerID</code></td><td style="color:var(--amber)">id</td><td class="num">1,00</td><td class="num">1,0000</td><td class="num">0,9996</td></tr>
-    <tr><td><code>titanic/PassengerId</code></td><td style="color:var(--amber)">id</td><td class="num">1,00</td><td class="num">1,0000</td><td class="num">0,0695</td></tr>
+    <tr><td><code>titanic/PassengerId</code></td><td style="color:var(--amber)">id</td><td class="num">1,00</td><td class="num">1,0000</td><td class="num">0,0612</td></tr>
   </table>
   <p class="muted">A diferen&ccedil;a &eacute; <strong>sem&acirc;ntica, n&atilde;o estat&iacute;stica</strong>: um id sequencial num arquivo ordenado por renda <em>&eacute;</em>, matematicamente, um rank de renda. Testamos tamb&eacute;m a <strong>exatid&atilde;o</strong> (o rank reproduz o ranking da coluna base?) e ela falhou nos dois sentidos &mdash; rejeitou um rank verdadeiro (videogame: 3,9%, empates de vendas desempatados por outro crit&eacute;rio) e aceitou o falso positivo (mall: 100%).</p>
 </div>
@@ -122,6 +158,19 @@
   <blockquote><code>CustomerID</code> &mdash; rank de <strong>Annual Income (k$)</strong> (Spearman +0,9996)</blockquote>
   <p class="muted">O engano fica vis&iacute;vel na primeira leitura em vez de silencioso, e o usu&aacute;rio sobrescreve. &Eacute; o princ&iacute;pio "a infer&ecirc;ncia prop&otilde;e, o usu&aacute;rio disp&otilde;e" aplicado a um caso onde sabemos que a infer&ecirc;ncia erra.</p>
 </div>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">Colocação verdadeira. Rank e id sequencial têm assinatura estatística idêntica, então a classificação vem do vínculo monotônico com outra coluna — e o perfil <strong>sempre nomeia essa referência</strong> (aqui Global_Sales, Spearman −0,9996), justamente para um engano ficar visível na primeira leitura. Sem Global_Sales no recorte não há monotonia a detectar e a mesma coluna cairia como chave.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>videogame-sales/vgsales.csv</b> &middot; coluna
+    <b>Rank</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="Rank">Rank</h2><div class="card"><span class="chip tipo">qualitative/rank</span><span class="chip">n = 16.598</span><span class="chip">ausentes 0</span><span class="chip">colocação de Global_Sales (-0.9996)</span><div class="narrativa">A variável <strong>Rank</strong> é um rank (colocação), observada em 16.598 registros, sem valores ausentes, variando de 1 a 16.600, ordenando <strong>Global_Sales</strong>.</div><div class="metricas"><div class="metrica"><b>1</b><span>MÍN</span></div><div class="metrica"><b>4.151,25</b><span>Q1</span></div><div class="metrica"><b>8.300,5</b><span>MEDIANA</span></div><div class="metrica"><b>12.449,75</b><span>Q3</span></div><div class="metrica"><b>16.600</b><span>MÁX</span></div></div><div class="nota">Interpretado como colocação de &#x27;Global_Sales&#x27; (Spearman -0.9996). Se for uma chave, declare o tipo.</div><div class="nota">Rank e id sequencial têm assinatura estatística idêntica; classificado como rank por ser monotônico com &#x27;Global_Sales&#x27; (Spearman -0.9996)</div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;videogame-sales/vgsales.csv&quot;)
+maat.describe(df[[&#x27;Rank&#x27;, &#x27;Global_Sales&#x27;]])[&quot;Rank&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>N&atilde;o-quantidades reais do benchmark</h2>
 <div class="grid">

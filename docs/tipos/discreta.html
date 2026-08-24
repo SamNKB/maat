@@ -64,6 +64,42 @@
      background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:14.5px}
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -151,6 +187,19 @@
 <h2>Narrativa gerada <span class="tag">TOM ACADÊMICO</span></h2>
 <blockquote>A variável <strong>SibSp</strong> é quantitativa discreta, observada em 891 registros, sem valores ausentes, variando de 0 a 8. Predomina o valor 0 (608 registros; 68,2%), com média de 0,52 e mediana 0 — indicando concentração nos menores valores.</blockquote>
 <p class="muted">Template determinístico preenchido pelo perfil — números garantidos, sem LLM. Ver seção 7 do <a href="../fluxo-de-analises.md" style="color:var(--cyan)">fluxo de análises</a>.</p>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">Contagem de irmãos e cônjuges a bordo: 7 valores distintos, então o regime é tabela. E é a tabela que revela o buraco — não existe SibSp 6 nem 7, salta de 5 para 8 — que um histograma teria alisado para dentro de uma barra qualquer.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>titanic/Titanic-Dataset.csv</b> &middot; coluna
+    <b>SibSp</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="SibSp">SibSp</h2><div class="card"><span class="chip tipo">quantitative/discrete[table]</span><span class="chip">n = 891</span><span class="chip">ausentes 0</span><div class="narrativa">A variável <strong>SibSp</strong> é quantitativa discreta, observada em 891 registros, sem valores ausentes, variando de 0 a 8. Predomina o valor 0 (608 registros; 68,2%), com média 0,52 e mediana 0,00.</div><div class="metricas"><div class="metrica"><b>0</b><span>MÍN</span></div><div class="metrica"><b>0</b><span>MEDIANA</span></div><div class="metrica"><b>0,523</b><span>MÉDIA</span></div><div class="metrica"><b>8</b><span>MÁX</span></div></div><table><tr><th>VALOR</th><th>ABSOLUTO</th><th>% VÁLIDOS</th></tr><tr><td>0</td><td class="num">608</td><td class="num">0,6824</td></tr><tr><td>1</td><td class="num">209</td><td class="num">0,2346</td></tr><tr><td>2</td><td class="num">28</td><td class="num">0,03143</td></tr><tr><td>3</td><td class="num">16</td><td class="num">0,01796</td></tr><tr><td>4</td><td class="num">18</td><td class="num">0,0202</td></tr><tr><td>5</td><td class="num">5</td><td class="num">0,005612</td></tr><tr><td>8</td><td class="num">7</td><td class="num">0,007856</td></tr></table><div class="sub">completa — desvio_padrao: 1,103 · q1: 0 · q3: 1 · iqr: 1 · pct_zeros: 0,6824 · pct_negativos: 0</div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;titanic/Titanic-Dataset.csv&quot;)
+maat.describe(df[[&#x27;SibSp&#x27;]])[&quot;SibSp&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>Discretas reais do benchmark</h2>
 <div class="grid">

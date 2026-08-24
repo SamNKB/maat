@@ -68,6 +68,42 @@
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
   td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -135,6 +171,19 @@
   <p class="muted">Dura&ccedil;&otilde;es <strong>s&atilde;o</strong> quantitativas cont&iacute;nuas (4h &eacute; o dobro de 2h) e herdam toda a &sect;3.2. O que muda: <strong>unidade de exibi&ccedil;&atilde;o inteligente</strong> (s &rarr; min &rarr; h &rarr; dias), <strong>mediana como resumo principal</strong> (a distribui&ccedil;&atilde;o &eacute; quase sempre assim&eacute;trica &agrave; direita) e <strong>dura&ccedil;&otilde;es negativas reportadas como fato</strong> &mdash; contagem, % e amostra, nunca rotuladas como erro. Fim antes do in&iacute;cio pode ser estorno ou fuso mal aplicado; quem sabe &eacute; o usu&aacute;rio.</p>
   <p class="muted">Dura&ccedil;&atilde;o derivada de duas datas <strong>herda a incerteza da origem</strong>: se uma delas tem formato indecid&iacute;vel, a dura&ccedil;&atilde;o tamb&eacute;m fica suspensa.</p>
 </div>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">Data por extenso em texto ("September 25, 2021") com 10 ausentes. O maat reconhece o formato, mede a granularidade real e mostra o horizonte nos dois sentidos. Os intervalos sem registro contam a história do catálogo: 456 dias de silêncio entre 2008 e 2009, porque a Netflix quase não adicionava títulos antes de 2011.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>netflix/netflix_titles.csv</b> &middot; coluna
+    <b>date_added</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="date_added">date_added</h2><div class="card"><span class="chip tipo">temporal/instant</span><span class="chip">n = 8.797</span><span class="chip">ausentes 10</span><div class="narrativa">A variável <strong>date_added</strong> é temporal (instante), observada em 8.797 registros, com 10 valores ausentes (0,1%), cobrindo de 2008-01-01 a 2021-09-25 (5.016 dias), com granularidade diária.</div><div class="metricas"><div class="metrica"><b>2008-01-01</b><span>PRIMEIRA</span></div><div class="metrica"><b>2021-09-25</b><span>ÚLTIMA</span></div><div class="metrica"><b>5.016</b><span>DIAS</span></div><div class="metrica"><b>diária</b><span>GRANULARIDADE</span></div></div><table><tr><th>HORIZONTE</th><th>REGISTROS</th></tr><tr><td>passado &gt;10 anos</td><td class="num">322</td></tr></table><table><tr><th>SEM REGISTRO DE</th><th>ATÉ</th><th>DIAS</th></tr><tr><td>2008-02-04</td><td>2009-05-05</td><td class="num">456</td></tr><tr><td>2009-11-18</td><td>2010-11-01</td><td class="num">348</td></tr><tr><td>2012-02-21</td><td>2012-11-14</td><td class="num">267</td></tr><tr><td>2009-05-05</td><td>2009-11-18</td><td class="num">197</td></tr><tr><td>2010-11-01</td><td>2011-05-17</td><td class="num">197</td></tr></table></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;netflix/netflix_titles.csv&quot;)
+maat.describe(df[[&#x27;date_added&#x27;]])[&quot;date_added&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>Temporais reais do benchmark</h2>
 <div class="grid">

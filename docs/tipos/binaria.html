@@ -60,6 +60,42 @@
        background:rgba(61,245,198,.08); border-radius:4px; padding:1px 5px}
   footer{margin-top:44px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mist)}
   footer a{color:var(--cyan)}
+
+/* SAIDA-MAAT-CSS-INICIO */
+.saida-maat{border:1px solid var(--steel); border-radius:12px; margin:14px 0;
+  background:rgba(5,7,15,.55); overflow:hidden}
+.saida-maat .barra{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist);
+  background:rgba(0,229,255,.06); border-bottom:1px solid var(--steel); padding:7px 14px;
+  display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.saida-maat .barra b{color:var(--mint); font-weight:400}
+.saida-maat .corpo{padding:14px 16px}
+.saida-maat h2{font-family:'Rajdhani',sans-serif; font-size:19px; color:var(--cyan);
+  margin:0 0 8px; border:0; padding:0}
+.saida-maat .card{background:transparent; border:0; padding:0; margin:0}
+.saida-maat .chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  padding:2px 9px; border-radius:999px; border:1px solid var(--steel); color:var(--mist); margin:0 5px 8px 0}
+.saida-maat .chip.tipo{color:var(--cyan); border-color:var(--cyan)}
+.saida-maat .narrativa{border-left:2px solid var(--violet); padding:9px 14px; margin:10px 0;
+  background:rgba(157,78,221,.07); border-radius:0 8px 8px 0; font-size:13.5px}
+.saida-maat .metricas{display:flex; flex-wrap:wrap; gap:7px; margin:10px 0}
+.saida-maat .metrica{border:1px solid var(--steel); border-radius:8px; padding:6px 12px; text-align:center}
+.saida-maat .metrica b{display:block; font-family:'Rajdhani',sans-serif; font-size:17px;
+  font-weight:700; color:var(--cyan)}
+.saida-maat .metrica span{font-family:'JetBrains Mono',monospace; font-size:9.5px;
+  letter-spacing:1px; color:var(--mist)}
+.saida-maat table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0}
+.saida-maat th{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px;
+  color:var(--mist); text-align:left; padding:6px 8px; border-bottom:1px solid var(--steel)}
+.saida-maat td{padding:5px 8px; border-bottom:1px solid rgba(58,74,99,.3)}
+.saida-maat td.num{font-family:'JetBrains Mono',monospace; text-align:right}
+.saida-maat .check{border:1px solid rgba(255,176,58,.45); border-radius:10px; padding:10px 14px; margin:10px 0}
+.saida-maat .check h3{color:var(--amber); font-family:'Rajdhani',sans-serif; font-size:15px; margin-bottom:5px}
+.saida-maat .nota{color:var(--mist); font-size:12.5px; padding-left:14px; position:relative; margin:5px 0}
+.saida-maat .nota::before{content:"\25B8"; color:var(--magenta); position:absolute; left:0}
+.saida-maat .sub{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--mist); margin-top:8px}
+.repro{background:var(--navy); border:1px solid var(--steel); border-radius:8px; padding:11px 14px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mint); margin:0 0 6px}
+/* SAIDA-MAAT-CSS-FIM */
 </style>
 </head>
 <body>
@@ -103,6 +139,19 @@
   <div style="flex:1; min-width:240px"><div class="bar"><div class="b1" style="width:73.5%">No</div><div class="b2" style="width:26.5%">Yes</div></div>
   <p class="muted">Big number + barra única de proporção. Gráfico com duas barras é desperdício de tela.</p></div>
 </div>
+
+<!-- SAIDA-MAAT-INICIO -->
+<h2>A sa&iacute;da real do maat <span class="tag">RODADO NO BENCHMARK</span></h2>
+<p class="muted">O caso mais didático de binária: dois níveis em texto, sem ausentes, e desequilíbrio suficiente para a razão de balanceamento dizer algo — 2,77 para 1. Repare que a linha de ausentes aparece mesmo valendo zero: é proposital, porque a ausência de ausentes também é informação.</p>
+<div class="saida-maat">
+  <div class="barra"><span>fonte: <b>telco-churn/WA_Fn-UseC_-Telco-Customer-Churn.csv</b> &middot; coluna
+    <b>Churn</b></span><span>gerado por
+    <b>scripts/gera_exemplos_reais.py</b></span></div>
+  <div class="corpo"><h2 id="Churn">Churn</h2><div class="card"><span class="chip tipo">qualitative/binary</span><span class="chip">n = 7.043</span><span class="chip">ausentes 0</span><div class="narrativa">A variável <strong>Churn</strong> é qualitativa binária, observada em 7.043 registros, sem valores ausentes. O nível predominante é <strong>No</strong>, presente em 5.174 registros (73,5%), enquanto <strong>Yes</strong> corresponde a 1.869 registros (26,5%).</div><table><tr><th>NÍVEL</th><th>ABSOLUTO</th><th>% VÁLIDOS</th></tr><tr><td>No</td><td class="num">5.174</td><td class="num">0,7346</td></tr><tr><td>Yes</td><td class="num">1.869</td><td class="num">0,2654</td></tr><tr><td>—</td><td class="num">0</td><td class="num">—</td></tr></table><div class="sub">completa — nivel_dominante: No · razao_balanceamento: 2,768</div></div></div>
+</div>
+<pre class="repro">df = pd.read_csv(&quot;telco-churn/WA_Fn-UseC_-Telco-Customer-Churn.csv&quot;)
+maat.describe(df[[&#x27;Churn&#x27;]])[&quot;Churn&quot;]</pre>
+<!-- SAIDA-MAAT-FIM -->
 
 <h2>Binárias reais do benchmark <span class="tag">DIVERSIDADE DE CODIFICAÇÃO</span></h2>
 <p class="muted">A mesma natureza estatística, seis codificações diferentes — nenhuma delas errada:</p>

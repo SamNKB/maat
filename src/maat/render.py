@@ -10,11 +10,13 @@ sobre um perfil de coluna em regime textual (base = JSON indentado):
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, is_dataclass
 from enum import Enum
 from typing import Any
 
 from maat.core.profile import Camada, ColumnProfile, DatasetProfile
+from maat.core.taxonomy import granularidade_legivel
 
 
 def _limpa(valor: Any) -> Any:
@@ -111,13 +113,39 @@ def para_yaml(perfil: DatasetProfile, camada: Camada = "ambas") -> str:
 # --------------------------------------------------------------------------
 
 
+# Tabelas de frequência chegam com dois nomes de chave: as qualitativas falam
+# em "nivel", as quantitativas em "valor" — e a diferença é proposital, porque
+# um nível de categoria e um valor numérico não são a mesma coisa para quem lê
+# o JSON. Os renderizadores liam só "nivel", então a coluna saía vazia em todo
+# regime tabela numérico. Aqui decidimos a chave pela linha, não pelo tipo.
+_ROTULO = ("NÍVEL", "nivel")
+
+
+def _cabeca_nivel(linhas: list[dict], rotulo: str = "NÍVEL") -> tuple[str, str]:
+    """Escolhe a chave da 1ª coluna conforme o que a análise realmente emitiu."""
+    if linhas and "valor" in linhas[0]:
+        return ("VALOR" if rotulo == "NÍVEL" else "valor", "valor")
+    return (rotulo, "nivel")
+
+
 def _fmt(valor: Any) -> str:
     if valor is None:
         return "—"
     if isinstance(valor, bool):
         return "sim" if valor else "não"
     if isinstance(valor, float):
-        return f"{valor:,.4g}".replace(",", "·").replace(".", ",").replace("·", ".")
+        # 4 dígitos significativos com piso de 2 casas decimais. O `%.4g` puro
+        # arredondava 118,75 para 118,8 — apagando a distinção que a tabela de
+        # extremos existe para mostrar — e escrevia um máximo de 10.000 como
+        # "1e+04", notação que ninguém lê num relatório descritivo.
+        if valor.is_integer() and abs(valor) < 1e15:
+            return _fmt(int(valor))
+        magnitude = math.floor(math.log10(abs(valor))) if valor else 0
+        casas = max(2, 3 - magnitude)
+        texto = f"{valor:,.{casas}f}"
+        if "." in texto:
+            texto = texto.rstrip("0").rstrip(".")
+        return texto.replace(",", "·").replace(".", ",").replace("·", ".")
     if isinstance(valor, int):
         return f"{valor:,}".replace(",", ".")
     return str(valor)
@@ -177,12 +205,12 @@ def _coluna_markdown(c: ColumnProfile, camada: Camada) -> list[str]:
     e = c.essencial
     if e.get("tabela"):
         p.extend(_tabela_md(e["tabela"][:15],
-                            [("nível", "nivel"), ("absoluto", "absoluto"),
+                            [_cabeca_nivel(e["tabela"], "nível"), ("absoluto", "absoluto"),
                              ("% válidos", "pct_validos")]))
         p.append("")
     if e.get("tabela_ordenada"):
         p.extend(_tabela_md(e["tabela_ordenada"],
-                            [("nível", "nivel"), ("absoluto", "absoluto"),
+                            [_cabeca_nivel(e["tabela_ordenada"], "nível"), ("absoluto", "absoluto"),
                              ("% válidos", "pct_validos"),
                              ("% acumulado", "pct_acumulado")]))
         p.append("")
@@ -194,7 +222,25 @@ def _coluna_markdown(c: ColumnProfile, camada: Camada) -> list[str]:
         cob = e["cobertura"]
         p.append(f"- **cobertura**: {cob.get('minimo', '')[:10]} a "
                  f"{cob.get('maximo', '')[:10]} ({_fmt(cob.get('amplitude_dias'))} dias)")
-        p.append(f"- **granularidade**: {e.get('granularidade')}")
+        p.append("- **granularidade**: "
+                 + granularidade_legivel(e.get("granularidade")))
+    for chave, campo in (("extremos_valor", "ocorrencias"),
+                         ("extremos_frequencia", "absoluto")):
+        bloco = e.get(chave)
+        if not bloco:
+            continue
+        for lado in ("maiores", "mais_frequentes", "menores", "menos_frequentes"):
+            if bloco.get(lado):
+                p.append(f"- **{lado.replace('_', ' ')}**: " + " · ".join(
+                    f"{_fmt(x.get('valor'))} (×{_fmt(x.get(campo))})"
+                    for x in bloco[lado]))
+    if e.get("horizonte") and any(e["horizonte"].values()):
+        p.append("- **horizonte**: " + " · ".join(
+            f"{faixa} = {_fmt(qtd)}" for faixa, qtd in e["horizonte"].items() if qtd))
+    if e.get("gaps"):
+        g = e["gaps"][0]
+        p.append(f"- **maior intervalo sem registro**: {str(g.get('de', ''))[:10]} a "
+                 f"{str(g.get('ate', ''))[:10]} ({_fmt(g.get('dias'))} dias)")
     if e.get("concentracao"):
         for k, v in e["concentracao"].items():
             p.append(f"- **{k.replace('_', ' ')}**: {_fmt(v)}")
@@ -202,7 +248,9 @@ def _coluna_markdown(c: ColumnProfile, camada: Camada) -> list[str]:
         comp = e["comprimento"]
         p.append(f"- **comprimento**: mín {_fmt(comp.get('min'))} · mediana "
                  f"{_fmt(comp.get('mediana'))} · máx {_fmt(comp.get('max'))}")
-    if any(k in e for k in ("min", "cobertura", "concentracao", "comprimento")):
+    if any(k in e for k in ("min", "cobertura", "concentracao", "comprimento",
+                            "horizonte", "gaps", "extremos_valor",
+                            "extremos_frequencia")):
         p.append("")
 
     if c.checks:
@@ -350,12 +398,80 @@ def _coluna_html(c: ColumnProfile, camada: Camada) -> list[str]:
                      f"<span>{rotulo}</span></div>")
         p.append("</div>")
 
+    # O HTML só conhecia métricas numéricas e tabela de frequência, então todo
+    # o miolo da análise temporal (cobertura, horizonte, gaps) saía do relatório
+    # sem deixar rastro — justamente o tipo com a análise mais rica.
+    if e.get("cobertura"):
+        cob = e["cobertura"]
+        p.append('<div class="metricas">'
+                 f'<div class="metrica"><b>{_esc(str(cob.get("minimo", ""))[:10])}</b>'
+                 "<span>PRIMEIRA</span></div>"
+                 f'<div class="metrica"><b>{_esc(str(cob.get("maximo", ""))[:10])}</b>'
+                 "<span>ÚLTIMA</span></div>"
+                 f'<div class="metrica"><b>{_fmt(cob.get("amplitude_dias"))}</b>'
+                 "<span>DIAS</span></div>"
+                 f'<div class="metrica"><b>{_esc(granularidade_legivel(e.get("granularidade")))}</b>'
+                 "<span>GRANULARIDADE</span></div></div>")
+
+    if e.get("comprimento"):
+        comp = e["comprimento"]
+        p.append('<div class="metricas">' + "".join(
+            f'<div class="metrica"><b>{_fmt(comp.get(k))}</b><span>{r}</span></div>'
+            for k, r in (("min", "MÍN CARACT."), ("mediana", "MEDIANA"), ("max", "MÁX"))
+            if k in comp) + "</div>")
+
+    if e.get("horizonte") and any(e["horizonte"].values()):
+        p.append('<table><tr><th>HORIZONTE</th><th>REGISTROS</th></tr>')
+        for faixa, qtd in e["horizonte"].items():
+            if qtd:
+                p.append(f"<tr><td>{_esc(faixa)}</td>"
+                         f'<td class="num">{_fmt(qtd)}</td></tr>')
+        p.append("</table>")
+
+    if e.get("gaps"):
+        p.append("<table><tr><th>SEM REGISTRO DE</th><th>ATÉ</th>"
+                 "<th>DIAS</th></tr>")
+        for g in e["gaps"][:5]:
+            p.append(f'<tr><td>{_esc(str(g.get("de", ""))[:10])}</td>'
+                     f'<td>{_esc(str(g.get("ate", ""))[:10])}</td>'
+                     f'<td class="num">{_fmt(g.get("dias"))}</td></tr>')
+        p.append("</table>")
+
+    # As tabelas de extremos são o destaque da camada essencial nos regimes
+    # numéricos (§3.1 e §3.2) e não eram renderizadas em nenhuma das saídas.
+    for chave, titulos in (
+        ("extremos_valor", ("MAIORES VALORES", "MENORES VALORES",
+                            "ocorrencias", "OCORRÊNCIAS")),
+        ("extremos_frequencia", ("MAIS FREQUENTES", "MENOS FREQUENTES",
+                                 "absoluto", "REGISTROS")),
+    ):
+        bloco = e.get(chave)
+        if not bloco:
+            continue
+        campo, rotulo_campo = titulos[2], titulos[3]
+        for lado, titulo in (("maiores", titulos[0]), ("mais_frequentes", titulos[0]),
+                             ("menores", titulos[1]), ("menos_frequentes", titulos[1])):
+            linhas = bloco.get(lado)
+            if not linhas:
+                continue
+            p.append(f"<table><tr><th>{titulo}</th><th>{rotulo_campo}</th></tr>")
+            for linha in linhas:
+                p.append(f'<tr><td>{_esc(_fmt(linha.get("valor")))}</td>'
+                         f'<td class="num">{_fmt(linha.get(campo))}</td></tr>')
+            p.append("</table>")
+
+    if e.get("concentracao"):
+        p.append('<div class="sub">' + " · ".join(
+            f"{k.replace('_', ' ')}: {_fmt(v)}" for k, v in e["concentracao"].items())
+            + "</div>")
+
     for chave, colunas in (
-        ("tabela", [("NÍVEL", "nivel"), ("ABSOLUTO", "absoluto"), ("% VÁLIDOS", "pct_validos")]),
-        ("tabela_ordenada", [("NÍVEL", "nivel"), ("ABSOLUTO", "absoluto"),
+        ("tabela", [_ROTULO, ("ABSOLUTO", "absoluto"), ("% VÁLIDOS", "pct_validos")]),
+        ("tabela_ordenada", [_ROTULO, ("ABSOLUTO", "absoluto"),
                              ("% VÁLIDOS", "pct_validos"), ("% ACUMULADO", "pct_acumulado")]),
     ):
         if e.get(chave):
+            colunas = [_cabeca_nivel(e[chave]), *colunas[1:]]
             p.append("<table><tr>" + "".join(f"<th>{t}</th>" for t, _ in colunas) + "</tr>")
             for linha in e[chave][:20]:
                 p.append("<tr>" + "".join(
